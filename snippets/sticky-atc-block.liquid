@@ -185,312 +185,320 @@
   </div>
 </sticky-atc>
 
-<style>
-  #sticky-atc-{{ section.id }} [data-sticky-app-rating] {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-  }
-
-  #sticky-atc-{{ section.id }} .sticky-app-rating__content {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    min-width: 0;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  #sticky-atc-{{ section.id }} .sticky-app-rating__stars {
-    display: inline-flex;
-    align-items: center;
-    gap: 1px;
-    flex: 0 0 auto;
-    line-height: 1;
-  }
-
-  #sticky-atc-{{ section.id }} .sticky-app-rating__star {
-    --star-fill: 0%;
-    position: relative;
-    display: inline-block;
-    color: rgba(var(--color-foreground), 0.28);
-    font-size: var(--sticky-app-star-size, 14px);
-    line-height: 1;
-  }
-
-  #sticky-atc-{{ section.id }} .sticky-app-rating__star::before {
-    content: '★';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: var(--star-fill);
-    overflow: hidden;
-    color: var(--sticky-app-star-color, var(--sticky-star-color));
-    white-space: nowrap;
-  }
-
-  #sticky-atc-{{ section.id }} .sticky-app-rating__count {
-    white-space: nowrap;
-  }
-
-  #sticky-atc-{{ section.id }} [data-sticky-app-rating].is-synced > [data-sticky-rating-fallback] {
-    display: none;
-  }
-</style>
-
-<script>
-  (() => {
-    const stickyId = 'sticky-atc-{{ section.id }}';
-    const sourceRootId = 'ProductInfo-{{ section.id }}';
-
-    const toNumber = (value) => {
-      if (value === null || value === undefined || value === '') return null;
-
-      const parsed = Number.parseFloat(
-        String(value)
-          .replace(',', '.')
-          .replace(/[^\d.-]/g, '')
-      );
-
-      return Number.isFinite(parsed) ? parsed : null;
-    };
-
-    const findSource = (sourceRoot) => {
-      return (
-        sourceRoot.querySelector(
-          '.jdgm-widget.jdgm-preview-badge .jdgm-prev-badge'
-        ) ||
-        sourceRoot.querySelector('.jdgm-preview-badge .jdgm-prev-badge') ||
-        sourceRoot.querySelector('.jdgm-prev-badge')
-      );
-    };
-
-    const getWidget = (source) => {
-      return (
-        source.closest('.jdgm-preview-badge') ||
-        source.closest('.jdgm-widget') ||
-        source.parentElement
-      );
-    };
-
-    const getRating = (source) => {
-      const widget = getWidget(source);
-      const scoreElement = source.querySelector(
-        '.jdgm-prev-badge__stars[data-score], [data-score]'
-      );
-
-      /*
-       * Judge.me có thể render đủ 5 ký tự sao ngay cả khi điểm là 4.8.
-       * Vì vậy luôn ưu tiên điểm số trong data-score / data-average-rating,
-       * không suy ra điểm chỉ bằng số lượng icon đang bật.
-       */
-      const candidates = [
-        scoreElement?.dataset?.score,
-        source.getAttribute('data-average-rating'),
-        widget?.getAttribute('data-average-rating'),
-        scoreElement?.getAttribute('aria-label'),
-        source.getAttribute('aria-label')
-      ];
-
-      for (const candidate of candidates) {
-        const rating = toNumber(candidate);
-
-        if (rating !== null) {
-          return Math.max(0, Math.min(5, rating));
-        }
-      }
-
-      const onStars = source.querySelectorAll('.jdgm-star.jdgm--on').length;
-      const halfStars = source.querySelectorAll('.jdgm-star.jdgm--half').length;
-
-      if (onStars || halfStars) {
-        return Math.min(5, onStars + halfStars * 0.5);
-      }
-
-      return null;
-    };
-
-    const getReviewCountText = (source) => {
-      const widget = getWidget(source);
-      const textElement = source.querySelector('.jdgm-prev-badge__text');
-
-      if (textElement?.textContent?.trim()) {
-        return textElement.textContent.trim();
-      }
-
-      const count =
-        source.dataset.numberOfReviews ||
-        widget?.dataset?.numberOfReviews;
-
-      if (count !== undefined && count !== null && count !== '') {
-        return `${count} reviews`;
-      }
-
-      return '';
-    };
-
-    const getStarAppearance = (source) => {
-      const onStar =
-        source.querySelector('.jdgm-star.jdgm--on') ||
-        source.querySelector('.jdgm-star');
-
-      const onStyle = onStar ? window.getComputedStyle(onStar) : null;
-
-      return {
-        color: onStyle?.color || '{{ block.settings.star_color }}',
-        fontSize: onStyle?.fontSize || '14px'
-      };
-    };
-
-    const buildRating = (rating, countText, appearance) => {
-      const content = document.createElement('span');
-      content.className = 'sticky-app-rating__content';
-      content.setAttribute('role', 'button');
-      content.setAttribute('tabindex', '0');
-      content.setAttribute(
-        'aria-label',
-        `${rating.toFixed(1)} out of 5 stars${countText ? `, ${countText}` : ''}`
-      );
-
-      content.style.setProperty('--sticky-app-star-color', appearance.color);
-      content.style.setProperty('--sticky-app-star-size', appearance.fontSize);
-
-      const stars = document.createElement('span');
-      stars.className = 'sticky-app-rating__stars';
-      stars.setAttribute('aria-hidden', 'true');
-
-      for (let index = 0; index < 5; index += 1) {
-        const star = document.createElement('span');
-        star.className = 'sticky-app-rating__star';
-        star.textContent = '★';
-
-        const fill = Math.max(0, Math.min(1, rating - index)) * 100;
-        star.style.setProperty('--star-fill', `${fill}%`);
-
-        stars.appendChild(star);
-      }
-
-      content.appendChild(stars);
-
-      if (countText) {
-        const count = document.createElement('span');
-        count.className = 'sticky-app-rating__count';
-        count.textContent = countText;
-        content.appendChild(count);
-      }
-
-      return content;
-    };
-
-    const activateSource = (source) => {
-      const sourceControl = source.matches('a, button, [role="button"]')
-        ? source
-        : source.querySelector('a, button, [role="button"]');
-
-      if (sourceControl) {
-        sourceControl.click();
-        return;
-      }
-
-      source.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    };
-
-    const initStickyRatingSync = () => {
-      const sticky = document.getElementById(stickyId);
-      const sourceRoot = document.getElementById(sourceRootId);
-      const target = sticky?.querySelector('[data-sticky-app-rating]');
-
-      if (!sticky || !sourceRoot || !target) return;
-
-      if (sticky._judgeMeRatingObserver) {
-        sticky._judgeMeRatingObserver.disconnect();
-      }
-
-      let currentSource = null;
-
-      const syncRating = () => {
-        const source = findSource(sourceRoot);
-        if (!source) return false;
-
-        const rating = getRating(source);
-        if (rating === null) return false;
-
-        const countText = getReviewCountText(source);
-        const appearance = getStarAppearance(source);
-        const signature = [
-          rating,
-          countText,
-          appearance.color,
-          appearance.fontSize
-        ].join('|');
-
-        if (target.dataset.ratingSignature === signature) {
-          currentSource = source;
-          return true;
-        }
-
-        const renderedRating = buildRating(
-          rating,
-          countText,
-          appearance
-        );
-
-        target.replaceChildren(renderedRating);
-        target.dataset.ratingSignature = signature;
-        target.classList.add('is-synced');
-        currentSource = source;
-
-        const openSource = (event) => {
-          event.preventDefault();
-          activateSource(currentSource || source);
-        };
-
-        renderedRating.addEventListener('click', openSource);
-        renderedRating.addEventListener('keydown', (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            openSource(event);
-          }
-        });
-
-        return true;
-      };
-
-      syncRating();
-
-      const observer = new MutationObserver(() => {
-        window.requestAnimationFrame(syncRating);
-      });
-
-      observer.observe(sourceRoot, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        characterData: true
-      });
-
-      sticky._judgeMeRatingObserver = observer;
-
-      let attempts = 0;
-      const retryTimer = window.setInterval(() => {
-        attempts += 1;
-
-        if (syncRating() || attempts >= 30) {
-          window.clearInterval(retryTimer);
-        }
-      }, 500);
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initStickyRatingSync, {
-        once: true
-      });
-    } else {
-      initStickyRatingSync();
+{% if block.settings.desktop_rating_stars or block.settings.mobile_rating_stars %}
+  <style>
+    #sticky-atc-{{ section.id }} [data-sticky-app-rating] {
+      display: flex;
+      align-items: center;
+      min-width: 0;
     }
 
-    document.addEventListener('shopify:section:load', initStickyRatingSync);
-  })();
-</script>
+    #sticky-atc-{{ section.id }} .sticky-app-rating__content {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      color: inherit;
+      cursor: pointer;
+    }
 
+    #sticky-atc-{{ section.id }} .sticky-app-rating__stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 1px;
+      flex: 0 0 auto;
+      line-height: 1;
+    }
+
+    #sticky-atc-{{ section.id }} .sticky-app-rating__star {
+      --star-fill: 0%;
+      position: relative;
+      display: inline-block;
+      color: rgba(var(--color-foreground), 0.28);
+      font-size: var(--sticky-app-star-size, 14px);
+      line-height: 1;
+    }
+
+    #sticky-atc-{{ section.id }} .sticky-app-rating__star::before {
+      content: '★';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--star-fill);
+      overflow: hidden;
+      color: var(--sticky-app-star-color, var(--sticky-star-color));
+      white-space: nowrap;
+    }
+
+    #sticky-atc-{{ section.id }} .sticky-app-rating__count {
+      white-space: nowrap;
+    }
+
+    #sticky-atc-{{ section.id }} [data-sticky-app-rating].is-synced > [data-sticky-rating-fallback] {
+      display: none;
+    }
+  </style>
+
+  <script>
+    (() => {
+      const stickyId = 'sticky-atc-{{ section.id }}';
+      const sourceRootId = 'ProductInfo-{{ section.id }}';
+
+      const toNumber = (value) => {
+        if (value === null || value === undefined || value === '') return null;
+
+        const parsed = Number.parseFloat(
+          String(value)
+            .replace(',', '.')
+            .replace(/[^\d.-]/g, '')
+        );
+
+        return Number.isFinite(parsed) ? parsed : null;
+      };
+
+      const findSource = (sourceRoot) => {
+        return (
+          sourceRoot.querySelector(
+            '.jdgm-widget.jdgm-preview-badge .jdgm-prev-badge'
+          ) ||
+          sourceRoot.querySelector('.jdgm-preview-badge .jdgm-prev-badge') ||
+          sourceRoot.querySelector('.jdgm-prev-badge')
+        );
+      };
+
+      const getWidget = (source) => {
+        return (
+          source.closest('.jdgm-preview-badge') ||
+          source.closest('.jdgm-widget') ||
+          source.parentElement
+        );
+      };
+
+      const getRating = (source) => {
+        const widget = getWidget(source);
+        const scoreElement = source.querySelector(
+          '.jdgm-prev-badge__stars[data-score], [data-score]'
+        );
+
+        const candidates = [
+          scoreElement?.dataset?.score,
+          source.getAttribute('data-average-rating'),
+          widget?.getAttribute('data-average-rating'),
+          scoreElement?.getAttribute('aria-label'),
+          source.getAttribute('aria-label')
+        ];
+
+        for (const candidate of candidates) {
+          const rating = toNumber(candidate);
+
+          if (rating !== null) {
+            return Math.max(0, Math.min(5, rating));
+          }
+        }
+
+        const onStars = source.querySelectorAll('.jdgm-star.jdgm--on').length;
+        const halfStars = source.querySelectorAll('.jdgm-star.jdgm--half').length;
+
+        if (onStars || halfStars) {
+          return Math.min(5, onStars + halfStars * 0.5);
+        }
+
+        return null;
+      };
+
+      const getReviewCountText = (source) => {
+        const widget = getWidget(source);
+        const textElement = source.querySelector('.jdgm-prev-badge__text');
+
+        if (textElement?.textContent?.trim()) {
+          return textElement.textContent.trim();
+        }
+
+        const count =
+          source.dataset.numberOfReviews ||
+          widget?.dataset?.numberOfReviews;
+
+        if (count !== undefined && count !== null && count !== '') {
+          return `${count} reviews`;
+        }
+
+        return '';
+      };
+
+      const getStarAppearance = (source) => {
+        const onStar =
+          source.querySelector('.jdgm-star.jdgm--on') ||
+          source.querySelector('.jdgm-star');
+
+        const onStyle = onStar ? window.getComputedStyle(onStar) : null;
+
+        return {
+          color: onStyle?.color || '{{ block.settings.star_color }}',
+          fontSize: onStyle?.fontSize || '14px'
+        };
+      };
+
+      const buildRating = (rating, countText, appearance) => {
+        const content = document.createElement('span');
+        content.className = 'sticky-app-rating__content';
+        content.setAttribute('role', 'button');
+        content.setAttribute('tabindex', '0');
+        content.setAttribute(
+          'aria-label',
+          `${rating.toFixed(1)} out of 5 stars${countText ? `, ${countText}` : ''}`
+        );
+
+        content.style.setProperty('--sticky-app-star-color', appearance.color);
+        content.style.setProperty('--sticky-app-star-size', appearance.fontSize);
+
+        const stars = document.createElement('span');
+        stars.className = 'sticky-app-rating__stars';
+        stars.setAttribute('aria-hidden', 'true');
+
+        for (let index = 0; index < 5; index += 1) {
+          const star = document.createElement('span');
+          star.className = 'sticky-app-rating__star';
+          star.textContent = '★';
+
+          const fill = Math.max(0, Math.min(1, rating - index)) * 100;
+          star.style.setProperty('--star-fill', `${fill}%`);
+          stars.appendChild(star);
+        }
+
+        content.appendChild(stars);
+
+        if (countText) {
+          const count = document.createElement('span');
+          count.className = 'sticky-app-rating__count';
+          count.textContent = countText;
+          content.appendChild(count);
+        }
+
+        return content;
+      };
+
+      const activateSource = (source) => {
+        const sourceControl = source.matches('a, button, [role="button"]')
+          ? source
+          : source.querySelector('a, button, [role="button"]');
+
+        if (sourceControl) {
+          sourceControl.click();
+          return;
+        }
+
+        source.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
+
+      const initStickyRatingSync = () => {
+        const sticky = document.getElementById(stickyId);
+        const sourceRoot = document.getElementById(sourceRootId);
+        const target = sticky?.querySelector('[data-sticky-app-rating]');
+
+        if (!sticky || !sourceRoot || !target) return;
+
+        if (sticky._judgeMeRatingObserver) {
+          sticky._judgeMeRatingObserver.disconnect();
+          sticky._judgeMeRatingObserver = null;
+        }
+
+        let currentSource = null;
+
+        const syncRating = () => {
+          const source = findSource(sourceRoot);
+          if (!source) return false;
+
+          const rating = getRating(source);
+          if (rating === null) return false;
+
+          const countText = getReviewCountText(source);
+          const appearance = getStarAppearance(source);
+          const signature = [
+            rating,
+            countText,
+            appearance.color,
+            appearance.fontSize
+          ].join('|');
+
+          if (target.dataset.ratingSignature === signature) {
+            currentSource = source;
+            return true;
+          }
+
+          const renderedRating = buildRating(rating, countText, appearance);
+
+          target.replaceChildren(renderedRating);
+          target.dataset.ratingSignature = signature;
+          target.classList.add('is-synced');
+          currentSource = source;
+
+          const openSource = (event) => {
+            event.preventDefault();
+            activateSource(currentSource || source);
+          };
+
+          renderedRating.addEventListener('click', openSource);
+          renderedRating.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              openSource(event);
+            }
+          });
+
+          return true;
+        };
+
+        if (syncRating()) return;
+
+        const initialSource = findSource(sourceRoot);
+        const observeTarget = initialSource || sourceRoot;
+        const observeOptions = initialSource
+          ? {
+              childList: true,
+              subtree: true,
+              attributes: true,
+              characterData: true
+            }
+          : {
+              childList: true,
+              subtree: true
+            };
+
+        let frameId = 0;
+        const observer = new MutationObserver(() => {
+          if (frameId) return;
+
+          frameId = window.requestAnimationFrame(() => {
+            frameId = 0;
+
+            if (syncRating()) {
+              observer.disconnect();
+              sticky._judgeMeRatingObserver = null;
+            }
+          });
+        });
+
+        observer.observe(observeTarget, observeOptions);
+        sticky._judgeMeRatingObserver = observer;
+      };
+
+      const scheduleStickyRatingSync = () => {
+        const run = () => initStickyRatingSync();
+
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(run, { timeout: 1200 });
+        } else {
+          window.setTimeout(run, 250);
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scheduleStickyRatingSync, {
+          once: true
+        });
+      } else {
+        scheduleStickyRatingSync();
+      }
+
+      document.addEventListener('shopify:section:load', scheduleStickyRatingSync);
+    })();
+  </script>
+{% endif %}
