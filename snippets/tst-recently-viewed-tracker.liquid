@@ -23,6 +23,19 @@
       content-visibility: auto;
       contain-intrinsic-size: auto 800px;
     }
+
+    @media screen and (max-width: 749px) {
+      [id^='MainProduct-'] .tst-product-sale-badge,
+      [id^='MainProduct-'] .tst-product-sale-badge::after,
+      [id^='MainProduct-'] .tst-product-sale-badge__spark,
+      [id^='TSTStickyATC-'] .price__badge-sale,
+      [id^='TSTStickyATC-'] .price__badge-sale::after,
+      [id^='TSTStickyATC-'] .tst-product-sale-badge,
+      [id^='TSTStickyATC-'] .tst-product-sale-badge::after {
+        animation: none !important;
+        filter: none !important;
+      }
+    }
   </style>
 
   {%- capture tst_recent_card_html -%}
