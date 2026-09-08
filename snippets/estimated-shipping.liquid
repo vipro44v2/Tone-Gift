@@ -14,11 +14,12 @@
     <div class="shrine-estimated-shipping__icon shrine-estimated-shipping__icon--{{ block.settings.icon_size }}" aria-hidden="true">
       {% if block.settings.custom_icon != blank %}
         <img
-          src="{{ block.settings.custom_icon | image_url: width: 150 }}"
+          src="{{ block.settings.custom_icon | image_url: width: 64 }}"
           alt=""
-          width="150"
-          height="{{ 150 | divided_by: block.settings.custom_icon.aspect_ratio | round }}"
+          width="64"
+          height="{{ 64 | divided_by: block.settings.custom_icon.aspect_ratio | round }}"
           loading="lazy"
+          decoding="async"
         >
       {% else %}
         {% render 'performance-icon', icon: performance_icon %}
