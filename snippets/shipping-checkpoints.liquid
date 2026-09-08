@@ -75,6 +75,7 @@
           data-text="{{ top_text | escape }}"
           data-min-days="{{ min_days }}"
           data-max-days="{{ max_days }}"
+          {% if top_text contains '[start_date]' or top_text contains '[end_date]' %}style="min-height: 3rem;"{% endif %}
         >
           {{ top_text | replace: '[start_date]', '-' | replace: '[end_date]', '-' }}
         </p>
@@ -84,6 +85,7 @@
           data-text="{{ bottom_text | escape }}"
           data-min-days="{{ min_days }}"
           data-max-days="{{ max_days }}"
+          {% if bottom_text contains '[start_date]' or bottom_text contains '[end_date]' %}style="min-height: 3rem;"{% endif %}
         >
           {{ bottom_text | replace: '[start_date]', '-' | replace: '[end_date]', '-' }}
         </p>
