@@ -1,24 +1,57 @@
 {%- if icon != blank -%}
-  <span
-    class="material-symbols-outlined shrine-material-icon"
-    aria-hidden="true"
-  >
-    {{ icon | strip }}
-  </span>
+  {%- assign performance_icon_name = icon | strip -%}
 
-  <script>
-    (() => {
-      const stylesheetId = 'tst-material-symbols-stylesheet';
+  {%- case performance_icon_name -%}
+    {%- when 'add_shopping_cart' -%}
+      <span class="shrine-material-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">
+          <circle cx="9" cy="20" r="1"></circle>
+          <circle cx="18" cy="20" r="1"></circle>
+          <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H7"></path>
+          <path d="M15 3v5M12.5 5.5h5"></path>
+        </svg>
+      </span>
+    {%- when 'local_shipping' -%}
+      <span class="shrine-material-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">
+          <path d="M3 6h11v9H3z"></path>
+          <path d="M14 9h3.5l3 3v3H14z"></path>
+          <circle cx="7" cy="18" r="2"></circle>
+          <circle cx="18" cy="18" r="2"></circle>
+        </svg>
+      </span>
+    {%- when 'redeem' -%}
+      <span class="shrine-material-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">
+          <path d="M4 10h16v10H4z"></path>
+          <path d="M3 7h18v3H3z"></path>
+          <path d="M12 7v13"></path>
+          <path d="M12 7H8.5a2.5 2.5 0 1 1 2.5-2.5V7"></path>
+          <path d="M12 7h3.5A2.5 2.5 0 1 0 13 4.5V7"></path>
+        </svg>
+      </span>
+    {%- else -%}
+      <span
+        class="material-symbols-outlined shrine-material-icon"
+        aria-hidden="true"
+      >
+        {{ performance_icon_name }}
+      </span>
 
-      if (document.getElementById(stylesheetId)) {
-        return;
-      }
+      <script>
+        (() => {
+          const stylesheetId = 'tst-material-symbols-stylesheet';
 
-      const stylesheet = document.createElement('link');
-      stylesheet.id = stylesheetId;
-      stylesheet.rel = 'stylesheet';
-      stylesheet.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0';
-      document.head.appendChild(stylesheet);
-    })();
-  </script>
+          if (document.getElementById(stylesheetId)) {
+            return;
+          }
+
+          const stylesheet = document.createElement('link');
+          stylesheet.id = stylesheetId;
+          stylesheet.rel = 'stylesheet';
+          stylesheet.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0';
+          document.head.appendChild(stylesheet);
+        })();
+      </script>
+  {%- endcase -%}
 {%- endif -%}
