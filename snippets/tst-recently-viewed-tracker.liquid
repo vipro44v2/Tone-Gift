@@ -24,6 +24,14 @@
       contain-intrinsic-size: auto 800px;
     }
 
+    .scroll-trigger,
+    .animate--slide-in,
+    .animate--fade-in {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+
     @media screen and (max-width: 749px) {
       [id^='MainProduct-'] .tst-product-sale-badge,
       [id^='MainProduct-'] .tst-product-sale-badge::after,
@@ -63,6 +71,25 @@
         cardHtml: {{ tst_recent_card_html | strip | json }},
         viewedAt: Date.now()
       };
+
+      const disableProductRevealAnimations = () => {
+        document.querySelectorAll('.scroll-trigger').forEach((element) => {
+          element.classList.remove(
+            'scroll-trigger',
+            'scroll-trigger--offscreen',
+            'animate--slide-in',
+            'animate--fade-in'
+          );
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', disableProductRevealAnimations, {
+          once: true
+        });
+      } else {
+        disableProductRevealAnimations();
+      }
 
       if (!currentProduct.handle) return;
 
