@@ -10,6 +10,13 @@
 {% endcomment %}
 
 {%- if request.page_type == 'product' and product != blank -%}
+  <style>
+    .jdgm-widget.jdgm-preview-badge,
+    .jdgm-preview-badge {
+      min-height: 2.4rem;
+    }
+  </style>
+
   {%- capture tst_recent_card_html -%}
     {% render 'card-product',
       card_product: product,
