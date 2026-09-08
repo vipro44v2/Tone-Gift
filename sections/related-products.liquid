@@ -1,0 +1,494 @@
+<link
+  rel="stylesheet"
+  href="{{ 'component-card.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ 'component-price.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ 'section-related-products.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+
+<noscript>
+  {{ 'component-card.css' | asset_url | stylesheet_tag }}
+  {{ 'component-price.css' | asset_url | stylesheet_tag }}
+  {{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+</noscript>
+
+{% if section.settings.image_shape == 'blob' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'mask-blobs.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+{% endif %}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  {%- if section.settings.enable_percentage_sale_badge -%}
+    #RelatedProducts-{{ section.id }} .tst-sale-badge {
+      position: relative;
+      isolation: isolate;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3.2rem;
+      margin: 0;
+      padding: 0.65rem 1.15rem;
+      gap: 0.45rem;
+      overflow: hidden;
+      color: {{ section.settings.sale_badge_text_color }};
+      background: linear-gradient(135deg, {{ section.settings.sale_badge_background }} 0%, {{ section.settings.sale_badge_gradient }} 100%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: {{ section.settings.sale_badge_radius }}px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      font-size: {{ section.settings.sale_badge_font_size }}px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.015em;
+      white-space: nowrap;
+      text-transform: none;
+      animation: tst-sale-badge-pulse-{{ section.id }} 1.8s ease-in-out infinite;
+    }
+
+    #RelatedProducts-{{ section.id }} .tst-sale-badge::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      bottom: -50%;
+      left: -65%;
+      z-index: -1;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+      transform: skewX(-22deg);
+      animation: tst-sale-badge-shine-{{ section.id }} 2.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    #RelatedProducts-{{ section.id }} .tst-sale-badge__spark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      line-height: 1;
+      animation: tst-sale-badge-spark-{{ section.id }} 1.25s ease-in-out infinite;
+    }
+
+    #RelatedProducts-{{ section.id }} .tst-sale-badge strong {
+      color: inherit;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    @keyframes tst-sale-badge-pulse-{{ section.id }} {
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        filter: brightness(1);
+      }
+      50% {
+        transform: scale(1.055);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        filter: brightness(1.1);
+      }
+    }
+
+    @keyframes tst-sale-badge-shine-{{ section.id }} {
+      0%,
+      42% {
+        left: -65%;
+      }
+      72%,
+      100% {
+        left: 130%;
+      }
+    }
+
+    @keyframes tst-sale-badge-spark-{{ section.id }} {
+      0%,
+      100% {
+        opacity: 0.75;
+        transform: rotate(0) scale(0.9);
+      }
+      50% {
+        opacity: 1;
+        transform: rotate(18deg) scale(1.15);
+      }
+    }
+
+    @media screen and (max-width: 749px) {
+      #RelatedProducts-{{ section.id }} .tst-sale-badge {
+        min-height: 2.8rem;
+        padding: 0.55rem 0.9rem;
+        gap: 0.35rem;
+        font-size: {{ section.settings.sale_badge_font_size_mobile }}px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #RelatedProducts-{{ section.id }} .tst-sale-badge,
+      #RelatedProducts-{{ section.id }} .tst-sale-badge::after,
+      #RelatedProducts-{{ section.id }} .tst-sale-badge__spark {
+        animation: none;
+      }
+    }
+  {%- endif -%}
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <product-recommendations
+    id="RelatedProducts-{{ section.id }}"
+    class="related-products page-width section-{{ section.id }}-padding isolate{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+    data-url="{{ routes.product_recommendations_url }}?limit={{ section.settings.products_to_show }}"
+    data-section-id="{{ section.id }}"
+    data-product-id="{{ product.id }}"
+  >
+    {% if recommendations.performed and recommendations.products_count > 0 %}
+      <h2 class="related-products__heading inline-richtext {{ section.settings.heading_size }}">
+        {{ section.settings.heading }}
+      </h2>
+      <ul
+        class="grid product-grid grid--{{ section.settings.columns_desktop }}-col-desktop grid--{{ section.settings.columns_mobile }}-col-tablet-down"
+        role="list"
+      >
+        {% assign skip_card_product_styles = false %}
+        {% for recommendation in recommendations.products %}
+          {%- liquid
+            assign tst_sale_percentage = 0
+
+            if section.settings.enable_percentage_sale_badge and recommendation.available and recommendation.compare_at_price > recommendation.price
+              assign tst_sale_saving = recommendation.compare_at_price | minus: recommendation.price
+              assign tst_sale_percentage = tst_sale_saving | times: 100.0 | divided_by: recommendation.compare_at_price | round
+            endif
+          -%}
+          <li
+            class="grid__item"
+            {%- if tst_sale_percentage > 0 %}
+              data-tst-sale-percentage="{{ tst_sale_percentage }}"
+            {%- endif %}
+          >
+            {% render 'card-product',
+              card_product: recommendation,
+              media_aspect_ratio: section.settings.image_ratio,
+              image_shape: section.settings.image_shape,
+              show_secondary_image: section.settings.show_secondary_image,
+              show_vendor: section.settings.show_vendor,
+              show_rating: section.settings.show_rating,
+              skip_styles: skip_card_product_styles
+            %}
+          </li>
+          {%- assign skip_card_product_styles = true -%}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </product-recommendations>
+  {% if section.settings.image_shape == 'arch' %}
+    {{ 'mask-arch.svg' | inline_asset_content }}
+  {%- endif -%}
+</div>
+
+{%- if section.settings.enable_percentage_sale_badge -%}
+  <script>
+    (() => {
+      const root = document.getElementById('RelatedProducts-{{ section.id }}');
+      if (!root) return;
+
+      const applySaleBadges = () => {
+        root.querySelectorAll('[data-tst-sale-percentage]').forEach((card) => {
+          const percentage = card.dataset.tstSalePercentage;
+          const badge = card.querySelector('.card__badge .badge');
+
+          if (!percentage || !badge || badge.classList.contains('tst-sale-badge')) return;
+
+          badge.classList.add('tst-sale-badge');
+          badge.setAttribute('aria-label', `Sale ${percentage} percent`);
+          badge.innerHTML = `<span class="tst-sale-badge__spark" aria-hidden="true">✦</span><span>Sale</span><strong>${percentage}%</strong>`;
+        });
+      };
+
+      applySaleBadges();
+
+      if (root.tstSaleBadgeObserver) root.tstSaleBadgeObserver.disconnect();
+
+      root.tstSaleBadgeObserver = new MutationObserver(applySaleBadges);
+      root.tstSaleBadgeObserver.observe(root, { childList: true, subtree: true });
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.related-products.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.related-products.settings.paragraph__1.content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "default": "t:sections.related-products.settings.paragraph__1.default",
+      "label": "t:sections.related-products.settings.heading.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.all.heading_size.options__1.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.all.heading_size.options__2.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.all.heading_size.options__3.label"
+        },
+        {
+          "value": "hxl",
+          "label": "t:sections.all.heading_size.options__4.label"
+        },
+        {
+          "value": "hxxl",
+          "label": "t:sections.all.heading_size.options__5.label"
+        }
+      ],
+      "default": "h1",
+      "label": "t:sections.all.heading_size.label"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.related-products.settings.products_to_show.label"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.related-products.settings.columns_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "default": "2",
+      "label": "t:sections.related-products.settings.columns_mobile.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.related-products.settings.columns_mobile.options__1.label"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.related-products.settings.columns_mobile.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "info": "t:sections.all.colors.has_cards_info",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Sale badge"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_percentage_sale_badge",
+      "label": "Show Sale % badge",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "sale_badge_background",
+      "label": "Badge background",
+      "default": "#F0522D"
+    },
+    {
+      "type": "color",
+      "id": "sale_badge_gradient",
+      "label": "Badge gradient",
+      "default": "#FF8A3D"
+    },
+    {
+      "type": "color",
+      "id": "sale_badge_text_color",
+      "label": "Badge text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "sale_badge_font_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size desktop",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "sale_badge_font_size_mobile",
+      "min": 9,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size mobile",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "sale_badge_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Badge radius",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "t:sections.related-products.settings.header__2.content"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.related-products.settings.image_ratio.options__1.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.related-products.settings.image_ratio.options__2.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.related-products.settings.image_ratio.options__3.label"
+        }
+      ],
+      "default": "adapt",
+      "label": "t:sections.related-products.settings.image_ratio.label"
+    },
+    {
+      "type": "select",
+      "id": "image_shape",
+      "options": [
+        {
+          "value": "default",
+          "label": "t:sections.all.image_shape.options__1.label"
+        },
+        {
+          "value": "arch",
+          "label": "t:sections.all.image_shape.options__2.label"
+        },
+        {
+          "value": "blob",
+          "label": "t:sections.all.image_shape.options__3.label"
+        },
+        {
+          "value": "chevronleft",
+          "label": "t:sections.all.image_shape.options__4.label"
+        },
+        {
+          "value": "chevronright",
+          "label": "t:sections.all.image_shape.options__5.label"
+        },
+        {
+          "value": "diamond",
+          "label": "t:sections.all.image_shape.options__6.label"
+        },
+        {
+          "value": "parallelogram",
+          "label": "t:sections.all.image_shape.options__7.label"
+        },
+        {
+          "value": "round",
+          "label": "t:sections.all.image_shape.options__8.label"
+        }
+      ],
+      "default": "default",
+      "label": "t:sections.all.image_shape.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "default": false,
+      "label": "t:sections.related-products.settings.show_secondary_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "t:sections.related-products.settings.show_vendor.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "default": false,
+      "label": "t:sections.related-products.settings.show_rating.label",
+      "info": "t:sections.related-products.settings.show_rating.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}

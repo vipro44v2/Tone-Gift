@@ -1,0 +1,1404 @@
+{%- if section.settings.enable_bubble -%}
+  <div
+    id="TstContactFloat-{{ section.id }}"
+    class="tst-contact-float"
+    style="
+      --tst-bubble-bg: {{ section.settings.bubble_background }};
+      --tst-bubble-color: {{ section.settings.bubble_text_color }};
+      --tst-panel-bg: {{ section.settings.popup_background }};
+      --tst-panel-color: {{ section.settings.popup_text_color }};
+      --tst-accent: {{ section.settings.accent_color }};
+      --tst-card-bg: {{ section.settings.contact_background }};
+      --tst-border: {{ section.settings.border_color }};
+      --tst-bubble-size: {{ section.settings.bubble_size }}px;
+      --tst-launcher-icon-size-desktop: {{ section.settings.launcher_icon_size_desktop }}px;
+      --tst-launcher-icon-size-mobile: {{ section.settings.launcher_icon_size_mobile }}px;
+      --tst-panel-width: {{ section.settings.popup_width }}px;
+      --tst-panel-radius: {{ section.settings.popup_radius }}px;
+      --tst-bubble-radius: {{ section.settings.bubble_radius }}px;
+      --tst-desktop-bottom: {{ section.settings.desktop_bottom }}px;
+      --tst-desktop-right: {{ section.settings.desktop_right }}px;
+      --tst-mobile-bottom: {{ section.settings.mobile_bottom }}px;
+      --tst-mobile-right: {{ section.settings.mobile_right }}px;
+      --tst-hint-bg: {{ section.settings.hint_background }};
+      --tst-hint-color: {{ section.settings.hint_text_color }};
+      --tst-entrance-delay: {{ section.settings.entrance_delay }}s;
+    "
+    data-contact-float
+    data-entrance-enabled="{{ section.settings.enable_entrance_animation }}"
+    data-entrance-delay="{{ section.settings.entrance_delay | times: 1000 }}"
+    data-hint-enabled="{{ section.settings.enable_attention_hint }}"
+    data-hint-delay="{{ section.settings.hint_delay | times: 1000 }}"
+    data-hint-duration="{{ section.settings.hint_duration | times: 1000 }}"
+  >
+    <button
+      type="button"
+      class="tst-contact-float__launcher{% if section.settings.enable_pulse %} tst-contact-float__launcher--pulse{% endif %}{% if section.settings.enable_entrance_animation %} tst-contact-float__launcher--entrance{% endif %}"
+      aria-label="{{ section.settings.accessibility_label | escape }}"
+      aria-expanded="false"
+      aria-controls="TstContactPanel-{{ section.id }}"
+      data-contact-toggle
+    >
+      <span class="tst-contact-float__launcher-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2v-5.15A7.5 7.5 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="tst-contact-float__launcher-text">{{ section.settings.button_text | escape }}</span>
+    </button>
+
+    {%- if section.settings.enable_attention_hint and section.settings.hint_text != blank -%}
+      <button
+        type="button"
+        class="tst-contact-float__hint"
+        aria-label="{{ section.settings.hint_text | escape }}"
+        data-contact-hint
+        hidden
+      >
+        <span class="tst-contact-float__hint-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2v-5.15A7.5 7.5 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="tst-contact-float__hint-text">{{ section.settings.hint_text | escape }}</span>
+        <span class="tst-contact-float__hint-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+    {%- endif -%}
+
+    <div
+      id="TstContactPanel-{{ section.id }}"
+      class="tst-contact-float__panel"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="TstContactTitle-{{ section.id }}"
+      data-contact-panel
+      hidden
+    >
+      <div class="tst-contact-float__header">
+        <div class="tst-contact-float__heading-wrap">
+          {%- if section.settings.show_status -%}
+            <span class="tst-contact-float__status-dot" aria-hidden="true"></span>
+          {%- endif -%}
+          <div>
+            <h2 id="TstContactTitle-{{ section.id }}" class="tst-contact-float__heading">
+              {{ section.settings.heading | escape }}
+            </h2>
+            {%- if section.settings.show_status and section.settings.status_text != blank -%}
+              <p class="tst-contact-float__status">{{ section.settings.status_text | escape }}</p>
+            {%- endif -%}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="tst-contact-float__close"
+          aria-label="Close contact popup"
+          data-contact-close
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      {%- if section.settings.description != blank -%}
+        <div class="tst-contact-float__description rte">{{ section.settings.description }}</div>
+      {%- endif -%}
+
+      <div class="tst-contact-float__contacts">
+        {%- assign visible_contacts = 0 -%}
+
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign contact_value = block.settings.value | strip
+            assign contact_href = block.settings.link
+            assign contact_type = block.settings.icon
+
+            if contact_href == blank and contact_value != blank
+              assign clean_value = contact_value | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | remove: '.'
+
+              case contact_type
+                when 'phone'
+                  assign contact_href = 'tel:' | append: clean_value
+                when 'email'
+                  assign contact_href = 'mailto:' | append: contact_value
+                when 'whatsapp'
+                  assign clean_value = clean_value | remove: '+'
+                  assign contact_href = 'https://wa.me/' | append: clean_value
+                when 'zalo'
+                  assign clean_value = clean_value | remove: '+'
+                  assign contact_href = 'https://zalo.me/' | append: clean_value
+              endcase
+            endif
+          -%}
+
+          {%- if block.settings.label != blank or contact_value != blank or contact_href != blank -%}
+            {%- assign visible_contacts = visible_contacts | plus: 1 -%}
+
+            {%- if contact_href != blank -%}
+              <a
+                class="tst-contact-float__contact"
+                href="{{ contact_href }}"
+                aria-label="{{ block.settings.label | default: contact_value | default: 'Open contact' | escape }}"
+                {% if block.settings.open_new_tab and contact_type != 'phone' and contact_type != 'email' %}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                {% endif %}
+                {{ block.shopify_attributes }}
+              >
+            {%- else -%}
+              <div class="tst-contact-float__contact tst-contact-float__contact--static" {{ block.shopify_attributes }}>
+            {%- endif -%}
+
+              <span class="tst-contact-float__contact-icon tst-contact-float__contact-icon--{{ contact_type }}" aria-hidden="true">
+                {%- case contact_type -%}
+                  {%- when 'phone' -%}
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M8.7 3.4 10.2 7a1.4 1.4 0 0 1-.32 1.5L8.5 9.9a14.3 14.3 0 0 0 5.6 5.6l1.4-1.38a1.4 1.4 0 0 1 1.5-.32l3.6 1.5a1.4 1.4 0 0 1 .86 1.29v2.58a2.3 2.3 0 0 1-2.3 2.3A16.67 16.67 0 0 1 2.53 4.83a2.3 2.3 0 0 1 2.3-2.3H7.4a1.4 1.4 0 0 1 1.3.87Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {%- when 'messenger' -%}
+                    <svg viewBox="0 0 36 36" fill="none">
+                      <path fill="currentColor" d="M18 3C9.72 3 3 9.22 3 16.9c0 4.38 2.18 8.28 5.59 10.83V33l4.87-2.68c1.44.4 2.96.61 4.54.61 8.28 0 15-6.22 15-13.9S26.28 3 18 3Z"/>
+                      <path fill="var(--tst-messenger-blue, #0084ff)" d="m9.2 21.1 6.2-6.58 4.55 3.4 6.85-7.3-6.2 6.58-4.55-3.4-6.85 7.3Z"/>
+                    </svg>
+                  {%- when 'facebook' -%}
+                    <svg viewBox="0 0 36 36" fill="currentColor">
+                      <path d="M20.4 32V19.25h4.33l.65-4.97H20.4v-3.17c0-1.44.4-2.42 2.5-2.42h2.67V4.25a35.9 35.9 0 0 0-3.92-.2c-3.86 0-6.5 2.37-6.5 6.7v3.53H10.8v4.97h4.35V32h5.25Z"/>
+                    </svg>
+                  {%- when 'instagram' -%}
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.9"/>
+                      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.9"/>
+                      <circle cx="17.4" cy="6.7" r="1.15" fill="currentColor"/>
+                    </svg>
+                  {%- when 'tiktok' -%}
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M14.25 3h3.12c.22 1.29.96 2.45 2.02 3.2.75.53 1.65.83 2.61.87v3.08a8.24 8.24 0 0 1-4.66-1.47v6.45a6.13 6.13 0 1 1-5.31-6.08v3.2a3.05 3.05 0 1 0 2.22 2.93V3Z"/>
+                    </svg>
+                  {%- when 'zalo' -%}
+                    <span class="tst-contact-float__zalo">Zalo</span>
+                  {%- when 'whatsapp' -%}
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M20.5 11.7a8.5 8.5 0 0 1-12.56 7.47L3.5 20.5l1.34-4.31A8.5 8.5 0 1 1 20.5 11.7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                      <path d="M8.25 7.7c.2-.22.42-.22.62-.22h.33c.13 0 .3.05.38.3l.67 1.62c.08.2.07.36-.05.53l-.52.7c-.13.16-.1.34 0 .5.45.78 1.05 1.43 1.78 1.97.2.15.38.28.58.4.18.1.36.1.5-.07l.78-.91c.15-.18.33-.2.54-.13l1.73.82c.2.1.33.15.37.28.04.12.04.68-.16 1.32-.2.65-1.2 1.24-1.67 1.32-.46.08-1.04.12-1.68-.08-.39-.12-.89-.29-1.53-.57a9.7 9.7 0 0 1-3.9-3.45c-.4-.56-.86-1.5-.86-2.48 0-.98.52-1.47.7-1.67Z" fill="currentColor"/>
+                    </svg>
+                  {%- when 'email' -%}
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M4 5.5h16v13H4v-13Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                      <path d="m5 7 7 5 7-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {%- else -%}
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M10.2 13.8a4 4 0 0 0 5.66 0l2-2a4 4 0 0 0-5.66-5.66l-1.15 1.15M13.8 10.2a4 4 0 0 0-5.66 0l-2 2a4 4 0 1 0 5.66 5.66l1.15-1.15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                {%- endcase -%}
+              </span>
+
+              <span class="tst-contact-float__contact-copy">
+                {%- if block.settings.label != blank -%}
+                  <span class="tst-contact-float__contact-label">{{ block.settings.label | escape }}</span>
+                {%- endif -%}
+                {%- if contact_value != blank -%}
+                  <span class="tst-contact-float__contact-value">{{ contact_value | escape }}</span>
+                {%- endif -%}
+              </span>
+
+              {%- if contact_href != blank -%}
+                <span class="tst-contact-float__arrow" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              {%- endif -%}
+
+            {%- if contact_href != blank -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if visible_contacts == 0 -%}
+          <div class="tst-contact-float__empty">
+            Add a contact block and enter your phone number or social link.
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.footer_text != blank -%}
+        <p class="tst-contact-float__footer">{{ section.settings.footer_text | escape }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <style>
+    #TstContactFloat-{{ section.id }} {
+      position: relative;
+      z-index: 2147483000;
+      font-family: var(--font-body-family, inherit);
+    }
+
+    #TstContactFloat-{{ section.id }} *,
+    #TstContactFloat-{{ section.id }} *::before,
+    #TstContactFloat-{{ section.id }} *::after {
+      box-sizing: border-box;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher {
+      position: fixed;
+      right: var(--tst-desktop-right);
+      bottom: calc(var(--tst-desktop-bottom) + env(safe-area-inset-bottom));
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--tst-bubble-size);
+      height: var(--tst-bubble-size);
+      margin: 0;
+      padding: 0 2rem;
+      gap: 0.9rem;
+      color: var(--tst-bubble-color);
+      background: var(--tst-bubble-bg);
+      border: 0;
+      border-radius: var(--tst-bubble-radius);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      will-change: transform, opacity;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher--entrance {
+      animation: tst-contact-entrance-{{ section.id }} 0.78s cubic-bezier(0.2, 0.85, 0.3, 1.22) var(--tst-entrance-delay) both;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 38px rgba(0, 0, 0, 0.24);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher:focus-visible,
+    #TstContactFloat-{{ section.id }} .tst-contact-float__close:focus-visible,
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact:focus-visible {
+      outline: 2px solid var(--tst-accent);
+      outline-offset: 3px;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher-icon {
+      display: inline-flex;
+      flex: 0 0 var(--tst-launcher-icon-size-desktop);
+      width: var(--tst-launcher-icon-size-desktop);
+      height: var(--tst-launcher-icon-size-desktop);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher-icon svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__launcher--pulse::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      z-index: -1;
+      border: 2px solid var(--tst-bubble-bg);
+      border-radius: inherit;
+      opacity: 0;
+      animation: tst-contact-pulse-{{ section.id }} 2.2s ease-out infinite;
+      animation-delay: calc(var(--tst-entrance-delay) + 0.8s);
+      pointer-events: none;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint {
+      position: fixed;
+      right: var(--tst-desktop-right);
+      bottom: calc(var(--tst-desktop-bottom) + var(--tst-bubble-size) + 1.2rem + env(safe-area-inset-bottom));
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      width: max-content;
+      max-width: min(28rem, calc(100vw - 3.2rem));
+      min-height: 5rem;
+      margin: 0;
+      padding: 0.75rem 1rem 0.75rem 0.8rem;
+      gap: 0.8rem;
+      color: var(--tst-hint-color);
+      background: var(--tst-hint-bg);
+      border: 1px solid var(--tst-border);
+      border-radius: 1.4rem;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(1rem) scale(0.9);
+      transform-origin: bottom right;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: opacity 0.24s ease, visibility 0.24s ease, transform 0.34s cubic-bezier(0.2, 0.85, 0.3, 1.18);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint[hidden] {
+      display: none !important;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint::after {
+      content: '';
+      position: absolute;
+      right: 2.2rem;
+      bottom: -0.55rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      background: var(--tst-hint-bg);
+      border-right: 1px solid var(--tst-border);
+      border-bottom: 1px solid var(--tst-border);
+      transform: rotate(45deg);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint:hover {
+      transform: translateY(-0.2rem) scale(1.01);
+      box-shadow: 0 17px 44px rgba(0, 0, 0, 0.24);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint:focus-visible {
+      outline: 2px solid var(--tst-bubble-bg);
+      outline-offset: 3px;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint-icon {
+      display: inline-flex;
+      flex: 0 0 3.4rem;
+      align-items: center;
+      justify-content: center;
+      width: 3.4rem;
+      height: 3.4rem;
+      color: var(--tst-bubble-color);
+      background: var(--tst-bubble-bg);
+      border-radius: 50%;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint-icon svg {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint-text {
+      color: inherit;
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: left;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint-arrow {
+      display: inline-flex;
+      flex: 0 0 1.8rem;
+      width: 1.8rem;
+      height: 1.8rem;
+      opacity: 0.5;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__hint-arrow svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    #TstContactFloat-{{ section.id }}.is-hinting .tst-contact-float__launcher {
+      animation: tst-contact-nudge-{{ section.id }} 1.15s ease-in-out both;
+    }
+
+    #TstContactFloat-{{ section.id }}.is-hinting .tst-contact-float__launcher::after {
+      animation: tst-contact-hint-ring-{{ section.id }} 0.85s ease-out 2;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__panel {
+      position: fixed;
+      right: var(--tst-desktop-right);
+      bottom: calc(var(--tst-desktop-bottom) + var(--tst-bubble-size) + 1.4rem + env(safe-area-inset-bottom));
+      z-index: 2;
+      width: min(var(--tst-panel-width), calc(100vw - 3.2rem));
+      max-height: min(70vh, 62rem);
+      padding: 2rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+      color: var(--tst-panel-color);
+      background: var(--tst-panel-bg);
+      border: 1px solid var(--tst-border);
+      border-radius: var(--tst-panel-radius);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(1.2rem) scale(0.97);
+      transform-origin: bottom right;
+      transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__panel[hidden] {
+      display: none !important;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__panel.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.2rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__heading-wrap {
+      display: flex;
+      min-width: 0;
+      align-items: flex-start;
+      gap: 0.9rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__status-dot {
+      flex: 0 0 0.9rem;
+      width: 0.9rem;
+      height: 0.9rem;
+      margin-top: 0.6rem;
+      background: #20b968;
+      border: 2px solid var(--tst-panel-bg);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(32, 185, 104, 0.2);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__heading {
+      margin: 0;
+      color: inherit;
+      font-family: var(--font-heading-family, inherit);
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__status {
+      margin: 0.35rem 0 0;
+      color: inherit;
+      font-size: 1.15rem;
+      line-height: 1.35;
+      opacity: 0.65;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__close {
+      display: inline-flex;
+      flex: 0 0 3.2rem;
+      align-items: center;
+      justify-content: center;
+      width: 3.2rem;
+      height: 3.2rem;
+      margin: -0.5rem -0.5rem 0 0;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      opacity: 0.65;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__close:hover {
+      background: var(--tst-card-bg);
+      opacity: 1;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__close svg {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__description {
+      margin-top: 1.2rem;
+      color: inherit;
+      font-size: 1.35rem;
+      line-height: 1.55;
+      opacity: 0.78;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__description p {
+      margin: 0;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contacts {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1.7rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      min-height: 6rem;
+      padding: 0.8rem 1rem;
+      gap: 1rem;
+      color: inherit;
+      background: var(--tst-card-bg);
+      border: 1px solid transparent;
+      border-radius: 1.2rem;
+      text-decoration: none;
+      transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+    }
+
+    #TstContactFloat-{{ section.id }} a.tst-contact-float__contact:hover {
+      border-color: var(--tst-border);
+      transform: translateX(0.3rem);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact--static {
+      cursor: default;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon {
+      display: inline-flex;
+      flex: 0 0 4.2rem;
+      align-items: center;
+      justify-content: center;
+      width: 4.2rem;
+      height: 4.2rem;
+      color: #ffffff;
+      background: var(--tst-accent);
+      border-radius: 50%;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon svg {
+      width: 2.2rem;
+      height: 2.2rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--phone {
+      background: #22a447;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--messenger {
+      --tst-messenger-blue: #087fff;
+      color: #ffffff;
+      background: linear-gradient(145deg, #00b2ff 0%, #006aff 52%, #7b2cff 100%);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--messenger svg {
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--facebook {
+      background: #1877f2;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--facebook svg {
+      width: 2.7rem;
+      height: 2.7rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--instagram {
+      background: radial-gradient(circle at 30% 107%, #fdf497 0 5%, #fdf497 5% 10%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--instagram svg {
+      width: 2.35rem;
+      height: 2.35rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--tiktok {
+      background: #000000;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--tiktok svg {
+      width: 2.35rem;
+      height: 2.35rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--zalo {
+      background: #0068ff;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--whatsapp {
+      background: #25d366;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-icon--email {
+      background: #273142;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__zalo {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-copy {
+      display: flex;
+      min-width: 0;
+      flex: 1 1 auto;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-label {
+      overflow: hidden;
+      color: inherit;
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__contact-value {
+      overflow: hidden;
+      color: inherit;
+      font-size: 1.15rem;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 0.65;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__arrow {
+      display: inline-flex;
+      flex: 0 0 2rem;
+      width: 2rem;
+      height: 2rem;
+      opacity: 0.45;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__arrow svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__footer,
+    #TstContactFloat-{{ section.id }} .tst-contact-float__empty {
+      margin: 1.3rem 0 0;
+      color: inherit;
+      font-size: 1.1rem;
+      line-height: 1.45;
+      text-align: center;
+      opacity: 0.58;
+    }
+
+    #TstContactFloat-{{ section.id }} .tst-contact-float__empty {
+      margin: 0;
+      padding: 1.4rem;
+      background: var(--tst-card-bg);
+      border-radius: 1.2rem;
+    }
+
+    @keyframes tst-contact-entrance-{{ section.id }} {
+      0% {
+        opacity: 0;
+        transform: translateY(3rem) scale(0.55) rotate(9deg);
+      }
+      58% {
+        opacity: 1;
+        transform: translateY(-0.7rem) scale(1.08) rotate(-2deg);
+      }
+      78% {
+        transform: translateY(0.25rem) scale(0.97) rotate(1deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0);
+      }
+    }
+
+    @keyframes tst-contact-nudge-{{ section.id }} {
+      0%,
+      100% {
+        transform: translateX(0) rotate(0) scale(1);
+      }
+      12% {
+        transform: translateX(-0.5rem) rotate(-7deg) scale(1.07);
+      }
+      25% {
+        transform: translateX(0.4rem) rotate(6deg) scale(1.1);
+      }
+      38% {
+        transform: translateX(-0.35rem) rotate(-5deg) scale(1.08);
+      }
+      52% {
+        transform: translateX(0.25rem) rotate(4deg) scale(1.05);
+      }
+      68% {
+        transform: translateX(-0.12rem) rotate(-2deg) scale(1.02);
+      }
+    }
+
+    @keyframes tst-contact-hint-ring-{{ section.id }} {
+      0% {
+        opacity: 0.7;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.42);
+      }
+    }
+
+    @keyframes tst-contact-pulse-{{ section.id }} {
+      0% {
+        opacity: 0.55;
+        transform: scale(1);
+      }
+      75%,
+      100% {
+        opacity: 0;
+        transform: scale(1.24);
+      }
+    }
+
+    @media screen and (max-width: 749px) {
+      #TstContactFloat-{{ section.id }} .tst-contact-float__launcher {
+        right: var(--tst-mobile-right);
+        bottom: calc(var(--tst-mobile-bottom) + env(safe-area-inset-bottom));
+        width: var(--tst-bubble-size);
+        min-width: var(--tst-bubble-size);
+        padding: 0;
+        border-radius: 50%;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__launcher-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__launcher-icon {
+        flex-basis: var(--tst-launcher-icon-size-mobile);
+        width: var(--tst-launcher-icon-size-mobile);
+        height: var(--tst-launcher-icon-size-mobile);
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__panel {
+        right: var(--tst-mobile-right);
+        bottom: calc(var(--tst-mobile-bottom) + var(--tst-bubble-size) + 1rem + env(safe-area-inset-bottom));
+        width: min(var(--tst-panel-width), calc(100vw - (var(--tst-mobile-right) * 2)));
+        max-height: calc(100svh - var(--tst-mobile-bottom) - var(--tst-bubble-size) - 3rem);
+        padding: 1.7rem;
+        transform-origin: bottom right;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint {
+        right: calc(var(--tst-mobile-right) + var(--tst-bubble-size) + 1rem);
+        bottom: calc(var(--tst-mobile-bottom) + env(safe-area-inset-bottom));
+        max-width: min(22rem, calc(100vw - var(--tst-mobile-right) - var(--tst-bubble-size) - 2.4rem));
+        min-height: 4.8rem;
+        padding: 0.65rem 0.85rem 0.65rem 0.7rem;
+        gap: 0.65rem;
+        transform: translateX(1rem) scale(0.9);
+        transform-origin: center right;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint::after {
+        right: -0.55rem;
+        bottom: 50%;
+        border-top: 1px solid var(--tst-border);
+        border-right: 1px solid var(--tst-border);
+        border-bottom: 0;
+        transform: translateY(50%) rotate(45deg);
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint.is-visible {
+        transform: translateX(0) scale(1);
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint:hover {
+        transform: translateX(-0.2rem) scale(1.01);
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint-icon {
+        flex-basis: 3.1rem;
+        width: 3.1rem;
+        height: 3.1rem;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint-text {
+        font-size: 1.15rem;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint-arrow {
+        display: none;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__heading {
+        font-size: 1.8rem;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__contact {
+        min-height: 5.6rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #TstContactFloat-{{ section.id }} .tst-contact-float__launcher,
+      #TstContactFloat-{{ section.id }} .tst-contact-float__hint,
+      #TstContactFloat-{{ section.id }} .tst-contact-float__panel,
+      #TstContactFloat-{{ section.id }} .tst-contact-float__contact {
+        transition: none;
+      }
+
+      #TstContactFloat-{{ section.id }} .tst-contact-float__launcher--entrance,
+      #TstContactFloat-{{ section.id }}.is-hinting .tst-contact-float__launcher,
+      #TstContactFloat-{{ section.id }} .tst-contact-float__launcher--pulse::after,
+      #TstContactFloat-{{ section.id }}.is-hinting .tst-contact-float__launcher::after {
+        animation: none;
+      }
+    }
+  </style>
+
+  <script>
+    (() => {
+      const root = document.getElementById('TstContactFloat-{{ section.id }}');
+      if (!root || root.dataset.initialized === 'true') return;
+
+      root.dataset.initialized = 'true';
+
+      const toggle = root.querySelector('[data-contact-toggle]');
+      const panel = root.querySelector('[data-contact-panel]');
+      const closeButton = root.querySelector('[data-contact-close]');
+      const hint = root.querySelector('[data-contact-hint]');
+      const entranceEnabled = root.dataset.entranceEnabled === 'true';
+      const hintEnabled = root.dataset.hintEnabled === 'true';
+      const entranceDelay = Number(root.dataset.entranceDelay) || 0;
+      const hintDelay = Number(root.dataset.hintDelay) || 0;
+      const hintDuration = Number(root.dataset.hintDuration) || 5000;
+      let closeTimer;
+      let entranceTimer;
+      let hintTimer;
+      let hintHideTimer;
+      let hintTransitionTimer;
+      let nudgeTimer;
+
+      const hideHint = (cancelFuture = true) => {
+        if (cancelFuture) {
+          window.clearTimeout(hintTimer);
+        }
+
+        window.clearTimeout(hintHideTimer);
+        window.clearTimeout(hintTransitionTimer);
+        window.clearTimeout(nudgeTimer);
+        root.classList.remove('is-hinting');
+
+        if (!hint || hint.hidden) return;
+
+        hint.classList.remove('is-visible');
+        hintTransitionTimer = window.setTimeout(() => {
+          hint.hidden = true;
+        }, 240);
+      };
+
+      const showHint = () => {
+        if (!hint || toggle.getAttribute('aria-expanded') === 'true') return;
+
+        hint.hidden = false;
+        requestAnimationFrame(() => {
+          hint.classList.add('is-visible');
+          root.classList.add('is-hinting');
+        });
+
+        nudgeTimer = window.setTimeout(() => {
+          root.classList.remove('is-hinting');
+        }, 1500);
+
+        hintHideTimer = window.setTimeout(() => {
+          hideHint(false);
+        }, hintDuration);
+      };
+
+      const openPanel = () => {
+        hideHint(true);
+        window.clearTimeout(closeTimer);
+        panel.hidden = false;
+        requestAnimationFrame(() => panel.classList.add('is-open'));
+        toggle.setAttribute('aria-expanded', 'true');
+      };
+
+      const closePanel = (returnFocus = false) => {
+        panel.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        closeTimer = window.setTimeout(() => {
+          panel.hidden = true;
+        }, 220);
+        if (returnFocus) toggle.focus();
+      };
+
+      const togglePanel = () => {
+        if (toggle.getAttribute('aria-expanded') === 'true') {
+          closePanel();
+        } else {
+          openPanel();
+        }
+      };
+
+      const onDocumentClick = (event) => {
+        if (!root.contains(event.target)) {
+          if (toggle.getAttribute('aria-expanded') === 'true') closePanel();
+          if (hint && !hint.hidden) hideHint(true);
+        }
+      };
+
+      const onDocumentKeydown = (event) => {
+        if (event.key !== 'Escape') return;
+
+        if (toggle.getAttribute('aria-expanded') === 'true') {
+          closePanel(true);
+        } else if (hint && !hint.hidden) {
+          hideHint(true);
+          toggle.focus();
+        }
+      };
+
+      const onSectionUnload = (event) => {
+        if (event.detail.sectionId !== '{{ section.id }}') return;
+        document.removeEventListener('click', onDocumentClick);
+        document.removeEventListener('keydown', onDocumentKeydown);
+        document.removeEventListener('shopify:section:unload', onSectionUnload);
+        window.clearTimeout(closeTimer);
+        window.clearTimeout(entranceTimer);
+        window.clearTimeout(hintTimer);
+        window.clearTimeout(hintHideTimer);
+        window.clearTimeout(hintTransitionTimer);
+        window.clearTimeout(nudgeTimer);
+      };
+
+      toggle.addEventListener('click', togglePanel);
+      if (hint) hint.addEventListener('click', openPanel);
+      closeButton.addEventListener('click', () => closePanel(true));
+      document.addEventListener('click', onDocumentClick);
+      document.addEventListener('keydown', onDocumentKeydown);
+      document.addEventListener('shopify:section:unload', onSectionUnload);
+
+      if (entranceEnabled) {
+        entranceTimer = window.setTimeout(() => {
+          toggle.classList.remove('tst-contact-float__launcher--entrance');
+        }, entranceDelay + 900);
+      }
+
+      if (hintEnabled && hint) {
+        const entranceDuration = entranceEnabled ? 800 : 0;
+        const effectiveEntranceDelay = entranceEnabled ? entranceDelay : 0;
+        hintTimer = window.setTimeout(showHint, effectiveEntranceDelay + entranceDuration + hintDelay);
+      }
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Floating contact bubble",
+  "tag": "section",
+  "class": "section-floating-contact-bubble",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_bubble",
+      "label": "Enable contact bubble",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Desktop button text",
+      "default": "Need help?"
+    },
+    {
+      "type": "text",
+      "id": "accessibility_label",
+      "label": "Accessibility label",
+      "default": "Open contact options"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Popup heading",
+      "default": "Need help?"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Popup text",
+      "default": "<p>Have a question before ordering? Contact us and we’ll be happy to help.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_status",
+      "label": "Show online status",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "status_text",
+      "label": "Status text",
+      "default": "Usually replies within a few minutes"
+    },
+    {
+      "type": "text",
+      "id": "footer_text",
+      "label": "Footer text",
+      "default": "We’re here to help you shop with confidence."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "bubble_background",
+      "label": "Bubble background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "bubble_text_color",
+      "label": "Bubble text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "popup_background",
+      "label": "Popup background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "popup_text_color",
+      "label": "Popup text",
+      "default": "#161616"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Contact icon background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "contact_background",
+      "label": "Contact item background",
+      "default": "#F5F5F5"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Popup border",
+      "default": "#E5E5E5"
+    },
+    {
+      "type": "header",
+      "content": "Attention effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_entrance_animation",
+      "label": "Enable entrance animation",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "entrance_delay",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Entrance delay",
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_attention_hint",
+      "label": "Enable attention hint",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "hint_text",
+      "label": "Hint text",
+      "default": "Need help choosing? Chat with us"
+    },
+    {
+      "type": "range",
+      "id": "hint_delay",
+      "min": 1,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "label": "Hint delay after entrance",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "hint_duration",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Hint visible duration",
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "hint_background",
+      "label": "Hint background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "hint_text_color",
+      "label": "Hint text",
+      "default": "#161616"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_pulse",
+      "label": "Enable pulse animation",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "bubble_size",
+      "min": 48,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Bubble height",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "launcher_icon_size_desktop",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Bubble icon size desktop",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "launcher_icon_size_mobile",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Bubble icon size mobile",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "bubble_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop bubble radius",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "popup_width",
+      "min": 280,
+      "max": 420,
+      "step": 10,
+      "unit": "px",
+      "label": "Popup width",
+      "default": 340
+    },
+    {
+      "type": "range",
+      "id": "popup_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Popup radius",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Desktop position"
+    },
+    {
+      "type": "range",
+      "id": "desktop_bottom",
+      "min": 8,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom spacing",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "desktop_right",
+      "min": 8,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Right spacing",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Mobile position"
+    },
+    {
+      "type": "range",
+      "id": "mobile_bottom",
+      "min": 8,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom spacing",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_right",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Right spacing",
+      "default": 12
+    }
+  ],
+  "blocks": [
+    {
+      "type": "contact",
+      "name": "Contact method",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Contact type",
+          "options": [
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "messenger",
+              "label": "Messenger"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "instagram",
+              "label": "Instagram"
+            },
+            {
+              "value": "tiktok",
+              "label": "TikTok"
+            },
+            {
+              "value": "zalo",
+              "label": "Zalo"
+            },
+            {
+              "value": "whatsapp",
+              "label": "WhatsApp"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "custom",
+              "label": "Custom link"
+            }
+          ],
+          "default": "phone"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Contact us"
+        },
+        {
+          "type": "text",
+          "id": "value",
+          "label": "Phone, email or displayed text",
+          "info": "Phone, email, WhatsApp and Zalo links can be generated automatically from this value."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Required for Facebook, Messenger, Instagram, TikTok and custom links. This overrides the automatic link."
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_tab",
+          "label": "Open link in a new tab",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Floating contact bubble",
+      "blocks": [
+        {
+          "type": "contact",
+          "settings": {
+            "icon": "phone",
+            "label": "Call us"
+          }
+        },
+        {
+          "type": "contact",
+          "settings": {
+            "icon": "messenger",
+            "label": "Facebook Messenger"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,56 @@
+<tr {{ block.shopify_attributes }}>
+  <th scope="row" class="tw:h-[68px] tw:w-1/3 tw:px-6 tw:py-4 tw:text-center tw:align-middle tw:text-[1.4rem] tw:font-extrabold tw:tracking-[0.02em] tw:text-neutral-950">
+    {{ block.settings.feature | escape }}
+    {%- if block.settings.note != blank -%}
+      <span class="tw:mt-1 tw:block tw:text-[1.2rem] tw:font-normal tw:leading-normal tw:text-neutral-500">
+        {{ block.settings.note | escape }}
+      </span>
+    {%- endif -%}
+  </th>
+
+  {% content_for 'blocks' %}
+</tr>
+
+{% schema %}
+{
+  "name": "Comparison row",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "feature",
+      "label": "Feature",
+      "default": "Benefit"
+    },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "Supporting note"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "comparison-cell"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Comparison row",
+      "blocks": [
+        {
+          "type": "comparison-cell",
+          "settings": {
+            "value_type": "check"
+          }
+        },
+        {
+          "type": "comparison-cell",
+          "settings": {
+            "value_type": "cross"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

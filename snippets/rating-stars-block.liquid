@@ -1,0 +1,33 @@
+{% liquid
+  assign rating_percent = block.settings.rating | times: 20
+%}
+
+<div
+  class="shrine-rating-stars"
+  style="
+    --rating: {{ rating_percent }}%;
+    --star-color: {{ block.settings.star_color }};
+    --bg-star-color: {{ block.settings.bg_star_color }};
+    --font-size: {{ block.settings.size | divided_by: 10.0 }}rem;
+    --alignment: {{ block.settings.alignment }};
+    --margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    --margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+  "
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.scroll_id != blank %}<a href="{{ block.settings.scroll_id }}">{% endif %}
+    <div class="shrine-rating-stars__row">
+      <span class="shrine-rating-stars__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
+        <span class="shrine-rating-stars__underlay" aria-hidden="true">
+          {% for index in (1..5) %}★{% endfor %}
+        </span>
+        <span class="shrine-rating-stars__overlay" aria-hidden="true">
+          {% for index in (1..5) %}★{% endfor %}
+        </span>
+      </span>
+      {% if block.settings.label != blank %}
+        <span class="shrine-rating-stars__label">{{ block.settings.label }}</span>
+      {% endif %}
+    </div>
+  {% if block.settings.scroll_id != blank %}</a>{% endif %}
+</div>

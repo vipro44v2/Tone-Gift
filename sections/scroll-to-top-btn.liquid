@@ -1,0 +1,133 @@
+{% style %}
+  .scroll-to-top-btn-{{ section.id }} {
+    --offset-x: {{ section.settings.offset_x | divided_by: 10.0 }}rem;
+    --offset-y: {{ section.settings.offset_y | divided_by: 10.0 }}rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .scroll-to-top-btn-{{ section.id }} {
+      --offset-x: {{ section.settings.offset_x | times: 0.75 | divided_by: 10.0 }}rem;
+      --offset-y: {{ section.settings.offset_y | times: 0.75 | divided_by: 10.0 }}rem;
+    }
+  }
+{% endstyle %}
+
+{% if section.settings.enable_scroll_btn %}
+  <button
+    type="button"
+    class="scroll-to-top-btn scroll-to-top-btn-{{ section.settings.position }} scroll-to-top-btn-{{ section.id }} color-{{ section.settings.color_scheme }} gradient"
+    aria-label="Scroll to top"
+    {% unless section.settings.display_after == 0 %}
+      hidden
+    {% endunless %}
+  >
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      role="img"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+    >
+      <path fill="currentColor" d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z"></path>
+    </svg>
+  </button>
+
+  <script>
+    (() => {
+      const scrollToTopBtn = document.querySelector('.scroll-to-top-btn-{{ section.id }}');
+
+      if (!scrollToTopBtn) return;
+
+      {% unless section.settings.display_after == 0 %}
+        const checkBtnVisibility = () => {
+          scrollToTopBtn.hidden = window.scrollY <= {{ section.settings.display_after }};
+        };
+
+        checkBtnVisibility();
+        window.addEventListener('scroll', checkBtnVisibility, { passive: true });
+      {% endunless %}
+
+      scrollToTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Scroll to top button",
+  "limit": 1,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_scroll_btn",
+      "default": true,
+      "label": "Enable scroll to top button"
+    },
+    {
+      "type": "range",
+      "id": "display_after",
+      "min": 0,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Display after scrolling",
+      "default": 400
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-4"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "options": [
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "bottom-right",
+      "label": "Position"
+    },
+    {
+      "type": "range",
+      "id": "offset_x",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Offset X",
+      "default": 20,
+      "info": "Not applied when the button is centered"
+    },
+    {
+      "type": "range",
+      "id": "offset_y",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Offset Y",
+      "default": 20
+    }
+  ]
+}
+{% endschema %}

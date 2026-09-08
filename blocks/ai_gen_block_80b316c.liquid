@@ -1,0 +1,539 @@
+{% doc %}
+  @prompt
+    tôi cần 1 section remember khi khách hàng click vào sản phẩm mà chưa mua
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-recently-viewed-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.section_padding_top }}px 0 {{ block.settings.section_padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-recently-viewed-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.container_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-recently-viewed-header-{{ ai_gen_id }} {
+    text-align: {{ block.settings.heading_alignment }};
+    margin-bottom: 30px;
+  }
+
+  .ai-recently-viewed-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .ai-recently-viewed-products-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: {{ block.settings.product_gap }}px;
+  }
+
+  .ai-recently-viewed-product-{{ ai_gen_id }} {
+    position: relative;
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-recently-viewed-product-{{ ai_gen_id }}:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .ai-recently-viewed-product-link-{{ ai_gen_id }} {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .ai-recently-viewed-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+    background-color: #f5f5f5;
+  }
+
+  .ai-recently-viewed-image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-recently-viewed-remove-{{ ai_gen_id }} {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-recently-viewed-remove-{{ ai_gen_id }}:hover {
+    background-color: #ffffff;
+  }
+
+  .ai-recently-viewed-remove-{{ ai_gen_id }} svg {
+    width: 16px;
+    height: 16px;
+    stroke: #333;
+  }
+
+  .ai-recently-viewed-info-{{ ai_gen_id }} {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-recently-viewed-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.product_title_size }}px;
+    color: {{ block.settings.product_title_color }};
+    margin: 0 0 8px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ai-recently-viewed-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_size }}px;
+    color: {{ block.settings.price_color }};
+    font-weight: 600;
+  }
+
+  .ai-recently-viewed-empty-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .ai-recently-viewed-empty-{{ ai_gen_id }} p {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-recently-viewed-products-{{ ai_gen_id }} {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .ai-recently-viewed-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.heading_size }}px * 0.8);
+    }
+
+    .ai-recently-viewed-product-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.product_title_size }}px * 0.9);
+    }
+  }
+{% endstyle %}
+
+<recently-viewed-products-{{ ai_gen_id }}
+  class="ai-recently-viewed-{{ ai_gen_id }}"
+  data-max-products="{{ block.settings.max_products }}"
+  data-current-product="{{ product.id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-recently-viewed-container-{{ ai_gen_id }}">
+    <div class="ai-recently-viewed-header-{{ ai_gen_id }}">
+      <h2 class="ai-recently-viewed-title-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    </div>
+
+    <div class="ai-recently-viewed-products-{{ ai_gen_id }}" data-products-container></div>
+
+    <div class="ai-recently-viewed-empty-{{ ai_gen_id }}" style="display: none;" data-empty-state>
+      <p>{{ block.settings.empty_message }}</p>
+    </div>
+  </div>
+</recently-viewed-products-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class RecentlyViewedProducts{{ai_gen_id}} extends HTMLElement {
+      constructor() {
+        super();
+        this.storageKey = 'recentlyViewedProducts';
+        this.maxProducts = parseInt(this.dataset.maxProducts) || 4;
+        this.currentProductId = this.dataset.currentProduct;
+        this.productsContainer = this.querySelector('[data-products-container]');
+        this.emptyState = this.querySelector('[data-empty-state]');
+      }
+
+      connectedCallback() {
+        this.saveCurrentProduct();
+        this.loadRecentlyViewed();
+      }
+
+      saveCurrentProduct() {
+        if (!this.currentProductId) return;
+
+        let products = this.getStoredProducts();
+        
+        products = products.filter(id => id !== this.currentProductId);
+        
+        products.unshift(this.currentProductId);
+        
+        if (products.length > this.maxProducts) {
+          products = products.slice(0, this.maxProducts);
+        }
+
+        localStorage.setItem(this.storageKey, JSON.stringify(products));
+      }
+
+      getStoredProducts() {
+        try {
+          const stored = localStorage.getItem(this.storageKey);
+          return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      async loadRecentlyViewed() {
+        let products = this.getStoredProducts();
+        
+        products = products.filter(id => id !== this.currentProductId);
+
+        if (products.length === 0) {
+          this.showEmptyState();
+          return;
+        }
+
+        try {
+          const productData = await this.fetchProducts(products);
+          this.renderProducts(productData);
+        } catch (error) {
+          console.error('Error loading recently viewed products:', error);
+          this.showEmptyState();
+        }
+      }
+
+      async fetchProducts(productIds) {
+        const handles = await Promise.all(
+          productIds.map(id => this.getProductHandle(id))
+        );
+
+        const validHandles = handles.filter(Boolean);
+        
+        if (validHandles.length === 0) {
+          return [];
+        }
+
+        const products = await Promise.all(
+          validHandles.map(handle => this.fetchProductByHandle(handle))
+        );
+
+        return products.filter(Boolean);
+      }
+
+      async getProductHandle(productId) {
+        try {
+          const response = await fetch(`/products.json?limit=250`);
+          const data = await response.json();
+          const product = data.products.find(p => p.id === parseInt(productId));
+          return product ? product.handle : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      async fetchProductByHandle(handle) {
+        try {
+          const response = await fetch(`/products/${handle}.js`);
+          return await response.json();
+        } catch (error) {
+          return null;
+        }
+      }
+
+      renderProducts(products) {
+        if (products.length === 0) {
+          this.showEmptyState();
+          return;
+        }
+
+        this.emptyState.style.display = 'none';
+        this.productsContainer.innerHTML = '';
+
+        products.forEach(product => {
+          const productCard = this.createProductCard(product);
+          this.productsContainer.appendChild(productCard);
+        });
+      }
+
+      createProductCard(product) {
+        const card = document.createElement('div');
+        card.className = 'ai-recently-viewed-product-{{ ai_gen_id }}';
+
+        const imageUrl = product.featured_image || product.images[0];
+        const price = this.formatMoney(product.price);
+
+        card.innerHTML = `
+          <a href="/products/${product.handle}" class="ai-recently-viewed-product-link-{{ ai_gen_id }}">
+            <div class="ai-recently-viewed-image-wrapper-{{ ai_gen_id }}">
+              <img 
+                src="${imageUrl}" 
+                alt="${product.title}" 
+                class="ai-recently-viewed-image-{{ ai_gen_id }}"
+                loading="lazy"
+              >
+            </div>
+            <div class="ai-recently-viewed-info-{{ ai_gen_id }}">
+              <h3 class="ai-recently-viewed-product-title-{{ ai_gen_id }}">${product.title}</h3>
+              <div class="ai-recently-viewed-price-{{ ai_gen_id }}">${price}</div>
+            </div>
+          </a>
+          <button 
+            class="ai-recently-viewed-remove-{{ ai_gen_id }}" 
+            data-product-id="${product.id}"
+            aria-label="Remove from recently viewed"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        `;
+
+        const removeBtn = card.querySelector('.ai-recently-viewed-remove-{{ ai_gen_id }}');
+        removeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.removeProduct(product.id, card);
+        });
+
+        return card;
+      }
+
+      removeProduct(productId, cardElement) {
+        let products = this.getStoredProducts();
+        products = products.filter(id => id !== productId.toString() && id !== productId);
+        localStorage.setItem(this.storageKey, JSON.stringify(products));
+
+        cardElement.remove();
+
+        if (this.productsContainer.children.length === 0) {
+          this.showEmptyState();
+        }
+      }
+
+      showEmptyState() {
+        this.productsContainer.innerHTML = '';
+        this.emptyState.style.display = 'block';
+      }
+
+      formatMoney(cents) {
+        const amount = (cents / 100).toFixed(2);
+        return `$${amount}`;
+      }
+    }
+
+    customElements.define('recently-viewed-products-{{ ai_gen_id }}', RecentlyViewedProducts{{ai_gen_id}});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Sản phẩm đã xem",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Nội dung"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Tiêu đề",
+      "default": "Sản phẩm bạn đã xem"
+    },
+    {
+      "type": "text",
+      "id": "empty_message",
+      "label": "Thông báo khi trống",
+      "default": "Bạn chưa xem sản phẩm nào"
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "label": "Số sản phẩm tối đa",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Bố cục"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "label": "Chiều rộng container",
+      "min": 1000,
+      "max": 1600,
+      "step": 100,
+      "unit": "px",
+      "default": 1400
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding trên",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding dưới",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "product_gap",
+      "label": "Khoảng cách sản phẩm",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Màu sắc"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Màu nền",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Màu nền thẻ sản phẩm",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Tiêu đề"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Căn lề",
+      "options": [
+        {
+          "value": "left",
+          "label": "Trái"
+        },
+        {
+          "value": "center",
+          "label": "Giữa"
+        },
+        {
+          "value": "right",
+          "label": "Phải"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Kích thước",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Màu chữ",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Thẻ sản phẩm"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Bo góc",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "product_title_size",
+      "label": "Kích thước tên sản phẩm",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Màu tên sản phẩm",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Kích thước giá",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Màu giá",
+      "default": "#e65f2b"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sản phẩm đã xem"
+    }
+  ]
+}
+{% endschema %}

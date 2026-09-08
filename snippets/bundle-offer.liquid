@@ -1,0 +1,237 @@
+{% liquid
+  assign item_count = 0
+  assign total_price = 0
+  assign total_compare_price = 0
+  assign total_percentage_multiplier = 100.0 | minus: block.settings.percentage_discount | divided_by: 100.0
+  assign total_fixed_discount = block.settings.fixed_amount_discount | times: 100.0
+  assign configured_count = 0
+  if block.settings.product_1 != blank
+    assign configured_count = configured_count | plus: 1
+  endif
+  if block.settings.product_2 != blank
+    assign configured_count = configured_count | plus: 1
+  endif
+  if block.settings.product_3 != blank
+    assign configured_count = configured_count | plus: 1
+  endif
+%}
+
+{% if configured_count > 0 or request.design_mode %}
+<bundle-offer
+  class="shrine-bundle-offer"
+  style="
+    --margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    --margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+    --image-size: {{ block.settings.images_size }}rem;
+    --image-radius: {{ block.settings.images_corner_radius | divided_by: 10.0 }}rem;
+    --title-size: {{ block.settings.title_size }}rem;
+    --desc-size: {{ block.settings.desc_size }}rem;
+    --price-size: {{ block.settings.price_size }}rem;
+    --border-width: {{ block.settings.container_border_thickness }}px;
+    --border-opacity: {{ block.settings.container_border_opacity | divided_by: 100.0 }};
+    --border-radius: {{ block.settings.border_radius | divided_by: 10.0 }}rem;
+    --divider-opacity: {{ block.settings.divider_opacity | divided_by: 100.0 }};
+  "
+  data-money-format="{{ shop.money_format | escape }}"
+  data-percentage-multiplier="{{ total_percentage_multiplier }}"
+  data-fixed-discount="{{ total_fixed_discount }}"
+  data-skip-unavailable="{{ block.settings.skip_unavailable }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.title_text != blank %}
+    <h3 class="shrine-bundle-offer__heading {{ block.settings.heading_size }} {{ block.settings.title_alignment }}">
+      {{ block.settings.title_text }}
+    </h3>
+  {% endif %}
+
+  <div class="shrine-bundle-offer__box color-{{ block.settings.color_scheme }}">
+    {% for index in (1..3) %}
+      {% liquid
+        assign product_key = 'product_' | append: index
+        assign desc_key = 'product_' | append: index | append: '_desc'
+        assign percent_key = 'product_' | append: index | append: '_percentage_discount'
+        assign fixed_key = 'product_' | append: index | append: '_fixed_amount_discount'
+        assign current_product = block.settings[product_key]
+      %}
+
+      {% if current_product != blank %}
+        {% liquid
+          assign item_count = item_count | plus: 1
+          assign current_variant = current_product.first_available_variant
+          assign percentage_multiplier = 100.0 | minus: block.settings[percent_key] | divided_by: 100.0
+          assign fixed_discount = block.settings[fixed_key] | times: 100.0
+          assign item_price = current_variant.price | times: percentage_multiplier | minus: fixed_discount
+          if item_price < 0
+            assign item_price = 0
+          endif
+          if current_variant.compare_at_price > current_variant.price
+            assign item_compare_price = current_variant.compare_at_price
+          else
+            assign item_compare_price = current_variant.price
+          endif
+          assign total_price = total_price | plus: item_price
+          assign total_compare_price = total_compare_price | plus: item_compare_price
+          assign featured_image = current_product.featured_image
+          if block.settings.displayed_image == 'variant' and current_variant.featured_image != blank
+            assign featured_image = current_variant.featured_image
+          endif
+        %}
+
+        {% unless item_count == 1 %}
+          <div class="shrine-bundle-offer__divider" aria-hidden="true">
+            <span></span>
+            <strong>+</strong>
+            <span></span>
+          </div>
+        {% endunless %}
+
+        <div
+          class="shrine-bundle-offer__item"
+          data-bundle-item
+          data-index="{{ item_count }}"
+          data-price="{{ item_price }}"
+          data-compare-price="{{ item_compare_price }}"
+          data-available="{{ current_variant.available }}"
+          data-percentage-multiplier="{{ percentage_multiplier }}"
+          data-fixed-discount="{{ fixed_discount }}"
+        >
+          <input
+            type="hidden"
+            data-bundle-id
+            value="{{ current_variant.id }}"
+          >
+
+          {% if block.settings.show_images and featured_image != blank %}
+            <div class="shrine-bundle-offer__image">
+              <img
+                src="{{ featured_image | image_url: width: 300 }}"
+                alt="{{ featured_image.alt | escape }}"
+                loading="lazy"
+                width="300"
+                height="{{ 300 | divided_by: featured_image.aspect_ratio | round }}"
+                data-bundle-image
+              >
+            </div>
+          {% endif %}
+
+          <div class="shrine-bundle-offer__content{% if block.settings.price_position == 'hidden' %} shrine-bundle-offer__content--hide-price{% endif %}">
+            <div class="shrine-bundle-offer__title-row">
+              <h4 class="shrine-bundle-offer__title">
+                {% if block.settings.title_link and current_product.handle != product.handle %}
+                  <a href="{{ current_product.url }}">{{ current_product.title }}</a>
+                {% else %}
+                  {{ current_product.title }}
+                {% endif %}
+              </h4>
+              {% if block.settings.price_position == 'next_to_title' %}
+                <div class="shrine-bundle-offer__price">
+                  <s data-bundle-compare-price>
+                    {% if item_compare_price > item_price %}{{ item_compare_price | money }}{% endif %}
+                  </s>
+                  <span data-bundle-price>
+                    {% if item_price == 0 and block.settings.displayed_free_price == 'text' %}
+                      {{ block.settings.displayed_free_price_text }}
+                    {% else %}
+                      {{ item_price | money }}
+                    {% endif %}
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if block.settings[desc_key] != blank %}
+              <div class="shrine-bundle-offer__desc">{{ block.settings[desc_key] }}</div>
+            {% endif %}
+
+            {% if block.settings.show_variant_picker %}
+              {% unless current_product.has_only_default_variant %}
+              <div class="shrine-bundle-offer__variants" data-bundle-variants>
+                {% for option in current_product.options_with_values %}
+                  {% assign option_index = forloop.index0 %}
+                  <label class="visually-hidden" for="BundleOffer-{{ block.id }}-{{ item_count }}-{{ option.position }}">
+                    {{ option.name }}
+                  </label>
+                  <div class="select select--small">
+                    <select
+                      id="BundleOffer-{{ block.id }}-{{ item_count }}-{{ option.position }}"
+                      class="select__select"
+                      data-bundle-option
+                    >
+                      {% for value in option.values %}
+                        <option
+                          value="{{ value | escape }}"
+                          {% if current_variant.options[option_index] == value %}
+                            selected
+                          {% endif %}
+                        >
+                          {{ value }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                    {{- 'icon-caret.svg' | inline_asset_content -}}
+                  </div>
+                {% endfor %}
+                <script type="application/json" data-bundle-variant-json>
+                  {{ current_product.variants | json }}
+                </script>
+              </div>
+              {% endunless %}
+            {% endif %}
+
+            {% if block.settings.price_position == 'separate' %}
+              <div class="shrine-bundle-offer__price shrine-bundle-offer__price--separate">
+                <s data-bundle-compare-price>
+                  {% if item_compare_price > item_price %}{{ item_compare_price | money }}{% endif %}
+                </s>
+                <span data-bundle-price>
+                  {% if item_price == 0 and block.settings.displayed_free_price == 'text' %}
+                    {{ block.settings.displayed_free_price_text }}
+                  {% else %}
+                    {{ item_price | money }}
+                  {% endif %}
+                </span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    {% assign total_price = total_price | times: total_percentage_multiplier | minus: total_fixed_discount %}
+    {% if total_price < 0 %}
+      {% assign total_price = 0 %}
+    {% endif %}
+
+    {% if item_count > 0 %}
+      <div class="shrine-bundle-offer__footer">
+        <span class="shrine-bundle-offer__total-label">{{ block.settings.total_price_text }}</span>
+        <div class="shrine-bundle-offer__totals">
+          {% if block.settings.total_price_benefit != blank %}
+            <div class="shrine-bundle-offer__benefit">{{ block.settings.total_price_benefit }}</div>
+          {% endif %}
+          <div class="shrine-bundle-offer__total-price">
+            <s data-bundle-total-compare>
+              {% if total_compare_price > total_price %}{{ total_compare_price | money }}{% endif %}
+            </s>
+            <span data-bundle-total>{{ total_price | money }}</span>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p class="shrine-bundle-offer__empty">Choose products in this bundle offer block.</p>
+    {% endif %}
+  </div>
+
+  {% if item_count > 0 %}
+    <button type="button" class="button button--full-width shrine-bundle-offer__button" data-bundle-submit>
+      <span>{{ block.settings.button_label }}</span>
+      <span class="loading-overlay__spinner hidden">
+        {{ 'loading-spinner.svg' | inline_asset_content }}
+      </span>
+    </button>
+    <div class="product-form__error-message-wrapper shrine-bundle-offer__error" role="alert" hidden>
+      <span class="product-form__error-message" data-bundle-error></span>
+    </div>
+  {% endif %}
+</bundle-offer>
+{% endif %}

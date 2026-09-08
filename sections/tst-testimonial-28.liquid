@@ -1,0 +1,3554 @@
+{% comment %}
+---------------------------------------------------------
+Copyright © 2023 Section Store. All rights reserved.
+Unauthorized copying, modification, distribution, or use
+of this code or any portion of it, is strictly prohibited.
+Violators will be prosecuted to the fullest extent of the law.
+For inquiries or permissions, contact daniel@section.store
+---------------------------------------------------------
+{% endcomment %}
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+/>
+
+{%- liquid 
+  assign padding_horizontal = section.settings.padding_horizontal
+  assign padding_horizontal_mobile = section.settings.padding_horizontal_mobile
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+  assign border_color = section.settings.border_color
+  assign border_thickness = section.settings.border_thickness
+  assign margin_top = section.settings.margin_top
+  assign margin_bottom = section.settings.margin_bottom
+  assign margin_horizontal_mobile = section.settings.margin_horizontal_mobile
+  assign margin_horizontal = section.settings.margin_horizontal
+  assign background_color = section.settings.background_color
+  assign background_gradient = section.settings.background_gradient
+  assign full_width = section.settings.full_width
+  assign content_width = section.settings.content_width
+  assign lazy = section.settings.lazy
+  assign section_radius = section.settings.section_radius
+
+  assign content_align = section.settings.content_align
+  assign content_align_mobile = section.settings.content_align_mobile
+
+  assign content_horizontal_align = ""
+  if content_align == "center"
+    assign content_horizontal_align = "center"
+  elsif content_align == "right"
+    assign content_horizontal_align = "end"
+  else
+    assign content_horizontal_align = "start"
+  endif
+
+  assign content_horizontal_align_mobile = ""
+  if content_align_mobile == "center"
+    assign content_horizontal_align_mobile = "center"
+  elsif content_align_mobile == "right"
+    assign content_horizontal_align_mobile = "end"
+  else
+    assign content_horizontal_align_mobile = "start"
+  endif
+
+  assign slider_view = section.settings.slider_view
+  assign slider_view_mobile = section.settings.slider_view_mobile
+  assign slider_gap = section.settings.slider_gap
+  assign slider_gap_mobile = section.settings.slider_gap_mobile  
+  assign slider_mt = section.settings.slider_mt
+  assign slider_mt_mobile = section.settings.slider_mt_mobile
+
+  assign slide_radius = section.settings.slide_radius
+  assign slide_border_thickness = section.settings.slide_border_thickness
+  assign slide_border_color = section.settings.slide_border_color
+  assign slide_bg_color = section.settings.slide_bg_color
+
+  assign media_ratio = section.settings.media_ratio
+  assign media_ratio_mobile = section.settings.media_ratio_mobile
+
+  assign slide_content_padding_horizontal = section.settings.slide_content_padding_horizontal
+  assign slide_content_padding_horizontal_mobile = section.settings.slide_content_padding_horizontal_mobile
+  assign slide_content_padding_vertical = section.settings.slide_content_padding_vertical
+  assign slide_content_padding_vertical_mobile = section.settings.slide_content_padding_vertical_mobile
+  assign slide_content_align = section.settings.slide_content_align
+  assign slide_content_align_mobile = section.settings.slide_content_align_mobile
+
+  assign slide_content_horizontal_align = ""
+  if slide_content_align == "center"
+    assign slide_content_horizontal_align = "center"
+  elsif slide_content_align == "right"
+    assign slide_content_horizontal_align = "end"
+  else
+    assign slide_content_horizontal_align = "start"
+  endif
+
+  assign slide_content_horizontal_align_mobile = ""
+  if slide_content_align_mobile == "center"
+    assign slide_content_horizontal_align_mobile = "center"
+  elsif slide_content_align_mobile == "right"
+    assign slide_content_horizontal_align_mobile = "end"
+  else
+    assign slide_content_horizontal_align_mobile = "start"
+  endif
+
+  assign text_custom = section.settings.text_custom
+  assign text_font = section.settings.text_font
+  assign text_size = section.settings.text_size
+  assign text_size_mobile = section.settings.text_size_mobile
+  assign text_height = section.settings.text_height
+  assign text_color = section.settings.text_color
+
+  assign stars_wrapper_mt = section.settings.stars_wrapper_mt
+  assign stars_wrapper_mt_mobile = section.settings.stars_wrapper_mt_mobile
+
+  assign stars_icon = section.settings.stars_icon
+  assign stars_size = section.settings.stars_size
+  assign stars_size_mobile = section.settings.stars_size_mobile
+  assign stars_color = section.settings.stars_color
+  assign stars_bg_color = section.settings.stars_bg_color
+  assign stars_bg_half_color = section.settings.stars_bg_half_color
+
+  assign badge_padding_horizontal = section.settings.badge_padding_horizontal
+  assign badge_padding_horizontal_mobile = section.settings.badge_padding_horizontal_mobile
+  assign badge_padding_vertical = section.settings.badge_padding_vertical
+  assign badge_padding_vertical_mobile = section.settings.badge_padding_vertical_mobile
+  assign badge_bg_color = section.settings.badge_bg_color
+  assign badge_radius = section.settings.badge_radius
+  assign badge_custom = section.settings.badge_custom
+  assign badge_font = section.settings.badge_font
+  assign badge_size = section.settings.badge_size
+  assign badge_size_mobile = section.settings.badge_size_mobile
+  assign badge_height = section.settings.badge_height
+  assign badge_color = section.settings.badge_color
+
+  assign author_custom = section.settings.author_custom
+  assign author_font = section.settings.author_font
+  assign author_size = section.settings.author_size
+  assign author_size_mobile = section.settings.author_size_mobile
+  assign author_height = section.settings.author_height
+  assign author_color = section.settings.author_color
+  assign author_mt = section.settings.author_mt
+  assign author_mt_mobile = section.settings.author_mt_mobile
+
+  assign play_size = section.settings.play_size
+  assign play_size_mobile = section.settings.play_size_mobile
+  assign play_radius =section.settings.play_radius
+  assign play_bg_color = section.settings.play_bg_color
+  assign play_color = section.settings.play_color
+  assign play_bg_hover_color = section.settings.play_bg_hover_color
+  assign play_hover_color = section.settings.play_hover_color
+
+  assign arrows_gap = section.settings.arrows_gap
+  assign arrows_gap_mobile = section.settings.arrows_gap_mobile
+  assign arrows_mt = section.settings.arrows_mt
+  assign arrows_mt_mobile = section.settings.arrows_mt_mobile
+
+  assign arrow_size = section.settings.arrow_size
+  assign arrow_size_mobile = section.settings.arrow_size_mobile
+  assign arrow_icon_size = section.settings.arrow_icon_size
+  assign arrow_icon_size_mobile = section.settings.arrow_icon_size_mobile
+  assign arrow_color = section.settings.arrow_color
+  assign arrow_hover_color = section.settings.arrow_hover_color
+  assign arrow_bg_color = section.settings.arrow_bg_color
+  assign arrow_bg_hover_color = section.settings.arrow_bg_hover_color
+  assign arrow_radius = section.settings.arrow_radius
+  assign arrow_border_thickness = section.settings.arrow_border_thickness
+  assign arrow_border_color = section.settings.arrow_border_color
+  assign arrow_border_hover_color = section.settings.arrow_border_hover_color
+  assign arrow_show_desktop = section.settings.arrow_show_desktop
+  assign arrow_show_mobile = section.settings.arrow_show_mobile
+  assign arrow_hover_effect = section.settings.arrow_hover_effect
+-%}
+
+{%- style -%}
+  {{ text_font | font_face: font_display: 'swap' }}
+  {{ badge_font | font_face: font_display: 'swap' }}
+  {{ author_font | font_face: font_display: 'swap' }}
+
+  .section-{{ section.id }} {
+    border-top: solid {{ border_color }} {{ border_thickness }}px;
+    border-bottom: solid {{ border_color }} {{ border_thickness }}px;
+    margin-top: {{ margin_top | times: 0.75 | round: 0 }}px;
+    margin-bottom: {{ margin_bottom | times: 0.75 | round: 0 }}px;
+    margin-left: {{ margin_horizontal_mobile }}rem;
+    margin-right: {{ margin_horizontal_mobile }}rem;
+    border-radius: {{ section_radius | times: 0.6 | round: 0 }}px;
+    overflow: hidden;
+  }
+  
+  .section-{{ section.id }}-settings {
+    margin: 0 auto;
+    padding-top: {{ padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ padding_bottom | times: 0.75 | round: 0 }}px;
+    padding-left: {{ padding_horizontal_mobile }}rem;
+    padding-right: {{ padding_horizontal_mobile }}rem;
+  }
+
+  .testimonials-body-{{ section.id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: {{ content_horizontal_align_mobile }};
+  }
+
+  .testimonials-review-{{ section.id }} {
+    display: flex;
+    justify-content: {{ content_horizontal_align_mobile }};
+    gap: 10px;
+  }
+
+  .testimonials-review-content-{{ section.id }} {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+
+  }
+
+  .testimonials-stars-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    max-width: fit-content;
+  }
+
+  .testimonials-stars-wrapper-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    {% if content_align_mobile == 'right' %}
+      justify-content: {{ content_horizontal_align_mobile }};
+    {% else %}
+      justify-content: start;
+    {% endif %}
+    gap: 10px;
+  }
+  
+  .testimonials-authors-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row-reverse;
+  }
+
+  .testimonials-author-image-{{ section.id }} img,
+  .testimonials-author-image-{{ section.id }} svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .testimonials-review-{{ section.id }} {
+    justify-content: {{ content_horizontal_align }};
+  }
+
+  .testimonials-slider-wrapper-{{ section.id }} {
+    display: grid;
+  }
+
+  .testimonials-slider-{{ section.id }} {
+    min-width: auto !important;
+    align-items: stretch !important;
+    margin-left: -{{ padding_horizontal_mobile }}rem !important;
+    margin-right: -{{ padding_horizontal_mobile }}rem !important;
+    padding-left: {{ padding_horizontal_mobile }}rem !important;
+    padding-right: {{ padding_horizontal_mobile }}rem !important;
+    margin-top: {{ slider_mt_mobile }}px !important;
+  }
+
+  .testimonials-slide-{{ section.id }} {
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    border: {{ slide_border_thickness }}px solid {{ slide_border_color }} !important;
+    border-radius: {{ slide_radius }}px !important;
+    background-color: {{ slide_bg_color }} !important;
+    overflow: hidden !important;
+  }
+
+  .testimonials-media-{{ section.id }} {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .testimonials-media-{{ section.id }}:after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .testimonials-media-{{ section.id }} img,
+  .testimonials-media-{{ section.id }} svg,  
+  .testimonials-media-{{ section.id }} video,
+  .testimonials-media-{{ section.id }} iframe{
+    border: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .testimonials-media-{{ section.id }} iframe {
+    pointer-events: none;
+  }
+
+  .testimonials-media-{{ section.id }} svg {
+    background-color: #AFAFAF;
+  }
+
+  .testimonials-content-{{ section.id }} {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1 1 0;
+    padding: {{ slide_content_padding_vertical_mobile }}px {{ slide_content_padding_horizontal_mobile }}px;    
+  }
+
+  .testimonials-slide-text-{{ section.id }} {
+    text-align: {{ slide_content_align_mobile }};
+  }
+
+  .testimonials-slide-text-{{ section.id }} * {
+    margin: 0px;
+    font-size: {{ text_size_mobile }}px;
+    line-height: {{ text_height }}%;
+    color: {{ text_color }};
+    text-transform: unset;
+    word-break: break-word;
+    font-weight: 400;
+  }
+
+  .testimonials-slide-stars-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    max-width: fit-content;
+  }
+
+  .testimonials-slide-stars-wrapper-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: {{ slide_content_horizontal_align_mobile }};
+    gap: 10px;
+    margin-top: {{ stars_wrapper_mt_mobile }}px;
+  }
+  
+  .testimonials-slide-stars-{{ section.id }} svg,
+  .testimonials-slide-stars-{{ section.id }} img {
+    display: block;
+    width: {{ stars_size_mobile }}px;
+    height: {{ stars_size_mobile }}px;
+    object-fit: cover;
+  }
+
+  .testimonials-slide-stars-badge-{{ section.id }} {
+    padding: {{ badge_padding_vertical_mobile }}px {{ badge_padding_horizontal_mobile }}px;
+    border-radius: {{ badge_radius }}px;
+    background-color: {{ badge_bg_color }};
+    margin: 0;    
+    text-align: center;
+    text-transform: unset;
+    word-wrap: break-word;
+    font-size: {{ badge_size_mobile }}px;
+    line-height: {{ badge_height }}%;
+    color: {{ badge_color }};  
+    font-weight: 700;
+  }
+
+  .testimonials-slide-author-{{ section.id }} {
+    margin: 0;  
+    margin-top: {{ author_mt_mobile }}px;
+    font-size: {{ author_size_mobile }}px;
+    line-height: {{ author_height }}%;
+    color: {{ author_color }};  
+    text-transform: unset;
+    word-wrap: break-word;
+    text-align: {{ slide_content_align_mobile }};
+    font-weight: 700;
+  }
+
+  .testimonials-play-{{ section.id }} {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    background-color: {{ play_bg_color }};
+    border-radius: {{ play_radius }}px;
+    padding: {{ play_size_mobile | times: 0.7 }}px;
+    transition: all 0.25s ease 0s;
+    cursor: pointer;
+  }
+
+  .testimonials-play-{{ section.id }}.active {
+    display: block;
+  }
+
+  .testimonials-play-{{ section.id }} svg {
+    display: block;
+    background: none;
+    width: {{ play_size_mobile }}px;
+    height: {{ play_size_mobile }}px;
+    object-fit: cover;
+  }
+
+  .testimonials-play-{{ section.id }} svg {
+    fill: {{ play_color }};
+    transition: all 0.25s ease 0s;
+  }
+
+  .testimonials-buttons-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ arrows_gap_mobile }}px;
+    width: 100%;
+    margin-top: {{ arrows_mt_mobile }}px;
+    justify-content: center;
+  }
+
+  .testimonials-btn-prev-{{ section.id }},
+  .testimonials-btn-next-{{ section.id }} {
+    display: flex;
+    width: {{ arrow_size_mobile }}px;
+    height: {{ arrow_size_mobile }}px;
+    border: 0px;
+    border: {{ arrow_border_thickness }}px solid {{ arrow_border_color }};
+    border-radius: {{ arrow_radius }}px;
+    background: transparent;
+    background: {{ arrow_bg_color }};
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease 0s;
+    cursor: pointer;
+    -webkit-appearance: none;
+    /* box-shadow: 0px 0px 10px 0px rgba(0,0,0,.15); */
+  }
+
+  .testimonials-btn-prev-{{ section.id }} .animate-icon,
+  .testimonials-btn-next-{{ section.id }} .animate-icon {
+    pointer-events: none;
+    place-items: center;
+    display: grid;
+  }
+
+  .testimonials-btn-prev-{{ section.id }} .animate-icon:before,
+  .testimonials-btn-next-{{ section.id }} .animate-icon:before {
+    content: "";
+    grid-area: 1 / -1;
+    transition: all .2s ease;
+    width: {{ arrow_icon_size_mobile }}px;
+    height: {{ arrow_icon_size_mobile }}px;
+    transform: rotate(calc(1 * 45deg));
+    box-sizing: border-box;
+    border-style: solid;
+    border: 0px;
+    border-right: 2px solid currentColor;
+    border-top: 2px solid currentColor;
+    position: relative;
+    left: -1px;
+  }
+
+  .testimonials-btn-prev-{{ section.id }} .animate-icon:before {
+    left: unset;
+    right: -1px;
+    border-right: 0px;
+    border-top: 0px;
+    border-bottom: 2px solid currentColor;
+    border-left: 2px solid currentColor;
+  }
+
+  .testimonials-btn-prev-{{ section.id }} .animate-icon:after,
+  .testimonials-btn-next-{{ section.id }} .animate-icon:after {
+    content: "";
+    grid-area: 1 / -1;
+    transition: all .2s ease;
+    width: {{ arrow_icon_size_mobile | minus: 0.3 }}px;
+    height: 1.6px;
+    transform-origin: center;
+    opacity: 0;
+    background: currentColor;
+    transform: scaleX(.5);
+  }
+
+  .testimonials-btn-prev-{{ section.id }} span,
+  .testimonials-btn-next-{{ section.id }} span {
+    color: {{ arrow_color }};
+  }
+
+  .testimonials-btn-prev-{{ section.id }}.swiper-button-disabled,
+  .testimonials-btn-next-{{ section.id }}.swiper-button-disabled {
+    opacity: 0.5;
+  }
+
+  @media(min-width: 1024px) {
+
+    .section-{{ section.id }} {
+      margin-top: {{ margin_top }}px;
+      margin-bottom: {{ margin_bottom }}px;
+      margin-left: {{ margin_horizontal }}rem;
+      margin-right: {{ margin_horizontal }}rem;
+      border-radius: {{ section_radius }}px;
+    }
+    
+    .section-{{ section.id }}-settings {
+      padding: 0 5rem;
+      padding-top: {{ padding_top }}px;
+      padding-bottom: {{ padding_bottom }}px;
+      padding-left: {{ padding_horizontal }}rem;
+      padding-right: {{ padding_horizontal }}rem;
+    }
+
+    .testimonials-stars-wrapper-{{ section.id }} {
+      {% if content_align == 'right' %}
+        justify-content: {{ content_horizontal_align }};
+      {% else %}
+        justify-content: start;
+      {% endif %}
+    }    
+
+    .testimonials-body-{{ section.id }} {
+      align-items: {{ content_horizontal_align }};
+    }
+
+    .testimonials-slider-{{ section.id }} {
+      margin-top: {{ slider_mt }}px !important;
+      overflow: hidden !important;
+      margin-left: 0rem !important;
+      margin-right: 0rem !important;
+      padding-left: 0rem !important;
+      padding-right: 0rem !important;
+    }
+
+    .testimonials-content-{{ section.id }} {
+      padding: {{ slide_content_padding_vertical }}px {{ slide_content_padding_horizontal }}px;    
+    }
+
+    .testimonials-slide-text-{{ section.id }} {
+      text-align: {{ slide_content_align }};
+    }
+
+    .testimonials-slide-text-{{ section.id }} * {
+      font-size: {{ text_size }}px;
+    }
+
+    .testimonials-slide-stars-wrapper-{{ section.id }} {
+      margin-top: {{ stars_wrapper_mt }}px;
+      justify-content: {{ slide_content_horizontal_align }};
+    }
+        
+    .testimonials-slide-stars-{{ section.id }} svg,
+    .testimonials-slide-stars-{{ section.id }} img {
+      width: {{ stars_size }}px;
+      height: {{ stars_size }}px;
+    } 
+    
+    .testimonials-slide-stars-badge-{{ section.id }} {
+      padding: {{ badge_padding_vertical }}px {{ badge_padding_horizontal }}px;
+      font-size: {{ badge_size }}px; 
+    }
+
+    .testimonials-slide-author-{{ section.id }} {
+      margin-top: {{ author_mt }}px;
+      font-size: {{ author_size }}px;
+      text-align: {{ slide_content_align }};
+    }
+
+    .testimonials-play-{{ section.id }} {
+      padding: {{ play_size | times: 0.7 }}px;
+    }
+
+    .testimonials-play-{{ section.id }} svg {
+      width: {{ play_size }}px;
+      height: {{ play_size }}px;
+    }
+    
+    .testimonials-media-{{ section.id }}:hover .testimonials-play-{{ section.id }} {
+      background-color: {{ play_bg_hover_color }};
+      transition: all 0.25s ease 0s;
+    }
+
+    .testimonials-media-{{ section.id }}:hover .testimonials-play-{{ section.id }} svg {
+      fill: {{ play_hover_color }};
+      transition: all 0.25s ease 0s;
+    }
+
+    .testimonials-buttons-{{ section.id }} {
+      gap: {{ arrows_gap }}px;
+      margin-top: {{ arrows_mt }}px;
+    }
+
+    .testimonials-btn-prev-{{ section.id }},
+    .testimonials-btn-next-{{ section.id }} {
+      width: {{ arrow_size }}px;
+      height: {{ arrow_size }}px;
+      transition: all 0.25s ease 0s;
+    }
+
+    .testimonials-btn-prev-{{ section.id }} .animate-icon:before,
+    .testimonials-btn-next-{{ section.id }} .animate-icon:before {
+      width: {{ arrow_icon_size }}px;
+      height: {{ arrow_icon_size }}px;
+    }
+
+    .testimonials-btn-prev-{{ section.id }} .animate-icon:after,
+    .testimonials-btn-next-{{ section.id }} .animate-icon:after {
+      width: {{ arrow_icon_size | minus: 0.3 }}px;
+    }
+  }
+  
+{%- endstyle -%}
+
+{% unless full_width %}
+  <style>
+    .section-{{ section.id }}-settings {
+      max-width: {{ content_width }}px;
+    }
+  </style>
+{% endunless %}
+
+{% if margin_horizontal_mobile > 0 %}
+  <style>
+    .section-{{ section.id }} {
+      border-left: solid {{ border_color }} {{ border_thickness }}px;
+      border-right: solid {{ border_color }} {{ border_thickness }}px;
+    }
+    
+    @media(min-width: 1024px) {
+      .section-{{ section.id }} {
+        border-left: 0px;
+        border-right: 0px;
+      }
+    }
+  </style>
+{% endif %}
+
+{% if margin_horizontal > 0 %}
+  <style>
+    @media(min-width: 1024px) {
+      .section-{{ section.id }} {
+        border-left: solid {{ border_color }} {{ border_thickness }}px;
+        border-right: solid {{ border_color }} {{ border_thickness }}px;
+      }
+    }
+  </style>
+{% endif %}
+
+{% if text_custom %}
+  <style>
+    .testimonials-slide-text-{{ section.id }} * {
+      font-family: {{ text_font.family }}, {{ text_font.fallback_families }};
+      font-weight: {{ text_font.weight }};
+      font-style: {{ text_font.style }};
+    }
+  </style>
+{% endif %}
+
+{% if badge_custom %}
+  <style>
+    .testimonials-slide-stars-badge-{{ section.id }} {
+      font-family: {{ badge_font.family }}, {{ badge_font.fallback_families }};
+      font-weight: {{ badge_font.weight }};
+      font-style: {{ badge_font.style }};
+    }
+  </style>
+{% endif %}
+
+{% if author_custom %}
+  <style>
+    .testimonials-slide-author-{{ section.id }} {
+      font-family: {{ author_font.family }}, {{ author_font.fallback_families }};
+      font-weight: {{ author_font.weight }};
+      font-style: {{ author_font.style }};
+    }
+  </style>
+{% endif %}
+
+{% if media_ratio_mobile == "portrait" %}
+  <style>
+    .testimonials-media-{{ section.id }} {
+      aspect-ratio: 9.6/13;
+    }
+  </style>
+{% elsif media_ratio_mobile == "landscape" %}
+  <style>
+  .testimonials-media-{{ section.id }} {
+    aspect-ratio: 12/8;
+  }
+  </style>
+{% elsif media_ratio_mobile == "square" %}
+  <style>
+    .testimonials-media-{{ section.id }} {
+      aspect-ratio: 12/12;
+    }
+  </style>
+{% else %}
+  <style>
+    .testimonials-media-{{ section.id }} {
+      aspect-ratio: auto;
+    }
+  </style>
+{% endif %}
+
+{% if media_ratio == "portrait" %}
+  <style>
+    @media (min-width: 1024px) {
+      .testimonials-media-{{ section.id }} {
+        aspect-ratio: 9.6/13;
+      }
+    }
+  </style>
+{% elsif media_ratio == "landscape" %}
+  <style>
+    @media (min-width: 1024px) {
+      .testimonials-media-{{ section.id }} {
+        aspect-ratio: 12/8;
+      }
+    }
+  </style>
+{% elsif media_ratio == "square" %}
+  <style>
+    @media (min-width: 1024px) {
+      .testimonials-media-{{ section.id }} {
+        aspect-ratio: 12/12;
+      }
+    }
+  </style>
+{% else %}
+  <style>
+    @media (min-width: 1024px) {
+      .testimonials-media-{{ section.id }} {
+        aspect-ratio: auto;
+      }
+    }
+  </style>
+{% endif %}
+
+
+{% if content_align_mobile == 'right' %}
+  <style>
+    .testimonials-stars-{{ section.id }} {
+      order: 2;
+    }
+  </style>
+{% elsif content_align_mobile == 'left' %}
+  <style>
+    .testimonials-stars-{{ section.id }} {
+      order: 1;
+    }
+  </style>
+{% endif %}
+
+{% if content_align == 'right' %}
+  <style>
+    @media(min-width: 1024px) {
+      .testimonials-stars-{{ section.id }} {
+        order: 2;
+      }
+    }
+  </style>
+{% elsif content_align == 'left' %}
+  <style>
+    @media(min-width: 1024px) {
+      .testimonials-stars-{{ section.id }} {
+        order: 1;
+      }
+    }
+  </style>
+{% else %}
+  <style>
+    @media(min-width: 1024px) {
+      .testimonials-stars-{{ section.id }} {
+        order: 1;
+      }
+    }
+  </style>
+{% endif %}
+
+{% if arrow_hover_effect == "color" %}
+  <style>
+    .testimonials-btn-prev-{{ section.id }}:hover,
+    .testimonials-btn-next-{{ section.id }}:hover {
+      transition: all 0.3s ease 0s;
+      border: {{ arrow_border_thickness }}px solid {{ arrow_border_hover_color }};
+      background: {{ arrow_bg_hover_color }};
+    }
+  
+    .testimonials-btn-prev-{{ section.id }}:hover .animate-icon,
+    .testimonials-btn-next-{{ section.id }}:hover .animate-icon {
+      color: {{ arrow_hover_color }};
+    }
+  </style>
+{% elsif arrow_hover_effect == "scale" %}
+  <style>
+    .testimonials-btn-prev-{{ section.id }}:hover,
+    .testimonials-btn-next-{{ section.id }}:hover {
+      transform: scale(0.9);
+    }
+
+    @media(min-width: 1024px) {
+      .testimonials-btn-prev-{{ section.id }}:hover,
+      .testimonials-btn-next-{{ section.id }}:hover {
+        transform: scale(0.9);
+      }
+    }
+  </style>
+{% elsif arrow_hover_effect == "arrow" %}
+  <style>
+    .testimonials-btn-next-{{ section.id }}:hover .animate-icon:before {
+      transform: translate(calc(1 * 0.125rem)) rotate(calc(1 * 45deg));
+    }
+  
+    .testimonials-btn-prev-{{ section.id }}:hover .animate-icon:before {
+      transform: translate(calc(-1 * 0.125rem)) rotate(calc(1 * 45deg));
+    }
+    
+    .testimonials-btn-prev-{{ section.id }}:hover .animate-icon:after,
+    .testimonials-btn-next-{{ section.id }}:hover .animate-icon:after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  </style>
+{% endif %}
+
+{% if arrow_show_mobile %}
+  <style>
+    .testimonials-buttons-{{ section.id }} {
+      display: flex;
+    }
+  </style>
+{% else %}
+  <style>
+    .testimonials-buttons-{{ section.id }} {
+      display: none;
+    }
+  </style>
+{% endif %}
+
+{% if arrow_show_desktop %}
+  <style>
+    @media(min-width: 1024px) {
+      .testimonials-buttons-{{ section.id }} {
+        display: flex;
+      }
+    }
+  </style>
+{% else %}
+  <style>
+    @media(min-width: 1024px) {
+      .testimonials-buttons-{{ section.id }} {
+        display: none;
+      }
+    }
+  </style>
+{% endif %}
+
+
+{% comment %} PREVIEW {% endcomment %}
+<style>
+  .testimonials-slider-{{ section.id }}.preview .swiper-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .testimonials-slider-{{ section.id }}.preview .testimonials-slide-{{ section.id }} {
+    width: 100%;
+  }
+
+  .testimonials-slider-{{ section.id }}.preview .testimonials-slide-{{ section.id }}:not(:first-child) {
+    margin-left: {{ slider_gap_mobile }}px;
+  } 
+
+  @media(min-width: 1024px) {
+    .testimonials-slider-{{ section.id }}.preview .testimonials-slide-{{ section.id }}:not(:first-child) {
+      margin-left: {{ slider_gap }}px;
+    } 
+
+    .testimonials-slider-{{ section.id }}.preview .testimonials-slide-{{ section.id }} {
+      width: calc(100% / {{ slider_view }} - ({{ slider_gap }}px));
+    }
+  }
+</style>
+
+{% for block in section.blocks %}
+  {% case block.type %}
+    {% when 'review' %}
+      <style>
+        {{  block.settings.review_font | font_face: font_display: 'swap' }}
+
+        .testimonials-review-{{ block.id }} {
+          margin-top: {{ block.settings.review_mt_mobile }}px;
+        }
+
+        .testimonials-author-image-{{ block.id }} {
+          border: {{ block.settings.image_border_thickness }}px solid {{ block.settings.image_border_color }};
+          border-radius: {{ block.settings.image_radius }}px;
+          overflow: hidden;
+          width: {{ block.settings.image_size_mobile }}px;
+          height: {{ block.settings.image_size_mobile }}px;
+          background-color: {{ background_color }};
+        }
+
+        .testimonials-author-image-{{ block.id }}:not(:first-child) {
+          margin-right: -{{ block.settings.image_size_mobile | times: 0.5 }}px;
+        }
+
+        .testimonials-author-image-{{ block.id }}:nth-child(2) {
+          transform: scale(0.9);
+        }
+
+        .testimonials-author-image-{{ block.id }}:nth-child(3) {
+          transform: scale(0.85);
+        }
+
+        .testimonials-author-image-{{ block.id }}:nth-child(4) {
+          transform: scale(0.75);
+        }
+
+        .testimonials-review-text-{{ block.id }},
+        .testimonials-stars-count-{{ block.id }} {
+          word-wrap: break-word;
+          margin: 0;
+          font-size: {{ block.settings.review_size_mobile }}px;
+          color: {{ block.settings.review_color }};
+          line-height: {{ block.settings.review_height }}%;
+          text-align: {{ content_align_mobile }};
+          text-transform: unset;
+          font-weight: 400;
+        }
+
+        .testimonials-stars-count-{{ block.id }} {
+          margin-top: 0;
+          color: {{ block.settings.count_color }};
+        }
+
+        .testimonials-stars-{{ block.id }} svg,
+        .testimonials-stars-{{ block.id }} img {
+          display: block;
+          width: {{ block.settings.stars_size_mobile }}px;
+          height: {{ block.settings.stars_size_mobile }}px;
+          object-fit: cover;
+        }
+
+        @media (min-width: 1024px) {
+          .testimonials-review-{{ block.id }} {
+            margin-top: {{ block.settings.review_mt }}px;
+            text-align: {{ content_align }};
+          }
+
+          
+          .testimonials-author-image-{{ block.id }} {
+            width: {{ block.settings.image_size }}px;
+            height: {{ block.settings.image_size }}px;
+          }
+
+          .testimonials-author-image-{{ block.id }}:not(:first-child) {
+            margin-right: -{{ block.settings.image_size | times: 0.5 }}px;
+          }
+
+          .testimonials-review-text-{{ block.id }},
+          .testimonials-stars-count-{{ block.id }} {
+            font-size: {{ block.settings.review_size }}px;
+            text-align: {{ content_align }};
+          }
+
+          .testimonials-stars-{{ block.id }} svg,
+          .testimonials-stars-{{ block.id }} img {
+            width: {{ block.settings.stars_size }}px;
+            height: {{ block.settings.stars_size }}px;
+          }
+        }
+      </style>
+
+      {% if block.settings.review_custom %}
+        <style>
+          .testimonials-review-text-{{ block.id }} {
+            font-family: {{ block.settings.review_font.family }}, {{ block.settings.review_font.fallback_families }};
+            font-weight: {{ block.settings.review_font.weight }};
+            font-style: {{ block.settings.review_font.style }};
+          }
+
+          .testimonials-stars-count-{{ block.id }} {
+            font-family: {{ block.settings.review_font.family }}, {{ block.settings.review_font.fallback_families }};
+            font-weight: {{ block.settings.review_font.weight }};
+            font-style: {{ block.settings.review_font.style }};
+          }
+        </style>
+      {% endif %}  
+
+      {% if content_align_mobile == 'right' %}
+        <style>
+          .testimonials-authors-{{ section.id }} {
+            order: 2;
+          }
+
+          .testimonials-review-content-{{ section.id }} {
+            order: 1;
+          }
+        </style>
+      {% else %}
+        <style>
+          .testimonials-authors-{{ section.id }} {
+            order: 1;
+          }
+
+          .testimonials-review-content-{{ section.id }} {
+            order: 2;
+          }
+        </style>
+      {% endif %}
+      
+      {% if content_align == 'right' %}
+        <style>
+          @media(min-width: 1024px) {
+            .testimonials-authors-{{ section.id }} {
+              order: 2;
+            }
+
+            .testimonials-review-content-{{ section.id }} {
+              order: 1;
+            }
+          }   
+        </style>
+      {% else %}
+        <style>
+          @media(min-width: 1024px) {
+            .testimonials-authors-{{ section.id }} {
+              order: 1;
+            }
+
+            .testimonials-review-content-{{ section.id }} {
+              order: 2;
+            }
+          }   
+        </style>
+      {% endif %}
+  
+    {% when 'heading' %}  
+      <style>
+        {{  block.settings.heading_font | font_face: font_display: 'swap' }}
+
+        .testimonials-heading-{{ block.id }} {
+          margin-top: {{ block.settings.heading_mt_mobile }}px;
+          text-align: {{ content_horizontal_align_mobile }};
+        }
+      
+        .testimonials-heading-{{ block.id }} * {
+          margin: 0;
+          font-size: {{ block.settings.heading_size_mobile }}px;
+          color: {{ block.settings.heading_color }};
+          line-height: {{ block.settings.heading_height }}%;
+          text-transform: unset;
+          word-break: break-word;
+          font-weight: 700;
+        }
+
+        .testimonials-heading-{{ block.id }} * strong {
+          text-decoration: underline {{ block.settings.heading_border_color }};
+        }
+
+        @media(min-width: 1024px) {
+          
+          .testimonials-heading-{{ block.id }} {
+            margin-top: {{ block.settings.heading_mt }}px;
+            text-align: {{ content_horizontal_align }};
+            max-width: {{ block.settings.heading_max_width }}%;
+          }
+        
+          .testimonials-heading-{{ block.id }} * {
+            font-size: {{ block.settings.heading_size }}px;
+          }
+        }          
+      </style>
+        
+      {% if block.settings.heading_custom %}
+        <style>
+          .testimonials-heading-{{ block.id }} * {
+            font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+            font-weight: {{ block.settings.heading_font.weight }};
+            font-style: {{ block.settings.heading_font.style }};
+          }
+        </style>
+      {% endif %}
+
+    {% when 'button' %}  
+      <style>
+        {{  block.settings.button_font | font_face: font_display: 'swap' }}
+
+        .testimonials-button-{{ block.id }} {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          max-width: fit-content;
+          gap: 10px;
+          width: 100%;
+          margin: 0;
+          margin-top: {{ block.settings.button_mt_mobile }}px;
+          font-size: {{ block.settings.button_size_mobile }}px;
+          color: {{ block.settings.button_color }};
+          line-height: {{ block.settings.button_height }}%;
+          text-align: center;
+          text-transform: unset;
+          text-decoration: none;
+          padding: {{ block.settings.button_padding_vertical_mobile }}px {{ block.settings.button_padding_horizontal_mobile }}px;
+          border-radius: {{ block.settings.button_radius }}px;
+          transition: all 0.3s ease 0s;
+          background-color: transparent;
+          border: 0px;
+          cursor: pointer;
+          font-weight: 700;
+        }
+
+        .testimonials-button-inner-{{ block.id }} {
+          margin: 0px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          text-decoration: none;
+        }
+
+        .testimonials-button-{{ block.id }}:hover {
+          color: {{ block.settings.button_hover_color }};
+          transition: all 0.25s ease 0s;
+        }
+
+        .testimonials-button-{{ block.id }} svg {
+          width: 14px;
+          height: 14px;
+        }
+
+        .testimonials-button-{{ block.id }} svg path {
+          fill: {{ block.settings.button_color }};
+          transition: all 0.25s ease 0s;
+        }
+
+        .testimonials-button-{{ block.id }}:hover svg path {
+          fill: {{ block.settings.button_hover_color }};
+          transition: all 0.25s ease 0s;
+        }
+
+        @media (min-width: 1024px) {
+          .testimonials-button-{{ block.id }} {
+            margin-top: {{ block.settings.button_mt }}px;
+            padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+            font-size: {{ block.settings.button_size }}px;
+          }
+        }
+      </style>
+
+      {% if block.settings.use_shadow %}
+        <style>
+          .testimonials-button-{{ block.id }}:hover {
+            -webkit-box-shadow: 0px 0px 8px 2px {{ block.settings.button_bg_color }};
+            -moz-box-shadow: 0px 0px 8px 2px {{ block.settings.button_bg_color }};
+            box-shadow: 0px 0px 8px 2px {{ block.settings.button_bg_color }};
+          }
+        </style>
+      {% endif %}  
+
+      {% if block.settings.button_custom %}
+        <style>
+          .testimonials-button-{{ block.id }} {
+            font-family: {{ block.settings.button_font.family }}, {{ block.settings.button_font.fallback_families }};
+            font-weight: {{ block.settings.button_font.weight }};
+            font-style: {{ block.settings.button_font.style }};
+          }
+        </style>
+      {% endif %}
+
+      {% if block.settings.button_style == "non_outline" or block.settings.button_style == "non_outline_arrow" %}
+        <style>
+          .testimonials-button-{{ block.id }} {
+            transition: all 0.3s ease 0s;
+            background-color: {{  block.settings.button_bg_color }};
+          }
+      
+          .testimonials-button-{{ block.id }}:hover {
+            transition: all 0.3s ease 0s;
+            background-color: {{  block.settings.button_bg_hover_color }};
+          }
+        </style>
+      {% elsif block.settings.button_style == "outline" or block.settings.button_style == "outline_arrow" %}
+        <style>          
+          .testimonials-button-{{ block.id }} {
+            transition: all 0.3s ease 0s;
+            background-color: {{  block.settings.button_bg_color }};
+            border: {{  block.settings.button_border_thickness }}px solid {{  block.settings.button_border_color }};
+          }
+      
+          .testimonials-button-{{ block.id }}:hover {
+            transition: all 0.3s ease 0s;
+            background-color: {{  block.settings.button_bg_hover_color }};
+            border: {{  block.settings.button_border_thickness }}px solid {{ block.settings. button_border_hover_color }};
+          }
+        </style>
+      {% elsif block.settings.button_style == "link" %}
+        <style>
+          .testimonials-button-{{ block.id }} {
+            padding: 0px !important;
+            -webkit-box-shadow: none !important;
+            -moz-box-shadow: none !important;
+            box-shadow: none !important;
+          }
+        </style>
+      {% endif %}  
+
+    {% when 'bottom_text' %}   
+        <style>
+          {{  block.settings.text_font | font_face: font_display: 'swap' }}
+          
+          .testimonials-bottom-text-{{ block.id }} {
+            margin-top: {{ block.settings.text_mt_mobile }}px;
+            text-align: {{ content_horizontal_align_mobile }};
+            padding: {{ block.settings.text_padding_vertical_mobile }}px {{ block.settings.text_padding_horizontal_mobile }}px;
+            background-color: {{ block.settings.text_bg_color }};
+            border-radius: {{ block.settings.text_radius }}px;
+            border: {{ block.settings.text_border_thickness }}px solid {{ block.settings.text_border_color }};
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+          }
+        
+          .testimonials-bottom-text-{{ block.id }} * {
+            margin: 0;
+            font-size: {{ block.settings.text_size_mobile }}px;
+            color: {{ block.settings.text_color }};
+            line-height: {{ block.settings.text_height }}%;
+            text-transform: unset;
+          }
+
+          @media(min-width: 1024px) {
+            
+            .testimonials-bottom-text-{{ block.id }} {
+              margin-top: {{ block.settings.text_mt }}px;
+              text-align: {{  content_horizontal_align }};
+              padding: {{ block.settings.text_padding_vertical }}px {{ block.settings.text_padding_horizontal }}px;
+            }
+        
+            .testimonials-bottom-text-{{ block.id }} * {
+              font-size: {{ block.settings.text_size }}px;
+            }
+            
+          }
+        </style>
+
+        {% if block.settings.text_custom %}
+          <style>
+            .testimonials-bottom-text-{{ block.id }} * {
+              font-family: {{ block.settings.text_font.family }}, {{ block.settings.text_font.fallback_families }};
+              font-weight: {{ block.settings.text_font.weight }};
+              font-style: {{ block.settings.text_font.style }};
+            }
+          </style>          
+        {% endif %}   
+  {% endcase %}
+{% endfor %}
+
+<div class="section-{{ section.id }} testimonials-{{ section.id }}" style="background-color:{{ background_color }}; background-image: {{ background_gradient }};">
+    <div class="section-{{ section.id }}-settings">
+      <div class="testimonials-body-{{ section.id }}">
+        {% for block in section.blocks %}
+          {% if block.type == 'review' %}      
+            {% if block.settings.review != blank %}
+              <div class="testimonials-review-{{ section.id }} testimonials-review-{{ block.id }}">
+                <div class="testimonials-authors-{{ section.id }}">
+                  {% if block.settings.first_image != blank %}
+                    <div class="testimonials-author-image-{{ section.id }} testimonials-author-image-{{ block.id }}">
+                      <img src="{{ block.settings.first_image | img_url: '100x100' }}" alt="{{  block.settings.first_image.alt }}">
+                    </div>
+                  {% endif %}
+                  {% if block.settings.second_image != blank %}
+                    <div class="testimonials-author-image-{{ section.id }} testimonials-author-image-{{ block.id }}">
+                      <img src="{{ block.settings.second_image | img_url: '100x100' }}" alt="{{ block.settings.second_image.alt }}">
+                    </div>
+                  {% endif %}
+                  {% if block.settings.third_image != blank %}
+                    <div class="testimonials-author-image-{{ section.id }} testimonials-author-image-{{ block.id }}">
+                      <img src="{{ block.settings.third_image | img_url: '100x100' }}" alt="{{ block.settings.third_image.alt }}">
+                    </div>
+                  {% endif %}
+                  {% if block.settings.fourth_image != blank %}
+                    <div class="testimonials-author-image-{{ section.id }} testimonials-author-image-{{ block.id }}">
+                      <img src="{{ block.settings.fourth_image | img_url: '100x100' }}" alt="{{ block.settings.fourth_image.alt }}">
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="testimonials-review-content-{{ section.id }}">
+                  {% if block.settings.review %}
+                    <p class="testimonials-review-text-{{ block.id }}">{{ block.settings.review }}</p>
+                  {% endif %}  
+                  {% if block.settings.stars_count != 0 %}
+                    <div class="testimonials-stars-wrapper-{{ section.id }}">                       
+                      <div class="testimonials-stars-{{ section.id }} testimonials-stars-{{ block.id }}">
+                        {% if block.settings.stars_icon != blank %}
+                          {% assign stars_count_round = block.settings.stars_count | round: 0 %}
+                          {% for item in (1..stars_count_round) %}
+                            <img src="{{ block.settings.stars_icon | image_url }}" alt="{{ stars_icon.alt }}">
+                          {% endfor %}
+                        {% else %}
+                          {% if block.settings.stars_count > 0 %}
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {% if block.settings.stars_count == 0.5 %}
+                                <defs>
+                                  <linearGradient id="grad{{ block.id }}1">
+                                    <stop offset="0%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                    <stop offset="100%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                  </linearGradient>
+                                </defs>
+                              {% endif %}
+                              <rect width="32" height="32" fill="{% if block.settings.stars_count == 0.5 %}url(#grad{{ block.id }}1){% else %}{{ block.settings.stars_bg_color }}{% endif %}"/>
+                              <g clip-path="url(#clip0_25_4)">
+                              <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ block.settings.stars_color }}"/>
+                              </g>
+                              <defs>
+                              <clipPath id="clip0_25_4">
+                              <rect width="22" height="22" fill="{{ block.settings.stars_color }}" transform="translate(5 5)"/>
+                              </clipPath>
+                              </defs>
+                            </svg>
+                          {% endif %}
+                          {% if block.settings.stars_count > 1 %}
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {% if block.settings.stars_count == 1.5 %}
+                                <defs>
+                                  <linearGradient id="grad{{ block.id }}2">
+                                    <stop offset="0%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                    <stop offset="100%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                  </linearGradient>
+                                </defs>
+                              {% endif %}
+                              <rect width="32" height="32" fill="{% if block.settings.stars_count == 1.5 %}url(#grad{{ block.id }}2){% else %}{{ block.settings.stars_bg_color }}{% endif %}"/>
+                              <g clip-path="url(#clip0_25_4)">
+                              <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ block.settings.stars_color }}"/>
+                              </g>
+                              <defs>
+                              <clipPath id="clip0_25_4">
+                              <rect width="22" height="22" fill="{{ block.settings.stars_color }}" transform="translate(5 5)"/>
+                              </clipPath>
+                              </defs>
+                            </svg>
+                          {% endif %}
+                          {% if block.settings.stars_count > 2 %}
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {% if block.settings.stars_count == 2.5 %}
+                                <defs>
+                                  <linearGradient id="grad{{ block.id }}3">
+                                    <stop offset="0%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                    <stop offset="100%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                  </linearGradient>
+                                </defs>
+                              {% endif %}
+                              <rect width="32" height="32" fill="{% if block.settings.stars_count == 2.5 %}url(#grad{{ block.id }}3){% else %}{{ block.settings.stars_bg_color }}{% endif %}"/>
+                              <g clip-path="url(#clip0_25_4)">
+                              <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ block.settings.stars_color }}"/>
+                              </g>
+                              <defs>
+                              <clipPath id="clip0_25_4">
+                              <rect width="22" height="22" fill="{{ block.settings.stars_color }}" transform="translate(5 5)"/>
+                              </clipPath>
+                              </defs>
+                            </svg>
+                          {% endif %}
+                          {% if block.settings.stars_count > 3 %}
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {% if block.settings.stars_count == 3.5 %}
+                                <defs>
+                                  <linearGradient id="grad{{ block.id }}4">
+                                    <stop offset="0%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                    <stop offset="100%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                  </linearGradient>
+                                </defs>
+                              {% endif %}
+                              <rect width="32" height="32" fill="{% if block.settings.stars_count == 3.5 %}url(#grad{{ block.id }}4){% else %}{{ block.settings.stars_bg_color }}{% endif %}"/>
+                              <g clip-path="url(#clip0_25_4)">
+                              <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ block.settings.stars_color }}"/>
+                              </g>
+                              <defs>
+                              <clipPath id="clip0_25_4">
+                              <rect width="22" height="22" fill="{{ block.settings.stars_color }}" transform="translate(5 5)"/>
+                              </clipPath>
+                              </defs>
+                            </svg>
+                          {% endif %}
+                          {% if block.settings.stars_count > 4 %}
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {% if block.settings.stars_count == 4.5 %}
+                                <defs>
+                                  <linearGradient id="grad{{ block.id }}5">
+                                    <stop offset="0%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_color }}" />
+                                    <stop offset="50%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                    <stop offset="100%" stop-color="{{ block.settings.stars_bg_half_color }}" />
+                                  </linearGradient>
+                                </defs>
+                              {% endif %}
+                              <rect width="32" height="32" fill="{% if block.settings.stars_count == 4.5 %}url(#grad{{ block.id }}5){% else %}{{ block.settings.stars_bg_color }}{% endif %}"/>
+                              <g clip-path="url(#clip0_25_4)">
+                              <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ block.settings.stars_color }}"/>
+                              </g>
+                              <defs>
+                              <clipPath id="clip0_25_4">
+                              <rect width="22" height="22" fill="{{ block.settings.stars_color }}" transform="translate(5 5)"/>
+                              </clipPath>
+                              </defs>
+                            </svg>
+                          {% endif %}
+                        {% endif %}
+                      </div>
+                      {% if block.settings.stars_text %}
+                        <p class="testimonials-stars-count-{{ section.id }} testimonials-stars-count-{{ block.id }}">{{ block.settings.stars_text }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}                     
+                </div>                                        
+              </div>  
+            {% endif %}
+          {% elsif block.type == 'heading' %}
+            {% if block.settings.heading != blank %}
+              <div class="testimonials-heading-{{ block.id }}">
+                {{ block.settings.heading }}
+              </div>
+            {% endif %}
+          {% endif %}       
+        {% endfor %}
+        <div class="testimonials-slider-wrapper-{{ section.id }}">
+          <div class="testimonials-slider-{{ section.id }} swiper preview"
+            data-gap="{{ slider_gap }}"
+            data-gap-mobile="{{ slider_gap_mobile }}"
+            data-view="{{ slider_view }}"
+            data-view-mobile="{{ slider_view_mobile }}">
+            <div class="swiper-wrapper">
+              {% for item in (1..4) %}
+                {% for block in section.blocks %}
+                  {% if block.type == 'slide' %}
+                    <div class="testimonials-slide-{{ section.id }} swiper-slide">
+                      <div class="testimonials-media-{{ section.id }}">
+                        {% if block.settings.media_type == 'image' %}                   
+                          {% if block.settings.image != blank %}
+                            <img src="{{ block.settings.image | image_url }}" alt="{{ block.settings.image.alt }}" {% if lazy %}loading="lazy"{% endif %}>
+                          {% else %}
+                            {{ 'image' | placeholder_svg_tag }}
+                          {% endif %}                   
+                        {% elsif block.settings.media_type == 'video' %}            
+                          {% assign video_id = block.settings.video_url.id %}
+                          {% assign loop = '&loop=1&playlist=' | append: video_id %}
+                          {%- if block.settings.video_url != null -%}
+                            {%- if block.settings.video_url.type == 'youtube' -%}
+                            <iframe
+                              data-src="https://www.youtube.com/embed/{{ video_id }}?enablejsapi=1&mute=0&autoplay=0&controls=0&showinfo=0{{ loop }}"
+                              data-src1="https://www.youtube.com/embed/{{ video_id }}?enablejsapi=1&mute=0&autoplay=1&controls=0&showinfo=0{{ loop }}"
+                              data-src2="https://www.youtube.com/embed/{{ video_id }}?enablejsapi=1&mute=1&autoplay=0&controls=0&showinfo=0{{ loop }}"                        
+                              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                              allowfullscreen
+                              class="lazy"
+                            ></iframe>
+                            {%- else -%}
+                            <iframe
+                              data-src="https://player.vimeo.com/video/{{ video_id }}?enablejsapi=1&mute=0&autoplay=0&controls=0&showinfo=0{{ loop }}"
+                              data-src1="https://player.vimeo.com/video/{{ video_id }}?enablejsapi=1&mute=0&autoplay=1&controls=0&showinfo=0{{ loop }}"
+                              data-src2="https://player.vimeo.com/video/{{ video_id }}?enablejsapi=1&mute=1&muted=1&autoplay=0&controls=0&showinfo=0{{ loop }}"
+                              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                              allowfullscreen
+                              class="lazy"
+                            ></iframe>
+                            {% endif %}
+                          {% else %}
+                            {% assign placeholder_video = 'https://cdn.shopify.com/videos/c/o/v/fbb140fd46e3429eba459e1549dbbe38.mp4' %}                          
+                            <video data-src="{% if block.settings.video != blank %}{{ block.settings.video.sources[1].url }}{% else %}{{ placeholder_video }}{% endif %}" playsinline preload="none" loop class="lazy"></video>
+                          {% endif %}
+                          <div class="testimonials-play-{{ section.id }} active">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 256 256">
+                              <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path>
+                            </svg>
+                          </div>
+                        {% endif %}                     
+                      </div>
+                      <div class="testimonials-content-{{ section.id }}">
+                        {% if block.settings.text != blank %}
+                          <div class="testimonials-slide-text-{{ section.id }}">{{ block.settings.text }}</div>
+                        {% endif %}
+                        <div class="testimonials-bottom-{{ section.id }}">
+                          <div class="testimonials-slide-review-{{ section.id }}">
+                            {% if block.settings.stars_count != 0 %}
+                              <div class="testimonials-slide-stars-wrapper-{{ section.id }}">                       
+                                <div class="testimonials-slide-stars-{{ section.id }} testimonials-slide-stars-{{ block.id }}">
+                                  {% if stars_icon != blank %}
+                                    {% assign stars_count_round = block.settings.stars_count | round: 0 %}
+                                    {% for item in (1..stars_count_round) %}
+                                      <img src="{{ stars_icon | image_url }}" alt="{{ stars_icon.alt }}" {% if lazy %}loading="lazy"{% endif %}>
+                                    {% endfor %}
+                                  {% else %}
+                                    {% if block.settings.stars_count > 0 %}
+                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {% if block.settings.stars_count == 0.5 %}
+                                          <defs>
+                                            <linearGradient id="grad{{ section.id }}1">
+                                              <stop offset="0%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_half_color }}" />
+                                              <stop offset="100%" stop-color="{{ stars_bg_half_color }}" />
+                                            </linearGradient>
+                                          </defs>
+                                        {% endif %}
+                                        <rect width="32" height="32" fill="{% if block.settings.stars_count == 0.5 %}url(#grad{{ section.id }}1){% else %}{{ stars_bg_color }}{% endif %}"/>
+                                        <g clip-path="url(#clip0_25_4)">
+                                        <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ stars_color }}"/>
+                                        </g>
+                                        <defs>
+                                        <clipPath id="clip0_25_4">
+                                        <rect width="22" height="22" fill="{{ stars_color }}" transform="translate(5 5)"/>
+                                        </clipPath>
+                                        </defs>
+                                      </svg>
+                                    {% endif %}
+                                    {% if block.settings.stars_count > 1 %}
+                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {% if block.settings.stars_count == 1.5 %}
+                                          <defs>
+                                            <linearGradient id="grad{{ section.id }}2">
+                                              <stop offset="0%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_half_color }}" />
+                                              <stop offset="100%" stop-color="{{ stars_bg_half_color }}" />
+                                            </linearGradient>
+                                          </defs>
+                                        {% endif %}
+                                        <rect width="32" height="32" fill="{% if block.settings.stars_count == 1.5 %}url(#grad{{ section.id }}2){% else %}{{ stars_bg_color }}{% endif %}"/>
+                                        <g clip-path="url(#clip0_25_4)">
+                                        <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ stars_color }}"/>
+                                        </g>
+                                        <defs>
+                                        <clipPath id="clip0_25_4">
+                                        <rect width="22" height="22" fill="{{ stars_color }}" transform="translate(5 5)"/>
+                                        </clipPath>
+                                        </defs>
+                                      </svg>
+                                    {% endif %}
+                                    {% if block.settings.stars_count > 2 %}
+                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {% if block.settings.stars_count == 2.5 %}
+                                          <defs>
+                                            <linearGradient id="grad{{ section.id }}3">
+                                              <stop offset="0%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_half_color }}" />
+                                              <stop offset="100%" stop-color="{{ stars_bg_half_color }}" />
+                                            </linearGradient>
+                                          </defs>
+                                        {% endif %}
+                                        <rect width="32" height="32" fill="{% if block.settings.stars_count == 2.5 %}url(#grad{{ section.id }}3){% else %}{{ stars_bg_color }}{% endif %}"/>
+                                        <g clip-path="url(#clip0_25_4)">
+                                        <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ stars_color }}"/>
+                                        </g>
+                                        <defs>
+                                        <clipPath id="clip0_25_4">
+                                        <rect width="22" height="22" fill="{{ stars_color }}" transform="translate(5 5)"/>
+                                        </clipPath>
+                                        </defs>
+                                      </svg>
+                                    {% endif %}
+                                    {% if block.settings.stars_count > 3 %}
+                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {% if block.settings.stars_count == 3.5 %}
+                                          <defs>
+                                            <linearGradient id="grad{{ section.id }}4">
+                                              <stop offset="0%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_half_color }}" />
+                                              <stop offset="100%" stop-color="{{ stars_bg_half_color }}" />
+                                            </linearGradient>
+                                          </defs>
+                                        {% endif %}
+                                        <rect width="32" height="32" fill="{% if block.settings.stars_count == 3.5 %}url(#grad{{ section.id }}4){% else %}{{ stars_bg_color }}{% endif %}"/>
+                                        <g clip-path="url(#clip0_25_4)">
+                                        <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ stars_color }}"/>
+                                        </g>
+                                        <defs>
+                                        <clipPath id="clip0_25_4">
+                                        <rect width="22" height="22" fill="{{ stars_color }}" transform="translate(5 5)"/>
+                                        </clipPath>
+                                        </defs>
+                                      </svg>
+                                    {% endif %}
+                                    {% if block.settings.stars_count > 4 %}
+                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {% if block.settings.stars_count == 4.5 %}
+                                          <defs>
+                                            <linearGradient id="grad{{ section.id }}5">
+                                              <stop offset="0%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_color }}" />
+                                              <stop offset="50%" stop-color="{{ stars_bg_half_color }}" />
+                                              <stop offset="100%" stop-color="{{ stars_bg_half_color }}" />
+                                            </linearGradient>
+                                          </defs>
+                                        {% endif %}
+                                        <rect width="32" height="32" fill="{% if block.settings.stars_count == 4.5 %}url(#grad{{ section.id }}5){% else %}{{ stars_bg_color }}{% endif %}"/>
+                                        <g clip-path="url(#clip0_25_4)">
+                                        <path d="M9.20283 27L16.001 21.807L22.7972 27L20.2018 18.596L27 13.403H18.5984L16.001 5L13.4037 13.403H5L11.7982 18.596L9.20283 27Z" fill="{{ stars_color }}"/>
+                                        </g>
+                                        <defs>
+                                        <clipPath id="clip0_25_4">
+                                        <rect width="22" height="22" fill="{{ stars_color }}" transform="translate(5 5)"/>
+                                        </clipPath>
+                                        </defs>
+                                      </svg>
+                                    {% endif %}
+                                  {% endif %}
+                                </div>               
+                                {% if block.settings.badge != blank %}
+                                  <p class="testimonials-slide-stars-badge-{{ section.id }}">{{ block.settings.badge }}</p>
+                                {% endif %}                        
+                              </div>
+                            {% endif %}  
+                          </div>
+                          {% if block.settings.author %}
+                            <p class="testimonials-slide-author-{{ section.id }}">{{ block.settings.author }}</p>
+                          {% endif %} 
+                        </div>                                     
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+              
+            </div>         
+          </div>
+        </div>
+      
+        <div class="testimonials-buttons-{{ section.id }}">
+          <button class="testimonials-btn-prev-{{ section.id }}">
+            <span class="animate-icon"></span>
+          </button>
+          <button class="testimonials-btn-next-{{ section.id }}">
+            <span class="animate-icon"></span>
+          </button>   
+        </div>
+        {% for block in section.blocks %}
+          {% if block.type == 'button' %}
+            <{% if block.settings.url != blank %}a href="{{ block.settings.url }}"{% else %}div{% endif %} class="testimonials-button-{{ block.id }}">
+              <p class="testimonials-button-inner-{{ block.id }}">
+                {{ block.settings.button }}
+                {% if block.settings.button_style == "non_outline_arrow" or block.settings.button_style == "outline_arrow" %}
+                  <svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M187.827 98.7858C188.123 98.4749 188.123 98.4749 188.123 98.1761C188.419 97.8652 188.419 97.5663 188.704 97.5663C189 96.9566 189 96.6458 189 96.0361C189 95.4263 189 94.8166 188.704 94.5058C188.704 94.195 188.408 93.8961 188.123 93.5852C188.123 93.2744 187.827 93.2744 187.827 92.9755L103.287 4.21945C102.41 3.29889 101.533 3 100.668 3C99.791 3 98.6295 3.31083 98.0488 4.21945C97.1719 5.14 96.8872 6.06058 96.8872 6.96919C96.8872 7.88974 97.1833 9.10918 98.0488 9.7189L175.587 92.0539H6.79206C4.75371 92.0539 3 93.895 3 96.0351C3 98.1751 4.75365 100.016 6.79206 100.016H175.575L97.7543 182.042C96.2967 183.572 96.2967 186.322 97.7543 187.852C99.2119 189.383 101.831 189.383 103.288 187.852L187.827 98.7858Z" fill="black"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M188.607 97.5657C188.432 97.5657 188.365 97.6788 188.27 97.8382C188.211 97.9378 188.141 98.0554 188.027 98.1748C188.027 98.4734 188.027 98.4734 187.731 98.7839L103.281 187.759C101.825 189.287 99.2085 189.287 97.7524 187.759C96.2963 186.23 96.2963 183.483 97.7524 181.954L175.492 100.013L6.88489 100.013C4.8486 100.013 3.09677 98.1739 3.09677 96.036C3.09677 93.8982 4.84866 92.059 6.88489 92.059L175.504 92.059L98.0465 9.80878C97.182 9.19968 96.8862 7.9815 96.8862 7.0619C96.8862 6.15422 97.1706 5.2346 98.0465 4.315C98.6267 3.40732 99.787 3.0968 100.663 3.0968C101.527 3.0968 102.403 3.39539 103.279 4.315L187.731 92.9796C187.731 93.1274 187.804 93.2021 187.877 93.2774C187.952 93.3543 188.027 93.4319 188.027 93.5887C188.046 93.6098 188.066 93.6308 188.085 93.6518C188.338 93.9267 188.584 94.1935 188.606 94.4689C188.607 94.482 188.607 94.4951 188.607 94.5083C188.903 94.8188 188.903 95.4279 188.903 96.037C188.903 96.6461 188.903 96.9566 188.607 97.5657ZM191.489 93.2767C191.79 93.8661 191.89 94.4204 191.934 94.7363C192.001 95.2226 192 95.7194 192 95.9856L192 96.037C192 96.0544 192 96.0729 192 96.0926C192 96.3523 192.001 96.8096 191.924 97.2931C191.828 97.8884 191.64 98.41 191.393 98.9184L190.546 100.663H190.212C190.127 100.759 190.038 100.852 189.988 100.905L189.974 100.92L105.527 189.891C102.85 192.701 98.1865 192.704 95.51 189.895C94.1476 188.464 93.5636 186.587 93.5636 184.857C93.5636 183.128 94.1468 181.252 95.5071 179.822M191.489 93.2767C191.316 92.7908 191.078 92.4357 190.938 92.2406C190.903 92.1912 190.866 92.142 190.828 92.0939V91.7408L105.522 2.17912C104.076 0.661813 102.397 0 100.663 0C99.3914 0 97.0569 0.401401 95.6212 2.37737C94.3151 3.83819 93.7895 5.45521 93.7895 7.0619C93.7895 8.26663 94.1183 10.6061 95.9608 12.111L168.333 88.9622L6.88489 88.9622C2.9981 88.9622 0 92.3316 0 96.036C0 99.7405 2.99801 103.11 6.88489 103.11L168.285 103.11" fill="black"></path>
+                    <path d="M169.5 104L16.5 102.5V90H171L97.5 10.5V7L107.5 4.5C131.167 29.6667 180.2 81.5 187 87.5C193.8 93.5 191.5 99 189.5 101L105.5 184L94 181.5L169.5 104Z" fill="black"></path>
+                  </svg>
+                {% endif %}
+              </p>
+            </{% if block.settings.url != blank %}a{% else %}div{% endif %}>   
+          {% elsif block.type == 'bottom_text' %}
+            {% if block.settings.bottom_text != blank %}
+              <div class="testimonials-bottom-text-{{ block.id }}">
+                {{ block.settings.bottom_text }}
+              </div>
+            {% endif %} 
+          {% endif %}
+        {% endfor %}
+      </div>   
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.min.js"></script>
+
+<script>
+  function loadSwiper(callback) {
+    if (window.Swiper) {
+      callback();
+    } else {
+      const script = document.createElement('script');
+      script.src = "https://cdn.jsdelivr.net/npm/swiper@6.8.4/swiper-bundle.min.js";
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+  }
+
+  function initTestimonials28(sectionId) {
+    let lazyLoadInstance = new LazyLoad();
+
+    window.addEventListener(
+      "LazyLoad::Initialized",
+      function (event) {
+        window.lazyLoadInstance = event.detail.instance;
+      },
+      false
+    );
+
+    document.querySelector(`.testimonials-slider-${sectionId}`).classList.remove('preview');
+    const slider = new Swiper(`.testimonials-slider-${sectionId}`, {
+      speed: 300,
+      loop: true,
+      navigation: {
+        nextEl: `.testimonials-btn-next-${sectionId}`,
+        prevEl: `.testimonials-btn-prev-${sectionId}`,
+      },
+      breakpoints: {
+        320: {
+          spaceBetween: parseInt(document.querySelector(`.testimonials-slider-${sectionId}`).dataset.gapMobile || 0),
+          slidesPerView: parseFloat(document.querySelector(`.testimonials-slider-${sectionId}`).dataset.viewMobile || 1),
+        },
+        768: {
+          spaceBetween: parseInt(document.querySelector(`.testimonials-slider-${sectionId}`).dataset.gap || 0),
+          slidesPerView: parseFloat(document.querySelector(`.testimonials-slider-${sectionId}`).dataset.view || 3),
+        },
+        1024: {
+          spaceBetween: parseInt(document.querySelector(`.testimonials-slider-${sectionId}`).dataset.gap || 0),
+          slidesPerView: parseFloat(document.querySelector(`.testimonials-slider-${sectionId}`).dataset.view || 3),
+        }
+      }
+    });
+
+    const videos = document.querySelectorAll(`.testimonials-media-${sectionId}`);
+
+    videos.forEach(item => {
+      const video = item.querySelector('video');
+      const iframe = item.querySelector('iframe');   
+      const videoButton = item.querySelector(`.testimonials-play-${sectionId}`);
+      
+      item.addEventListener('click', () => {       
+        videos.forEach(otherItem => {
+          const otherVideo = otherItem.querySelector('video');
+          const otherIframe = otherItem.querySelector('iframe');
+          const otherButton = otherItem.querySelector(`.testimonials-play-${sectionId}`);
+          
+          if (otherItem !== item) {
+            if (otherVideo) {
+              otherVideo.pause();
+              otherVideo.controls = false;
+            }
+            if (otherIframe) {
+              otherIframe.src = otherIframe.getAttribute('data-src2');
+            }
+            if (otherButton) {
+              otherButton.classList.add('active');
+            }
+          }
+        });
+
+        setTimeout(() => {            
+          if(videoButton.classList.contains('active')) {
+            if(video) {
+              video.play();
+              video.controls = true; 
+            }
+            if(iframe) {
+              iframe.src = iframe.getAttribute('data-src1');
+            }   
+          } else {
+            if(video) {
+              video.pause();
+              video.controls = false; 
+            }
+            if(iframe) {
+              iframe.src = iframe.getAttribute('data-src2');
+            }           
+          }  
+          videoButton.classList.toggle('active'); 
+        }, 400)
+      });
+    });
+
+  }
+
+  function initializeAllTestimonials28Sections() {
+    const sections = document.querySelectorAll('[id^="shopify-section-"]');
+    sections.forEach(section => {
+      if (section.querySelector('.testimonials-{{ section.id }}')) {
+        const sectionId = section.id.replace('shopify-section-', '');
+        loadSwiper(() => initTestimonials28(sectionId));
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAllTestimonials28Sections);
+  } else {
+    initializeAllTestimonials28Sections();
+  }
+
+  if (Shopify.designMode) {
+    document.addEventListener('shopify:section:load', (event) => {
+      const sectionId = event.detail.sectionId;
+      if (event.target.querySelector('.testimonials-{{ section.id }}')) {
+        loadSwiper(() => initTestimonials28(sectionId));
+      }
+    });
+  }
+</script>
+
+
+
+{% schema %}
+  {
+    "name": "SS - Testimonials #28",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text_alignment",
+        "id": "content_align",
+        "label": "Alignment",
+        "default": "center"
+      },
+      {
+        "type": "text_alignment",
+        "id": "content_align_mobile",
+        "label": "Alignment - mobile",
+        "default": "center"
+      },  
+      {
+        "type": "header",
+        "content": "Slider"
+      },
+      {
+        "type": "range",
+        "id": "slider_view",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Slides to show",
+        "default": 4
+      },      
+      {
+        "type": "range",
+        "id": "slider_view_mobile",
+        "min": 1,
+        "max": 3,
+        "step": 0.1,
+        "label": "Slides to show - mobile",
+        "default": 1.3
+      }, 
+      {
+        "type": "range",
+        "id": "slider_gap",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Gap",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "slider_gap_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Gap - mobile",
+        "default": 16
+      },  
+      {
+        "type": "range",
+        "id": "slider_mt",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "slider_mt_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top - mobile",
+        "default": 28
+      }, 
+      {
+        "type": "header",
+        "content": "Slide"
+      },
+      {
+        "type": "range",
+        "id": "slide_radius",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Roundness",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "slide_border_thickness",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "unit": "px",
+        "label": "Border thickness",
+        "default": 0
+      },    
+      {
+        "type": "header",
+        "content": "Media"
+      },
+      {
+        "type": "select",
+        "id": "media_ratio",
+        "label": "Aspect ratio",
+        "default": "square",
+        "options": [
+          {
+            "label": "Portrait",
+            "value": "portrait"
+          },
+          {
+            "label": "Square",
+            "value": "square"
+          },
+          {
+            "label": "Landscape",
+            "value": "landscape"
+          },
+          {
+            "label": "Original",
+            "value": "original"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "media_ratio_mobile",
+        "label": "Aspect ratio - mobile",
+        "default": "square",
+        "options": [
+          {
+            "label": "Portrait",
+            "value": "portrait"
+          },
+          {
+            "label": "Square",
+            "value": "square"
+          },
+          {
+            "label": "Landscape",
+            "value": "landscape"
+          },
+          {
+            "label": "Original",
+            "value": "original"
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": "Play button"
+      },
+      {
+        "type": "range",
+        "id": "play_size",
+        "min": 10,
+        "max": 50,
+        "step": 2,
+        "unit": "px",
+        "label": "Size",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "play_size_mobile",
+        "min": 10,
+        "max": 50,
+        "step": 2,
+        "unit": "px",
+        "label": "Size - mobile",
+        "default": 24
+      }, 
+      {
+        "type": "range",
+        "id": "play_radius",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Roundness",
+        "default": 100
+      },
+      {
+        "type": "header",
+        "content": "Slide content"
+      },
+      {
+        "type": "range",
+        "id": "slide_content_padding_horizontal",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding horizontal",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "slide_content_padding_horizontal_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding horizontal - mobile",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "slide_content_padding_vertical",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding vertical",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "slide_content_padding_vertical_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding vertical - mobile",
+        "default": 20
+      },
+      {
+        "type": "text_alignment",
+        "id": "slide_content_align",
+        "label": "Alignment"
+      },
+      {
+        "type": "text_alignment",
+        "id": "slide_content_align_mobile",
+        "label": "Alignment - mobile"
+      },
+      {
+        "type": "header",
+        "content": "Testimonial"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_custom",
+        "label": "Use custom font",
+        "default": false
+      },
+      {
+        "type": "font_picker",
+        "id": "text_font",
+        "label": "Font family",
+        "default": "josefin_sans_n4"
+      },
+      {
+        "type": "range",
+        "id": "text_size",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font size",
+        "default": 15
+      },
+      {
+        "type": "range",
+        "id": "text_size_mobile",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font size - mobile",
+        "default": 14
+      },    
+      {
+        "type": "range",
+        "id": "text_height",
+        "min": 50,
+        "max": 200,
+        "step": 10,
+        "unit": "%",
+        "label": "Line height",
+        "default": 150
+      }, 
+      {
+        "type": "header",
+        "content": "Slide stars"
+      },
+      {
+        "type": "image_picker",
+        "label": "Stars icon",
+        "id": "stars_icon",
+        "info": "Replaces the default stars icon"
+      },
+      {
+        "type": "range",
+        "id": "stars_size",
+        "min": 10,
+        "max": 50,
+        "step": 2,
+        "unit": "px",
+        "label": "Size",
+        "default": 18
+      },
+      {
+        "type": "range",
+        "id": "stars_size_mobile",
+        "min": 10,
+        "max": 50,
+        "step": 2,
+        "unit": "px",
+        "label": "Size - mobile",
+        "default": 16
+      }, 
+      {
+        "type": "range",
+        "id": "stars_wrapper_mt",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "stars_wrapper_mt_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top - mobile",
+        "default": 20
+      },
+      {
+        "type": "header",
+        "content": "Badge"
+      },
+      {
+        "type": "range",
+        "id": "badge_padding_horizontal",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding horizontal",
+        "default": 6
+      },
+      {
+        "type": "range",
+        "id": "badge_padding_horizontal_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding horizontal - mobile",
+        "default": 6
+      },
+      {
+        "type": "range",
+        "id": "badge_padding_vertical",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding vertical",
+        "default": 4
+      },
+      {
+        "type": "range",
+        "id": "badge_padding_vertical_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Padding vertical - mobile",
+        "default": 4
+      },
+      {
+        "type": "range",
+        "id": "badge_radius",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Roundness",
+        "default": 2
+      },
+      {
+        "type": "checkbox",
+        "id": "badge_custom",
+        "label": "Use custom font",
+        "default": false
+      },
+      {
+        "type": "font_picker",
+        "id": "badge_font",
+        "label": "Font family",
+        "default": "josefin_sans_n4"
+      },
+      {
+        "type": "range",
+        "id": "badge_size",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font size",
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "badge_size_mobile",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font size - mobile",
+        "default": 11
+      },    
+      {
+        "type": "range",
+        "id": "badge_height",
+        "min": 50,
+        "max": 200,
+        "step": 10,
+        "unit": "%",
+        "label": "Line height",
+        "default": 100
+      },
+      {
+        "type": "header",
+        "content": "Author"
+      },
+      {
+        "type": "checkbox",
+        "id": "author_custom",
+        "label": "Use custom font",
+        "default": false
+      },
+      {
+        "type": "font_picker",
+        "id": "author_font",
+        "label": "Font family",
+        "default": "josefin_sans_n4"
+      },
+      {
+        "type": "range",
+        "id": "author_size",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font size",
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "author_size_mobile",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font size - mobile",
+        "default": 13
+      },    
+      {
+        "type": "range",
+        "id": "author_height",
+        "min": 50,
+        "max": 200,
+        "step": 10,
+        "unit": "%",
+        "label": "Line height",
+        "default": 130
+      },  
+      {
+        "type": "range",
+        "id": "author_mt",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "author_mt_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top - mobile",
+        "default": 12
+      },     
+      {
+        "type": "header",
+        "content": "Arrows"
+      },
+      {
+        "type": "range",
+        "id": "arrows_gap",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Gap",
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "arrows_gap_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Gap - mobile",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "arrows_mt",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 32
+      },
+      {
+        "type": "range",
+        "id": "arrows_mt_mobile",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Margin top - mobile",
+        "default": 24
+      },
+      {
+        "type": "header",
+        "content": "Arrow"
+      },
+      {
+        "type": "range",
+        "id": "arrow_size",
+        "min": 10,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Size",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "arrow_size_mobile",
+        "min": 10,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Size - mobile",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "arrow_icon_size",
+        "min": 5,
+        "max": 15,
+        "step": 1,
+        "unit": "px",
+        "label": "Icon size",
+        "default": 10
+      },
+      {
+        "type": "range",
+        "id": "arrow_icon_size_mobile",
+        "min": 5,
+        "max": 15,
+        "step": 1,
+        "unit": "px",
+        "label": "Icon size - mobile",
+        "default": 10
+      },
+      {
+        "type": "range",
+        "id": "arrow_border_thickness",
+        "min": 0,
+        "max": 10,
+        "step": 0.5,
+        "unit": "px",
+        "label": "Border thickness",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "arrow_radius",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Roundness",
+        "default": 100
+      },
+      {
+        "type": "select",
+        "id": "arrow_hover_effect",
+        "label": "Hover effect",
+        "default": "color",
+        "options": [
+          {
+            "label": "Change color",
+            "value": "color"
+          },
+          {
+            "label": "Change size",
+            "value": "scale"
+          },
+          {
+            "label": "Change arrow",
+            "value": "arrow"
+          },
+          {
+            "label": "None",
+            "value": "none"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "arrow_show_desktop",
+        "label": "Show on desktop",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "arrow_show_mobile",
+        "label": "Show on mobile",
+        "default": false
+      },   
+      {
+        "type": "header",
+        "content": "Slide colors"
+      },
+      {
+        "type": "color",
+        "label": "Text",
+        "id": "text_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Author",
+        "id": "author_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Default star",
+        "id": "stars_color",
+        "default": "#FFFFFF"
+      }, 
+      {
+        "type": "color",
+        "label": "Default star background",
+        "id": "stars_bg_color",
+        "default": "#00B67A"
+      }, 
+      {
+        "type": "color",
+        "label": "Default half star background",
+        "id": "stars_bg_half_color",
+        "default": "#DDDDDD"
+      }, 
+      {
+        "type": "color",
+        "label": "Background",
+        "id": "slide_bg_color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "label": "Border",
+        "id": "slide_border_color",
+        "default": "#121212"
+      },
+      {
+        "type": "header",
+        "content": "Badge colors"
+      },
+      {
+        "type": "color",
+        "label": "Text",
+        "id": "badge_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Background",
+        "id": "badge_bg_color",
+        "default": "#F3F3F3"
+      },
+      {
+        "type": "header",
+        "content": "Play button colors"
+      },
+      {
+        "type": "color",
+        "label": "Icon",
+        "id": "play_color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "label": "Icon hover",
+        "id": "play_hover_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Background",
+        "id": "play_bg_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Background hover",
+        "id": "play_bg_hover_color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "header",
+        "content": "Arrow colors"
+      },
+      {
+        "type": "color",
+        "label": "Icon",
+        "id": "arrow_color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "label": "Icon hover",
+        "id": "arrow_hover_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Background",
+        "id": "arrow_bg_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Background hover",
+        "id": "arrow_bg_hover_color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "label": "Border",
+        "id": "arrow_border_color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "label": "Border hover",
+        "id": "arrow_border_hover_color",
+        "default": "#121212"
+      },
+      {
+        "type": "header",
+        "content": "Section colors"
+      },
+      {
+        "type": "color",
+        "label": "Section background",
+        "id": "background_color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color_background",
+        "id": "background_gradient",
+        "label": "Section background gradient",
+        "info": "Remove gradient to replace with solid colors",
+        "default": "linear-gradient(0deg, rgba(255, 255, 255, 1), rgba(217, 245, 233, 1) 52%, rgba(255, 255, 255, 1) 99%, rgba(255, 255, 255, 1) 100%)"
+      },
+      {
+        "type": "color",
+        "label": "Border",
+        "id": "border_color",
+        "default": "#121212"
+      },
+      {
+        "type": "header",
+        "content": "Section margin (outside)"
+      },
+      {
+        "type": "range",
+        "id": "margin_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Margin top",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "margin_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Margin bottom",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "margin_horizontal",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "unit": "rem",
+        "label": "Margin sides",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "margin_horizontal_mobile",
+        "min": 0,
+        "max": 15,
+        "step": 0.5,
+        "unit": "rem",
+        "label": "Margin sides mobile",
+        "default": 0
+      },
+      {
+        "type": "header",
+        "content": "Section padding (inside)"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 36
+      },
+      {
+         "type": "range",
+         "id": "padding_bottom",
+         "min": 0,
+         "max": 100,
+         "step": 4,
+         "unit": "px",
+         "label": "Padding bottom",
+         "default": 36
+      },
+      {
+        "type": "range",
+        "id": "padding_horizontal",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "unit": "rem",
+        "label": "Padding sides",
+        "default": 5
+      },
+      {
+        "type": "range",
+        "id": "padding_horizontal_mobile",
+        "min": 0,
+        "max": 15,
+        "step": 0.5,
+        "unit": "rem",
+        "label": "Padding sides mobile",
+        "default": 1.5
+      },
+      {
+        "type": "header",
+        "content": "Section"
+      },
+      {
+        "type": "checkbox",
+        "id": "full_width",
+        "label": "Full width",
+        "default": false
+      },
+      {
+        "type": "range",
+        "id": "content_width",
+        "min": 800,
+        "max": 2000,
+        "step": 100,
+        "unit": "px",
+        "label": "Section content width",
+        "default": 1200
+      },
+      {
+        "type": "range",
+        "id": "border_thickness",
+        "min": 0,
+        "max": 50,
+        "step": 1,
+        "unit": "px",
+        "label": "Border thickness",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "section_radius",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "unit": "px",
+        "label": "Section roundness",
+        "default": 0
+      },
+      {
+        "type": "checkbox",
+        "id": "lazy",
+        "label": "Lazy load",
+        "info": "Lazy load images for speed optimisation",
+        "default": true
+      }
+    ],
+    "blocks": [
+      {
+        "type": "review",
+        "limit": 1,
+        "name": "Stars rating",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Images"
+          },
+          {
+            "type": "image_picker",
+            "label": "First image",
+            "id": "first_image"
+          },
+          {
+            "type": "image_picker",
+            "label": "Second image",
+            "id": "second_image"
+          },
+          {
+            "type": "image_picker",
+            "label": "Third image",
+            "id": "third_image"
+          },
+          {
+            "type": "image_picker",
+            "label": "Fourth image",
+            "id": "fourth_image"
+          },
+          {
+            "type": "range",
+            "id": "image_size",
+            "min": 10,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Size",
+            "default": 38
+          },
+          {
+            "type": "range",
+            "id": "image_size_mobile",
+            "min": 10,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Size - mobile",
+            "default": 38
+          },  
+          {
+            "type": "range",
+            "id": "image_radius",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Roundness",
+            "default": 100
+          },
+          {
+            "type": "range",
+            "id": "image_border_thickness",
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "unit": "px",
+            "label": "Border thickness",
+            "default": 2
+          },
+          {
+            "type": "header",
+            "content": "Stars"
+          },
+          {
+            "type": "range",
+            "id": "stars_count",
+            "min": 0,
+            "max": 5,
+            "step": 0.5,
+            "label": "Star rating",
+            "default": 5,
+            "info": "Set 0 to hide stars"
+          },
+          {
+            "type": "image_picker",
+            "label": "Stars icon",
+            "id": "stars_icon",
+            "info": "Replaces the default stars icon"
+          },
+          {
+            "type": "range",
+            "id": "stars_size",
+            "min": 10,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Size",
+            "default": 18
+          },
+          {
+            "type": "range",
+            "id": "stars_size_mobile",
+            "min": 10,
+            "max": 50,
+            "step": 2,
+            "unit": "px",
+            "label": "Size - mobile",
+            "default": 16
+          },    
+          {
+            "type": "header",
+            "content": "Text"
+          },
+          {
+            "type": "text",
+            "id": "review",
+            "label": "Line 1",
+            "default": "50K+ Happy Customers"
+          },
+          {
+            "type": "text",
+            "id": "stars_text",
+            "label": "Line 2",
+            "default": "Excellent 4.9"
+          },
+          {
+            "type": "checkbox",
+            "id": "review_custom",
+            "label": "Use custom font",
+            "default": false
+          },
+          {
+            "type": "font_picker",
+            "id": "review_font",
+            "label": "Font family",
+            "default": "josefin_sans_n4"
+          },
+          {
+            "type": "range",
+            "id": "review_size",
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "unit": "px",
+            "label": "Font size",
+            "default": 16
+          },
+          {
+            "type": "range",
+            "id": "review_size_mobile",
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "unit": "px",
+            "label": "Font size - mobile",
+            "default": 13
+          },
+          {
+            "type": "range",
+            "id": "review_height",
+            "min": 50,
+            "max": 200,
+            "step": 10,
+            "unit": "%",
+            "label": "Line height",
+            "default": 130
+          },  
+          {
+            "type": "range",
+            "id": "review_mt",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top",
+            "default": 16
+          },
+          {
+            "type": "range",
+            "id": "review_mt_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top - mobile",
+            "default": 10
+          },        
+          {
+            "type": "header",
+            "content": "Colors"
+          },     
+          {
+            "type": "color",
+            "label": "Primary text",
+            "id": "review_color",
+            "default": "#121212"
+          },
+          {
+            "type": "color",
+            "label": "Secondary text",
+            "id": "count_color",
+            "default": "#121212"
+          },
+          {
+            "type": "color",
+            "label": "Default star",
+            "id": "stars_color",
+            "default": "#FFFFFF"
+          }, 
+          {
+            "type": "color",
+            "label": "Default star background",
+            "id": "stars_bg_color",
+            "default": "#00B67A"
+          }, 
+          {
+            "type": "color",
+            "label": "Default half star background",
+            "id": "stars_bg_half_color",
+            "default": "#DDDDDD"
+          }, 
+          {
+              "type": "color",
+              "label": "Image border",
+              "id": "image_border_color",
+              "default": "#FFFFFF"
+          }
+        ]
+      },
+      {            
+        "type": "heading",
+        "limit": 1,
+        "name": "Heading",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "heading",
+            "label": "Heading",
+            "info": "Use bold text style to apply underlining",
+            "default": "<h2>Testimonials <strong>#28</strong></h2>"
+          },
+          {
+            "type": "checkbox",
+            "id": "heading_custom",
+            "label": "Use custom font",
+            "default": false
+          },
+          {
+            "type": "font_picker",
+            "id": "heading_font",
+            "label": "Font family",
+            "default": "josefin_sans_n4"
+          },
+          {
+            "type": "range",
+            "id": "heading_size",
+            "min": 0,
+            "max": 72,
+            "step": 2,
+            "unit": "px",
+            "label": "Font size",
+            "default": 48
+          },
+          {
+            "type": "range",
+            "id": "heading_size_mobile",
+            "min": 0,
+            "max": 72,
+            "step": 2,
+            "unit": "px",
+            "label": "Font size - mobile",
+            "default": 32
+          },
+          {
+            "type": "range",
+            "id": "heading_height",
+            "min": 50,
+            "max": 200,
+            "step": 10,
+            "unit": "%",
+            "label": "Line height",
+            "default": 130
+          },
+          {
+            "type": "range",
+            "id": "heading_mt",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top",
+            "default": 12
+          },
+          {
+            "type": "range",
+            "id": "heading_mt_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top - mobile",
+            "default": 16
+          },
+          {
+            "type": "range",
+            "id": "heading_max_width",
+            "min": 30,
+            "max": 100,
+            "step": 2,
+            "unit": "%",
+            "label": "Max width",
+            "default": 80
+          },
+          {
+            "type": "header",
+            "content": "Colors"
+          },
+          {
+            "type": "color",
+            "label": "Text",
+            "id": "heading_color",
+            "default": "#121212"
+          },
+          {
+            "type": "color",
+            "label": "Border",
+            "id": "heading_border_color",
+            "default": "#00B67D",
+            "info": "Use bold text style to apply underlining",
+          }
+        ]
+      },
+      {
+        "type": "button",
+        "limit": 1,
+        "name": "Button",
+        "settings": [
+          {
+            "type": "text",
+            "id": "button",
+            "label": "Button label",
+            "default": "SHOP NOW"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "Button link"
+          },
+          {
+            "type": "checkbox",
+            "id": "button_custom",
+            "label": "Use custom font",
+            "default": false
+          },
+          {
+            "type": "font_picker",
+            "id": "button_font",
+            "label": "Font family",
+            "default": "josefin_sans_n4"
+          },
+          {
+            "type": "range",
+            "id": "button_size",
+            "min": 0,
+            "max": 30,
+            "step": 1,
+            "unit": "px",
+            "label": "Font size",
+            "default": 16
+          },
+          {
+            "type": "range",
+            "id": "button_size_mobile",
+            "min": 0,
+            "max": 30,
+            "step": 1,
+            "unit": "px",
+            "label": "Font size - mobile",
+            "default": 16
+          },
+          {
+            "type": "range",
+            "id": "button_height",
+            "min": 50,
+            "max": 200,
+            "step": 10,
+            "unit": "%",
+            "label": "Line height",
+            "default": 100
+          },
+          {
+            "type": "range",
+            "id": "button_padding_horizontal",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding horizontal",
+            "default": 100
+          },
+          {
+            "type": "range",
+            "id": "button_padding_horizontal_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding horizontal - mobile",
+            "default": 100
+          },
+          {
+            "type": "range",
+            "id": "button_padding_vertical",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding vertical",
+            "default": 20
+          },
+          {
+            "type": "range",
+            "id": "button_padding_vertical_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding vertical - mobile",
+            "default": 18
+          },
+          {
+            "type": "range",
+            "id": "button_radius",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Roundness",
+            "default": 8
+          },
+          {
+            "type": "range",
+            "id": "button_border_thickness",
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "unit": "px",
+            "label": "Border thickness",
+            "default": 1
+          },
+          {
+            "type": "range",
+            "id": "button_mt",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top",
+            "default": 32
+          },
+          {
+            "type": "range",
+            "id": "button_mt_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top - mobile",
+            "default": 24
+          },
+          {
+            "type": "select",
+            "id": "button_style",
+            "label": "Button style",
+            "default": "non_outline",
+            "options": [
+              {
+                "label": "Link",
+                "value": "link"
+              },
+              {
+                "label": "Non-outline",
+                "value": "non_outline"
+              },
+              {
+                "label": "Non-outline & arrow",
+                "value": "non_outline_arrow"
+              },
+              {
+                "label": "Outline",
+                "value": "outline"
+              },
+              {
+                "label": "Outline & arrow",
+                "value": "outline_arrow"
+              }
+            ]
+          },
+          {
+            "type": "header",
+            "content": "Colors"
+          },
+          {
+            "type": "color",
+            "label": "Text",
+            "id": "button_color",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "label": "Hover text",
+            "id": "button_hover_color",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "label": "Background",
+            "id": "button_bg_color",
+            "default": "#00B67D"
+          },
+          {
+            "type": "color",
+            "label": "Background hover",
+            "id": "button_bg_hover_color",
+            "default": "#17C28D"
+          },
+          {
+            "type": "color",
+            "label": "Button border",
+            "id": "button_border_color",
+            "default": "#121212"
+          },
+          {
+            "type": "color",
+            "label": "Border hover",
+            "id": "button_border_hover_color",
+            "default": "#121212"
+          }
+        ]
+      },
+      {
+        "type": "bottom_text",
+        "limit": 1,
+        "name": "Caption",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "bottom_text",
+            "label": "Text",
+            "default": "<p><strong>Caption</strong></p>"
+          },
+          {
+            "type": "checkbox",
+            "id": "text_custom",
+            "label": "Use custom font",
+            "default": false
+          },
+          {
+            "type": "font_picker",
+            "id": "text_font",
+            "label": "Font family",
+            "default": "josefin_sans_n4"
+          },
+          {
+            "type": "range",
+            "id": "text_size",
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "unit": "px",
+            "label": "Font size",
+            "default": 15
+          },
+          {
+            "type": "range",
+            "id": "text_size_mobile",
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "unit": "px",
+            "label": "Font size - mobile",
+            "default": 13
+          },
+          {
+            "type": "range",
+            "id": "text_height",
+            "min": 50,
+            "max": 200,
+            "step": 10,
+            "unit": "%",
+            "label": "Line height",
+            "default": 130
+          },
+          {
+            "type": "range",
+            "id": "text_padding_horizontal",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding horizontal",
+            "default": 20
+          },
+          {
+            "type": "range",
+            "id": "text_padding_horizontal_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding horizontal - mobile",
+            "default": 20
+          },
+          {
+            "type": "range",
+            "id": "text_padding_vertical",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding vertical",
+            "default": 10
+          },
+          {
+            "type": "range",
+            "id": "text_padding_vertical_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Padding vertical - mobile",
+            "default": 10
+          },
+          {
+            "type": "range",
+            "id": "text_radius",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Roundness",
+            "default": 8
+          },
+          {
+            "type": "range",
+            "id": "text_border_thickness",
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "unit": "px",
+            "label": "Border thickness",
+            "default": 0
+          },
+          {
+            "type": "range",
+            "id": "text_mt",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top",
+            "default": 16
+          },
+          {
+            "type": "range",
+            "id": "text_mt_mobile",
+            "min": 0,
+            "max": 100,
+            "step": 2,
+            "unit": "px",
+            "label": "Margin top - mobile",
+            "default": 12
+          },
+          {
+            "type": "header",
+            "content": "Colors"
+          },
+          {
+            "type": "color",
+            "label": "Text",
+            "id": "text_color",
+            "default": "#00B67D"
+          },
+          {
+            "type": "color",
+            "label": "Background",
+            "id": "text_bg_color",
+            "default": "#CBFEE8"
+          },
+          {
+            "type": "color",
+            "label": "Border",
+            "id": "text_border_color",
+            "default": "#00B67D"
+          }
+        ]
+      },
+      {
+        "type": "slide",
+        "name": "Testimonial",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Media"
+          }, 
+          {
+            "type": "select",
+            "id": "media_type",
+            "label": "Type",
+            "default": "video",
+            "options": [
+              {
+                "label": "Image",
+                "value": "image"
+              },
+              {
+                "label": "Video",
+                "value": "video"
+              }
+            ]
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "video",
+            "id": "video",
+            "label": "Video from Shopify"
+          },
+          {
+            "type": "video_url",
+            "id": "video_url",
+            "label": "Video embed from URL",
+            "accept": [
+              "youtube",
+              "vimeo"
+            ],
+            "info": "Youtube or Vimeo. Shows when no Shopify-hosted video is selected."
+          },   
+          {
+            "type": "header",
+            "content": "Content"
+          }, 
+          {
+            "type": "richtext",
+            "id": "text", 
+            "label": "Testimonial",
+            "info": "For best results, keep the word count similar in each quote.",
+            "default": "<p>Add customer reviews and testimonials to highlight the positive experiences they’ve had with your store.</p>"
+          },
+          {
+            "type": "range",
+            "id": "stars_count",
+            "min": 0,
+            "max": 5,
+            "step": 0.5,
+            "label": "Star rating",
+            "default": 5,
+            "info": "Set 0 to hide stars"
+          },
+          {
+            "type": "text",
+            "id": "badge", 
+            "label": "Badge",
+            "default": "Verified"
+          }, 
+          {
+            "type": "text",
+            "id": "author", 
+            "label": "Author",
+            "default": "Author's name"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "SS - Testimonials #28",
+        "blocks": [
+          {
+            "type": "review"
+          },
+          {
+            "type": "heading"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          },
+          {
+            "type": "button"
+          },
+          {
+            "type": "bottom_text"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

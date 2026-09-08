@@ -1,0 +1,1375 @@
+{% comment %}
+  Section: TST FAQ
+  - Mỗi block là một tab FAQ
+  - Mỗi tab có tối đa 6 câu hỏi
+  - Có tìm kiếm FAQ
+  - Có Default / Full width
+  - Responsive mobile
+{% endcomment %}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --tst-faq-bg: {{ section.settings.background_color }};
+    --tst-faq-heading: {{ section.settings.heading_color }};
+    --tst-faq-text: {{ section.settings.text_color }};
+    --tst-faq-accent: {{ section.settings.accent_color }};
+    --tst-faq-border: {{ section.settings.border_color }};
+    --tst-faq-input-bg: {{ section.settings.input_background }};
+    --tst-faq-tab-bg: {{ section.settings.tab_background }};
+    --tst-faq-tab-active-bg: {{ section.settings.tab_active_background }};
+    --tst-faq-full-padding: {{ section.settings.full_width_padding }}px;
+    --tst-faq-mobile-padding: {{ section.settings.mobile_side_padding }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq {
+    width: 100%;
+    overflow: hidden;
+    background: var(--tst-faq-bg);
+    color: var(--tst-faq-text);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__inner {
+    width: 100%;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__inner--full-width {
+    padding-left: var(--tst-faq-full-padding);
+    padding-right: var(--tst-faq-full-padding);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__top {
+    max-width: {{ section.settings.top_content_width }}px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__heading {
+    margin: 0;
+    color: var(--tst-faq-heading);
+    font-size: clamp(
+      {{ section.settings.heading_size_mobile }}px,
+      4vw,
+      {{ section.settings.heading_size_desktop }}px
+    );
+    font-weight: {{ section.settings.heading_weight }};
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: {{ section.settings.search_spacing }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__search-icon {
+    position: absolute;
+    left: 16px;
+    z-index: 1;
+    display: flex;
+    width: 18px;
+    height: 18px;
+    color: var(--tst-faq-accent);
+    pointer-events: none;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__search-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__search-input {
+    width: 100%;
+    height: {{ section.settings.search_height }}px;
+    margin: 0;
+    padding: 0 18px 0 46px;
+    color: var(--tst-faq-text);
+    background: var(--tst-faq-input-bg);
+    border: 1px solid transparent;
+    border-radius: {{ section.settings.search_radius }}px;
+    box-shadow: none;
+    font: inherit;
+    font-size: {{ section.settings.search_text_size }}px;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__search-input::placeholder {
+    color: var(--tst-faq-text);
+    opacity: 0.8;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__search-input:focus {
+    border-color: var(--tst-faq-accent);
+    box-shadow: 0 0 0 1px var(--tst-faq-accent);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: {{ section.settings.tab_gap }}px;
+    margin-top: {{ section.settings.tabs_spacing }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__tab-button {
+    appearance: none;
+    min-height: 30px;
+    margin: 0;
+    padding: 7px 14px;
+    color: var(--tst-faq-text);
+    background: var(--tst-faq-tab-bg);
+    border: 1px solid transparent;
+    border-radius: {{ section.settings.tab_radius }}px;
+    box-shadow: none;
+    cursor: pointer;
+    font: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: {{ section.settings.tab_text_size }}px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    transition:
+      color 0.2s ease,
+      background 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__tab-button:hover,
+  #shopify-section-{{ section.id }} .tst-faq__tab-button[aria-selected="true"] {
+    color: var(--tst-faq-accent);
+    background: var(--tst-faq-tab-active-bg);
+    border-color: var(--tst-faq-accent);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__divider {
+    width: 100%;
+    height: 1px;
+    margin: {{ section.settings.divider_spacing }}px 0
+      {{ section.settings.content_top_spacing }}px;
+    background: var(--tst-faq-border);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__panel[hidden] {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__content {
+    display: grid;
+    grid-template-columns:
+      minmax(220px, {{ section.settings.intro_width }}px)
+      minmax(0, 1fr);
+    align-items: start;
+    gap: {{ section.settings.content_gap }}px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__intro {
+    min-width: 0;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__intro-heading {
+    margin: 0;
+    color: var(--tst-faq-heading);
+    font-size: {{ section.settings.intro_heading_size }}px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__intro-description {
+    margin-top: 14px;
+    color: var(--tst-faq-accent);
+    font-size: {{ section.settings.intro_text_size }}px;
+    line-height: 1.65;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__intro-description p {
+    margin: 0;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__list {
+    min-width: 0;
+    border-top: 1px solid var(--tst-faq-border);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__item {
+    margin: 0;
+    border-bottom: 1px solid var(--tst-faq-border);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__item[hidden] {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__question {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    padding: {{ section.settings.question_padding }}px 4px;
+    color: var(--tst-faq-heading);
+    cursor: pointer;
+    list-style: none;
+    font-size: {{ section.settings.question_size }}px;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__question::marker {
+    display: none;
+    content: "";
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__question-text {
+    min-width: 0;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__arrow {
+    position: relative;
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    color: var(--tst-faq-accent);
+    transition: transform 0.25s ease;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__arrow::before,
+  #shopify-section-{{ section.id }} .tst-faq__arrow::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    width: 8px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__arrow::before {
+    left: 0;
+    transform: rotate(45deg);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__arrow::after {
+    right: 0;
+    transform: rotate(-45deg);
+  }
+
+  #shopify-section-{{ section.id }}
+    .tst-faq__item[open]
+    .tst-faq__arrow {
+    transform: rotate(180deg);
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__answer {
+    padding: 0 34px {{ section.settings.answer_bottom_spacing }}px 0;
+    color: var(--tst-faq-accent);
+    font-size: {{ section.settings.answer_size }}px;
+    line-height: 1.65;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__answer > *:first-child {
+    margin-top: 0;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__answer > *:last-child {
+    margin-bottom: 0;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__empty {
+    display: none;
+    margin: 24px 0 0;
+    color: var(--tst-faq-accent);
+    font-size: 14px;
+  }
+
+  #shopify-section-{{ section.id }} .tst-faq__empty.is-visible {
+    display: block;
+  }
+
+  @media screen and (max-width: 989px) {
+    #shopify-section-{{ section.id }} .tst-faq__content {
+      grid-template-columns: minmax(180px, 30%) minmax(0, 1fr);
+      gap: 40px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #shopify-section-{{ section.id }} .tst-faq {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__inner,
+    #shopify-section-{{ section.id }} .tst-faq__inner--full-width {
+      padding-left: var(--tst-faq-mobile-padding);
+      padding-right: var(--tst-faq-mobile-padding);
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__top {
+      max-width: 100%;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__heading {
+      text-align: left;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__tabs {
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      width: calc(100% + var(--tst-faq-mobile-padding));
+      margin-right: calc(var(--tst-faq-mobile-padding) * -1);
+      padding-right: var(--tst-faq-mobile-padding);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__tab-button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__divider {
+      margin-top: {{ section.settings.divider_spacing_mobile }}px;
+      margin-bottom: {{ section.settings.content_top_spacing_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__content {
+      grid-template-columns: minmax(0, 1fr);
+      gap: {{ section.settings.mobile_content_gap }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__intro-heading {
+      font-size: {{ section.settings.intro_heading_size_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__question {
+      gap: 14px;
+      padding-top: {{ section.settings.question_padding_mobile }}px;
+      padding-bottom: {{ section.settings.question_padding_mobile }}px;
+      font-size: {{ section.settings.question_size_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .tst-faq__answer {
+      padding-right: 10px;
+      font-size: {{ section.settings.answer_size_mobile }}px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #shopify-section-{{ section.id }} .tst-faq__tab-button,
+    #shopify-section-{{ section.id }} .tst-faq__arrow {
+      transition: none;
+    }
+  }
+{%- endstyle -%}
+
+<section
+  class="tst-faq"
+  data-tst-faq-section
+  data-single-open="{{ section.settings.single_open }}"
+>
+  <div
+    class="
+      tst-faq__inner
+      {% if section.settings.section_width == 'default' %}
+        page-width
+      {% else %}
+        tst-faq__inner--full-width
+      {% endif %}
+    "
+  >
+    <div class="tst-faq__top">
+      {% if section.settings.heading != blank %}
+        <h2 class="tst-faq__heading">
+          {{ section.settings.heading | escape }}
+        </h2>
+      {% endif %}
+
+      {% if section.settings.enable_search %}
+        <div class="tst-faq__search">
+          <span class="tst-faq__search-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="M20 20L16.65 16.65"></path>
+            </svg>
+          </span>
+
+          <input
+            class="tst-faq__search-input"
+            type="search"
+            placeholder="{{ section.settings.search_placeholder | escape }}"
+            aria-label="{{ section.settings.search_placeholder | escape }}"
+            data-tst-faq-search
+          >
+        </div>
+      {% endif %}
+
+      {% if section.blocks.size > 0 %}
+        <div
+          class="tst-faq__tabs"
+          role="tablist"
+          aria-label="FAQ categories"
+        >
+          {% for block in section.blocks %}
+            <button
+              type="button"
+              class="tst-faq__tab-button"
+              id="TstFaqTab-{{ section.id }}-{{ block.id }}"
+              role="tab"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-controls="TstFaqPanel-{{ section.id }}-{{ block.id }}"
+              tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+              data-tst-faq-tab="{{ block.id }}"
+            >
+              {{ block.settings.tab_label | escape }}
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="tst-faq__divider"></div>
+
+    <div class="tst-faq__panels">
+      {% for block in section.blocks %}
+        <div
+          class="tst-faq__panel"
+          id="TstFaqPanel-{{ section.id }}-{{ block.id }}"
+          role="tabpanel"
+          aria-labelledby="TstFaqTab-{{ section.id }}-{{ block.id }}"
+          data-tst-faq-panel="{{ block.id }}"
+          {% unless forloop.first %}
+            hidden
+          {% endunless %}
+          {{ block.shopify_attributes }}
+        >
+          <div class="tst-faq__content">
+            <div class="tst-faq__intro">
+              {% if block.settings.intro_heading != blank %}
+                <h3 class="tst-faq__intro-heading">
+                  {{ block.settings.intro_heading | escape }}
+                </h3>
+              {% endif %}
+
+              {% if block.settings.intro_description != blank %}
+                <div class="tst-faq__intro-description">
+                  {{ block.settings.intro_description }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div>
+              <div class="tst-faq__list">
+                {% for index in (1..6) %}
+                  {% capture question_key %}
+                    faq_question_{{ index }}
+                  {% endcapture %}
+
+                  {% capture answer_key %}
+                    faq_answer_{{ index }}
+                  {% endcapture %}
+
+                  {% assign question_key = question_key | strip %}
+                  {% assign answer_key = answer_key | strip %}
+
+                  {% assign faq_question = block.settings[question_key] %}
+                  {% assign faq_answer = block.settings[answer_key] %}
+
+                  {% if faq_question != blank %}
+                    <details
+                      class="tst-faq__item"
+                      data-tst-faq-item
+                      data-search-text="{{ faq_question | append: ' ' | append: faq_answer | strip_html | downcase | escape }}"
+                      {% if section.settings.open_first
+                        and forloop.first
+                        and forloop.parentloop.first
+                      %}
+                        open
+                      {% endif %}
+                    >
+                      <summary class="tst-faq__question">
+                        <span class="tst-faq__question-text">
+                          {{ faq_question | escape }}
+                        </span>
+
+                        <span
+                          class="tst-faq__arrow"
+                          aria-hidden="true"
+                        ></span>
+                      </summary>
+
+                      {% if faq_answer != blank %}
+                        <div class="tst-faq__answer rte">
+                          {{ faq_answer }}
+                        </div>
+                      {% endif %}
+                    </details>
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+              <p class="tst-faq__empty" data-tst-faq-empty>
+                {{ section.settings.no_results_text | escape }}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const initializeTstFaq = (section) => {
+      if (!section || section.dataset.initialized === 'true') return;
+
+      section.dataset.initialized = 'true';
+
+      const tabButtons = Array.from(
+        section.querySelectorAll('[data-tst-faq-tab]')
+      );
+
+      const panels = Array.from(
+        section.querySelectorAll('[data-tst-faq-panel]')
+      );
+
+      const searchInput = section.querySelector('[data-tst-faq-search]');
+      const singleOpen = section.dataset.singleOpen === 'true';
+
+      const getActivePanel = () => {
+        return panels.find((panel) => !panel.hidden);
+      };
+
+      const filterActivePanel = () => {
+        const activePanel = getActivePanel();
+
+        if (!activePanel) return;
+
+        const searchValue = searchInput
+          ? searchInput.value.trim().toLowerCase()
+          : '';
+
+        const items = Array.from(
+          activePanel.querySelectorAll('[data-tst-faq-item]')
+        );
+
+        const emptyMessage = activePanel.querySelector(
+          '[data-tst-faq-empty]'
+        );
+
+        let visibleCount = 0;
+
+        items.forEach((item) => {
+          const searchableText = item.dataset.searchText || '';
+          const isVisible =
+            searchValue === '' || searchableText.includes(searchValue);
+
+          item.hidden = !isVisible;
+
+          if (isVisible) {
+            visibleCount += 1;
+          }
+        });
+
+        if (emptyMessage) {
+          emptyMessage.classList.toggle(
+            'is-visible',
+            visibleCount === 0
+          );
+        }
+      };
+
+      const activateTab = (button, moveFocus = false) => {
+        const tabId = button.dataset.tstFaqTab;
+
+        tabButtons.forEach((tabButton) => {
+          const isActive = tabButton === button;
+
+          tabButton.setAttribute(
+            'aria-selected',
+            isActive ? 'true' : 'false'
+          );
+
+          tabButton.tabIndex = isActive ? 0 : -1;
+        });
+
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.tstFaqPanel !== tabId;
+        });
+
+        if (moveFocus) {
+          button.focus();
+        }
+
+        filterActivePanel();
+      };
+
+      tabButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+          activateTab(button);
+        });
+
+        button.addEventListener('keydown', (event) => {
+          if (
+            event.key !== 'ArrowRight' &&
+            event.key !== 'ArrowLeft' &&
+            event.key !== 'Home' &&
+            event.key !== 'End'
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+
+          let nextIndex = index;
+
+          if (event.key === 'ArrowRight') {
+            nextIndex = (index + 1) % tabButtons.length;
+          }
+
+          if (event.key === 'ArrowLeft') {
+            nextIndex =
+              (index - 1 + tabButtons.length) % tabButtons.length;
+          }
+
+          if (event.key === 'Home') {
+            nextIndex = 0;
+          }
+
+          if (event.key === 'End') {
+            nextIndex = tabButtons.length - 1;
+          }
+
+          activateTab(tabButtons[nextIndex], true);
+        });
+      });
+
+      section
+        .querySelectorAll('[data-tst-faq-item]')
+        .forEach((details) => {
+          details.addEventListener('toggle', () => {
+            if (!singleOpen || !details.open) return;
+
+            const activePanel = details.closest('[data-tst-faq-panel]');
+
+            activePanel
+              .querySelectorAll('[data-tst-faq-item][open]')
+              .forEach((otherDetails) => {
+                if (otherDetails !== details) {
+                  otherDetails.removeAttribute('open');
+                }
+              });
+          });
+        });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterActivePanel);
+      }
+
+      filterActivePanel();
+    };
+
+    const section = document.currentScript
+      .closest('.shopify-section')
+      .querySelector('[data-tst-faq-section]');
+
+    initializeTstFaq(section);
+
+    document.addEventListener('shopify:section:load', (event) => {
+      const loadedSection = event.target.querySelector(
+        '[data-tst-faq-section]'
+      );
+
+      initializeTstFaq(loadedSection);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "TST FAQ",
+  "tag": "section",
+  "class": "section section-tst-faq",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "How can we help you today?"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_search",
+      "label": "Enable search",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search placeholder",
+      "default": "Search knowledge base..."
+    },
+    {
+      "type": "text",
+      "id": "no_results_text",
+      "label": "No results text",
+      "default": "No matching questions found."
+    },
+    {
+      "type": "checkbox",
+      "id": "open_first",
+      "label": "Open first FAQ by default",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "single_open",
+      "label": "Only allow one FAQ open",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default - theme width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full width"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "top_content_width",
+      "label": "Top content width",
+      "min": 400,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 680
+    },
+    {
+      "type": "range",
+      "id": "intro_width",
+      "label": "Left content width desktop",
+      "min": 200,
+      "max": 500,
+      "step": 20,
+      "unit": "px",
+      "default": 280
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Content column gap",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_gap",
+      "label": "Content gap mobile",
+      "min": 16,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading and question color",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#f2f2f2"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#ff9c84"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#242424"
+    },
+    {
+      "type": "color",
+      "id": "input_background",
+      "label": "Search background",
+      "default": "#191916"
+    },
+    {
+      "type": "color",
+      "id": "tab_background",
+      "label": "Tab background",
+      "default": "#292727"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_background",
+      "label": "Active tab background",
+      "default": "#302d2c"
+    },
+    {
+      "type": "header",
+      "content": "Heading typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Heading size desktop",
+      "min": 28,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 24,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "intro_heading_size",
+      "label": "Tab heading size desktop",
+      "min": 16,
+      "max": 34,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "intro_heading_size_mobile",
+      "label": "Tab heading size mobile",
+      "min": 16,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "intro_text_size",
+      "label": "Tab description size",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "question_size",
+      "label": "Question size desktop",
+      "min": 13,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "question_size_mobile",
+      "label": "Question size mobile",
+      "min": 13,
+      "max": 21,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "answer_size",
+      "label": "Answer size desktop",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "answer_size_mobile",
+      "label": "Answer size mobile",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Search and tabs"
+    },
+    {
+      "type": "range",
+      "id": "search_spacing",
+      "label": "Space above search",
+      "min": 12,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "search_height",
+      "label": "Search height",
+      "min": 44,
+      "max": 76,
+      "step": 2,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "search_radius",
+      "label": "Search corner radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "search_text_size",
+      "label": "Search text size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "tabs_spacing",
+      "label": "Space above tabs",
+      "min": 8,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "tab_gap",
+      "label": "Tab gap",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "tab_radius",
+      "label": "Tab corner radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "tab_text_size",
+      "label": "Tab text size",
+      "min": 9,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "header",
+      "content": "FAQ spacing"
+    },
+    {
+      "type": "range",
+      "id": "question_padding",
+      "label": "Question vertical padding",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "question_padding_mobile",
+      "label": "Question padding mobile",
+      "min": 14,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "answer_bottom_spacing",
+      "label": "Answer bottom spacing",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "divider_spacing",
+      "label": "Space above divider desktop",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "divider_spacing_mobile",
+      "label": "Space above divider mobile",
+      "min": 24,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "content_top_spacing",
+      "label": "Space below divider desktop",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "content_top_spacing_mobile",
+      "label": "Space below divider mobile",
+      "min": 20,
+      "max": 72,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "full_width_padding",
+      "label": "Full width side padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "mobile_side_padding",
+      "label": "Mobile side padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top desktop",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom desktop",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_tab",
+      "name": "FAQ tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab label",
+          "default": "Returns"
+        },
+        {
+          "type": "text",
+          "id": "intro_heading",
+          "label": "Tab heading",
+          "default": "Frequently Asked Questions"
+        },
+        {
+          "type": "richtext",
+          "id": "intro_description",
+          "label": "Tab description",
+          "default": "<p>Detailed information on our gear, processes, and guarantees.</p>"
+        },
+        {
+          "type": "header",
+          "content": "FAQ 1"
+        },
+        {
+          "type": "text",
+          "id": "faq_question_1",
+          "label": "Question",
+          "default": "What is the minimum quantity for bulk orders?"
+        },
+        {
+          "type": "richtext",
+          "id": "faq_answer_1",
+          "label": "Answer",
+          "default": "<p>Our minimum order quantity for custom bulk orders is typically 50 units per design.</p>"
+        },
+        {
+          "type": "header",
+          "content": "FAQ 2"
+        },
+        {
+          "type": "text",
+          "id": "faq_question_2",
+          "label": "Question",
+          "default": "What are your vector artwork guidelines?"
+        },
+        {
+          "type": "richtext",
+          "id": "faq_answer_2",
+          "label": "Answer",
+          "default": "<p>We require artwork in vector format with all fonts outlined.</p>"
+        },
+        {
+          "type": "header",
+          "content": "FAQ 3"
+        },
+        {
+          "type": "text",
+          "id": "faq_question_3",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "faq_answer_3",
+          "label": "Answer"
+        },
+        {
+          "type": "header",
+          "content": "FAQ 4"
+        },
+        {
+          "type": "text",
+          "id": "faq_question_4",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "faq_answer_4",
+          "label": "Answer"
+        },
+        {
+          "type": "header",
+          "content": "FAQ 5"
+        },
+        {
+          "type": "text",
+          "id": "faq_question_5",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "faq_answer_5",
+          "label": "Answer"
+        },
+        {
+          "type": "header",
+          "content": "FAQ 6"
+        },
+        {
+          "type": "text",
+          "id": "faq_question_6",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "faq_answer_6",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST FAQ",
+      "blocks": [
+        {
+          "type": "faq_tab",
+          "settings": {
+            "tab_label": "Returns",
+            "intro_heading": "Returns & Exchanges",
+            "intro_description": "<p>Detailed information about returns, exchanges, and refunds.</p>",
+            "faq_question_1": "What is your return policy?",
+            "faq_answer_1": "<p>Returns are accepted within the period stated in our store policy.</p>",
+            "faq_question_2": "How long does a refund take?",
+            "faq_answer_2": "<p>Approved refunds are returned to the original payment method.</p>"
+          }
+        },
+        {
+          "type": "faq_tab",
+          "settings": {
+            "tab_label": "Warranty",
+            "intro_heading": "Warranty Information",
+            "intro_description": "<p>Information about product coverage and warranty claims.</p>",
+            "faq_question_1": "What does the warranty cover?",
+            "faq_answer_1": "<p>Our warranty covers eligible manufacturing defects.</p>",
+            "faq_question_2": "How do I submit a warranty claim?",
+            "faq_answer_2": "<p>Contact our support team with your order number and product photos.</p>"
+          }
+        },
+        {
+          "type": "faq_tab",
+          "settings": {
+            "tab_label": "Bulk Orders",
+            "intro_heading": "Frequently Asked Questions",
+            "intro_description": "<p>Detailed information on our gear, processes, and guarantees.</p>",
+            "faq_question_1": "What is the minimum quantity for bulk orders?",
+            "faq_answer_1": "<p>Our minimum order quantity for custom bulk orders is typically 50 units per design.</p>",
+            "faq_question_2": "What are your vector artwork guidelines?",
+            "faq_answer_2": "<p>We require all artwork to be submitted in vector format with all fonts outlined.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

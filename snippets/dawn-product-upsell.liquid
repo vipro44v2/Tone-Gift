@@ -1,0 +1,324 @@
+{%- liquid
+  assign manual_products = block.settings.product_list
+  assign upsell_products = manual_products
+  assign selected_collection = block.settings.product_collection
+  assign awaiting_recommendations = false
+  assign recommendations_loaded = false
+
+  if selected_collection != blank and selected_collection.products_count > 0
+    assign upsell_products = selected_collection.products
+  endif
+
+  if block.settings.enable_dynamic_recommendations
+    if recommendations.performed
+      assign recommendations_loaded = true
+      if recommendations.products_count > 0
+        assign upsell_products = recommendations.products
+      endif
+    else
+      assign awaiting_recommendations = true
+    endif
+  else
+    assign recommendations_loaded = true
+  endif
+-%}
+
+<dawn-product-upsell
+  id="DawnProductUpsell-{{ section.id }}-{{ block.id }}"
+  class="dawn-upsell color-{{ block.settings.color_scheme }} gradient"
+  style="
+    --du-background:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+    --du-card-background:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_card_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+    --du-text:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_text_color }}
+      {% else %}
+        rgb(var(--color-foreground))
+      {% endif %};
+    --du-muted:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_muted_color }}
+      {% else %}
+        rgba(var(--color-foreground), 0.62)
+      {% endif %};
+    --du-border:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_border_color }}
+      {% else %}
+        rgba(var(--color-foreground), 0.16)
+      {% endif %};
+    --du-button-background:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_button_background }}
+      {% else %}
+        rgb(var(--color-button))
+      {% endif %};
+    --du-button-text:
+      {% if block.settings.enable_custom_colors %}
+        {{ block.settings.custom_button_text }}
+      {% else %}
+        rgb(var(--color-button-text))
+      {% endif %};
+    --du-image-size: {{ block.settings.image_size }}px;
+    --du-image-radius: {{ block.settings.image_radius }}px;
+    --du-card-radius: {{ block.settings.card_radius }}px;
+    --du-border-width: {{ block.settings.border_width }}px;
+    --du-card-gap: {{ block.settings.card_gap }}px;
+    --du-heading-size: {{ block.settings.heading_size }}px;
+    --du-title-size: {{ block.settings.title_size }}px;
+    --du-description-size: {{ block.settings.description_size }}px;
+    --du-price-size: {{ block.settings.price_size }}px;
+    --du-margin-top: {{ block.settings.margin_top }}px;
+    --du-margin-bottom: {{ block.settings.margin_bottom }}px;
+  "
+  {% if block.settings.enable_dynamic_recommendations and awaiting_recommendations %}
+    data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit=10&intent={{ block.settings.recommendation_intent }}"
+    data-loaded="false"
+  {% else %}
+    data-loaded="true"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  <div class="dawn-upsell__inner">
+    {%- if block.settings.heading != blank -%}
+      <h2 class="dawn-upsell__heading">{{ block.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- if awaiting_recommendations -%}
+      <div class="dawn-upsell__loading" aria-live="polite" aria-busy="true">
+        <span class="dawn-upsell__loading-dot"></span>
+        <span>{{ block.settings.loading_text }}</span>
+      </div>
+    {%- else -%}
+      <div class="dawn-upsell__list">
+        {%- liquid
+          assign rendered_count = 0
+        -%}
+
+        {%- for upsell_product in upsell_products -%}
+          {%- liquid
+            if rendered_count >= 3
+              break
+            endif
+
+            assign should_render = true
+
+            if upsell_product.id == product.id
+              assign should_render = false
+            endif
+
+            if block.settings.hide_unavailable_products and upsell_product.available == false
+              assign should_render = false
+            endif
+          -%}
+
+          {%- if should_render -%}
+            {%- liquid
+              assign rendered_count = rendered_count | plus: 1
+              assign display_index = rendered_count
+
+              assign image_key = 'product_' | append: display_index | append: '_image'
+              assign description_key = 'product_' | append: display_index | append: '_desc'
+              assign percentage_key = 'product_' | append: display_index | append: '_percentage_discount'
+              assign fixed_key = 'product_' | append: display_index | append: '_fixed_amount_discount'
+
+              assign custom_image = block.settings[image_key]
+              assign custom_description = block.settings[description_key]
+              assign percentage_discount = block.settings[percentage_key] | plus: 0 | at_least: 0 | at_most: 100
+              assign fixed_discount = block.settings[fixed_key] | plus: 0 | times: 100 | round | at_least: 0
+
+              assign selected_variant = upsell_product.first_available_variant
+              if selected_variant == blank
+                assign selected_variant = upsell_product.variants.first
+              endif
+
+              assign percentage_multiplier = 100 | minus: percentage_discount
+              assign visual_price = selected_variant.price | times: percentage_multiplier | divided_by: 100 | minus: fixed_discount | round | at_least: 0
+
+              assign visual_compare_price = selected_variant.compare_at_price
+              if visual_compare_price == blank or visual_compare_price <= visual_price
+                if selected_variant.price > visual_price
+                  assign visual_compare_price = selected_variant.price
+                else
+                  assign visual_compare_price = 0
+                endif
+              endif
+
+              if custom_image != blank
+                assign fallback_image = custom_image
+              else
+                assign fallback_image = upsell_product.featured_image
+              endif
+
+              if custom_image != blank
+                assign display_image = custom_image
+              elsif selected_variant.featured_image != blank
+                assign display_image = selected_variant.featured_image
+              else
+                assign display_image = fallback_image
+              endif
+
+              assign upsell_form_id = 'DawnUpsellForm-' | append: section.id | append: '-' | append: block.id | append: '-' | append: display_index
+            -%}
+
+            <article
+              class="dawn-upsell__card"
+              data-upsell-card
+              data-percentage-discount="{{ percentage_discount }}"
+              data-fixed-discount="{{ fixed_discount }}"
+              data-money-format="{{ shop.money_format | escape }}"
+              data-add-label="{{ block.settings.add_button_label | escape }}"
+              data-sold-out-label="{{ block.settings.sold_out_label | escape }}"
+              data-skip-unavailable="{{ block.settings.skip_unavailable }}"
+              data-fallback-image="{% if fallback_image != blank %}{{ fallback_image | image_url: width: 256 }}{% endif %}"
+              data-has-custom-image="{% if custom_image != blank %}true{% else %}false{% endif %}"
+              data-product-title="{{ upsell_product.title | escape }}"
+            >
+              {%- assign upsell_image_size = block.settings.image_size | append: 'px' -%}
+              {%- if block.settings.show_images -%}
+  <div class="dawn-upsell__media">
+    {%- if display_image != blank -%}
+      {{
+        display_image
+        | image_url: width: 256
+        | image_tag:
+          class: 'dawn-upsell__image',
+          widths: '64, 96, 128, 160, 192, 256',
+          sizes: upsell_image_size,
+          loading: 'lazy',
+          decoding: 'async',
+          alt: upsell_product.title
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'dawn-upsell__image placeholder-svg' }}
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+              <div class="dawn-upsell__content">
+                <h3 class="dawn-upsell__title">
+                  {%- if block.settings.link_titles -%}
+                    <a href="{{ upsell_product.url }}">{{ upsell_product.title | escape }}</a>
+                  {%- else -%}
+                    {{ upsell_product.title | escape }}
+                  {%- endif -%}
+                </h3>
+
+                {%- if custom_description != blank -%}
+                  <div class="dawn-upsell__description">{{ custom_description }}</div>
+                {%- endif -%}
+
+                {%- if block.settings.show_variant_picker and upsell_product.has_only_default_variant == false -%}
+                  <div class="dawn-upsell__variants">
+                    {%- for option in upsell_product.options_with_values -%}
+                      {%- liquid
+                        assign option_index = option.position | minus: 1
+                        assign selected_value = selected_variant.options[option_index]
+                      -%}
+                      <label class="visually-hidden" for="DawnUpsellOption-{{ section.id }}-{{ block.id }}-{{ display_index }}-{{ option.position }}">
+                        {{ option.name }}
+                      </label>
+                      <select
+                        id="DawnUpsellOption-{{ section.id }}-{{ block.id }}-{{ display_index }}-{{ option.position }}"
+                        class="dawn-upsell__select"
+                        data-upsell-option
+                        data-option-index="{{ option_index }}"
+                        aria-label="{{ option.name | escape }}"
+                      >
+                        {%- for value in option.values -%}
+                          <option
+                            value="{{ value | escape }}"
+                            {% if value == selected_value %}selected{% endif %}
+                          >
+                            {{ value }}
+                          </option>
+                        {%- endfor -%}
+                      </select>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+
+                <script type="application/json" data-upsell-variants>
+                  {{ upsell_product.variants | json }}
+                </script>
+              </div>
+
+              <div class="dawn-upsell__actions">
+                <div class="dawn-upsell__prices" aria-live="polite">
+                  <span class="dawn-upsell__price" data-upsell-price>{{ visual_price | money }}</span>
+                  <s
+                    class="dawn-upsell__compare{% if visual_compare_price <= visual_price %} hidden{% endif %}"
+                    data-upsell-compare
+                  >
+                    {{ visual_compare_price | money }}
+                  </s>
+                </div>
+
+                <product-form class="dawn-upsell__product-form" data-section-id="{{ section.id }}">
+                  <div
+                    class="product-form__error-message-wrapper"
+                    role="alert"
+                    hidden
+                  >
+                    <span class="svg-wrapper">
+                      {{- 'icon-error.svg' | inline_asset_content -}}
+                    </span>
+                    <span class="product-form__error-message"></span>
+                  </div>
+
+                  {%- form 'product',
+                    upsell_product,
+                    id: upsell_form_id,
+                    class: 'form dawn-upsell__form',
+                    novalidate: 'novalidate',
+                    data-type: 'add-to-cart-form'
+                  -%}
+                    <input
+                      type="hidden"
+                      name="id"
+                      value="{{ selected_variant.id }}"
+                      data-upsell-variant-id
+                    >
+                    <input type="hidden" name="quantity" value="1">
+
+                    <button
+                      type="submit"
+                      name="add"
+                      class="dawn-upsell__button button button--primary product-form__submit"
+                      {% unless selected_variant.available %}disabled aria-disabled="true"{% endunless %}
+                    >
+                      <span data-upsell-button-label>
+                        {%- if selected_variant.available -%}
+                          {{ block.settings.add_button_label }}
+                        {%- else -%}
+                          {{ block.settings.sold_out_label }}
+                        {%- endif -%}
+                      </span>
+                      {%- render 'loading-spinner' -%}
+                    </button>
+                  {%- endform -%}
+                </product-form>
+              </div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- if rendered_count == 0 and request.design_mode -%}
+        <p class="dawn-upsell__empty">
+          Add manual products, select a collection, or enable product recommendations.
+        </p>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</dawn-product-upsell>

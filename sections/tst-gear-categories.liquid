@@ -1,0 +1,1141 @@
+{% liquid
+  assign sid = section.id
+  assign overlay_alpha = section.settings.overlay_opacity | divided_by: 100.0
+%}
+
+<section
+  id="TST-Gear-Categories-{{ sid }}"
+  class="
+    tst-gear-categories
+    color-{{ section.settings.color_scheme }}
+    gradient
+    tst-gear-categories--mobile-{{ section.settings.mobile_columns }}
+    {% if section.settings.use_custom_colors %}
+      tst-gear-categories--custom-colors
+    {% endif %}
+  "
+  style="
+    --tst-section-background:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+
+    --tst-section-text:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_text_color }}
+      {% else %}
+        rgb(var(--color-foreground))
+      {% endif %};
+
+    --tst-card-text:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_card_text_color }}
+      {% else %}
+        rgb(var(--color-foreground))
+      {% endif %};
+
+    --tst-accent:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_accent_color }}
+      {% else %}
+        rgb(var(--color-button))
+      {% endif %};
+
+    --tst-accent-text:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_accent_text_color }}
+      {% else %}
+        rgb(var(--color-button-text))
+      {% endif %};
+
+    --tst-card-border:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_border_color }}
+      {% else %}
+        rgba(var(--color-foreground), 0.16)
+      {% endif %};
+
+    --tst-overlay-start:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_overlay_color | color_modify: 'alpha', 0 }}
+      {% else %}
+        rgba(var(--color-background), 0)
+      {% endif %};
+
+    --tst-overlay-end:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_overlay_color | color_modify: 'alpha', overlay_alpha }}
+      {% else %}
+        rgba(var(--color-background), {{ overlay_alpha }})
+      {% endif %};
+
+    --tst-section-padding-top: {{ section.settings.padding_top }}px;
+    --tst-section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --tst-full-width-padding: {{ section.settings.full_width_side_padding }}px;
+    --tst-mobile-padding: {{ section.settings.mobile_side_padding }}px;
+
+    --tst-grid-gap: {{ section.settings.grid_gap }}px;
+    --tst-top-card-height: {{ section.settings.top_card_height }}px;
+    --tst-bottom-card-height: {{ section.settings.bottom_card_height }}px;
+    --tst-tablet-card-height: {{ section.settings.tablet_card_height }}px;
+    --tst-mobile-featured-height: {{ section.settings.mobile_featured_height }}px;
+    --tst-mobile-card-height: {{ section.settings.mobile_card_height }}px;
+
+    --tst-heading-size: {{ section.settings.heading_size }}px;
+    --tst-card-title-size: {{ section.settings.card_title_size }}px;
+    --tst-card-radius: {{ section.settings.card_radius }}px;
+  "
+>
+  <div
+    class="
+      tst-gear-categories__inner
+      {% if section.settings.section_width == 'default' %}
+        page-width
+      {% else %}
+        tst-gear-categories__inner--full-width
+      {% endif %}
+    "
+  >
+    {% if section.settings.heading != blank %}
+      <div
+        class="
+          tst-gear-categories__header
+          tst-gear-categories__header--{{ section.settings.heading_alignment }}
+        "
+      >
+        <h2 class="tst-gear-categories__heading">
+          {{ section.settings.heading }}
+        </h2>
+
+        {% if section.settings.show_heading_line %}
+          <span
+            class="tst-gear-categories__heading-line"
+            aria-hidden="true"
+          ></span>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <div
+        class="
+          tst-gear-categories__grid
+          tst-gear-categories__grid--count-{{ section.blocks.size }}
+        "
+      >
+        {% for block in section.blocks %}
+          {% liquid
+            assign card_collection = block.settings.collection
+            assign card_image = block.settings.image
+
+            if card_image == blank and card_collection != blank
+              assign card_image = card_collection.featured_image
+            endif
+
+            if card_image == blank and card_collection != blank and card_collection.products_count > 0
+              assign card_image = card_collection.products.first.featured_image
+            endif
+
+            assign card_title = block.settings.custom_title
+
+            if card_title == blank and card_collection != blank
+              assign card_title = card_collection.title
+            endif
+
+            if card_title == blank
+              assign card_title = 'Collection title'
+            endif
+
+            assign card_url = blank
+
+            if card_collection != blank
+              assign card_url = card_collection.url
+            endif
+
+            assign loading_value = 'lazy'
+            assign fetch_priority = 'auto'
+
+            if forloop.first and section.index <= 2
+              assign loading_value = 'eager'
+              assign fetch_priority = 'high'
+            endif
+          %}
+
+          {% if card_url != blank %}
+            <a
+              href="{{ card_url }}"
+              class="
+                tst-gear-card
+                tst-gear-card--{{ forloop.index }}
+                tst-gear-card--position-{{ block.settings.content_position }}
+              "
+              {{ block.shopify_attributes }}
+            >
+          {% else %}
+            <div
+              class="
+                tst-gear-card
+                tst-gear-card--{{ forloop.index }}
+                tst-gear-card--position-{{ block.settings.content_position }}
+              "
+              {{ block.shopify_attributes }}
+            >
+          {% endif %}
+
+              <div class="tst-gear-card__media">
+                {% if card_image != blank %}
+                  {{
+                    card_image
+                    | image_url: width: 2400
+                    | image_tag:
+                      loading: loading_value,
+                      fetchpriority: fetch_priority,
+                      widths: '375, 550, 750, 1000, 1400, 1800, 2400',
+                      sizes: '(min-width: 990px) 66vw, (min-width: 750px) 100vw, 100vw',
+                      class: 'tst-gear-card__image'
+                  }}
+                {% else %}
+                  {{
+                    'collection-1'
+                    | placeholder_svg_tag:
+                      'tst-gear-card__placeholder placeholder-svg'
+                  }}
+                {% endif %}
+              </div>
+
+              <div class="tst-gear-card__overlay"></div>
+
+              <div class="tst-gear-card__content">
+                {% if block.settings.badge_text != blank %}
+                  <span class="tst-gear-card__badge">
+                    {{ block.settings.badge_text }}
+                  </span>
+                {% endif %}
+
+                <h3 class="tst-gear-card__title">
+                  {{ card_title }}
+                </h3>
+
+                {% if block.settings.description != blank %}
+                  <div class="tst-gear-card__description">
+                    {{ block.settings.description }}
+                  </div>
+                {% endif %}
+
+                {% if block.settings.button_label != blank %}
+                  <span class="tst-gear-card__button">
+                    <span>{{ block.settings.button_label }}</span>
+
+                    {% if block.settings.show_button_arrow %}
+                      <span
+                        class="tst-gear-card__button-arrow"
+                        aria-hidden="true"
+                      >
+                        →
+                      </span>
+                    {% endif %}
+                  </span>
+                {% endif %}
+              </div>
+
+          {% if card_url != blank %}
+            </a>
+          {% else %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% elsif request.design_mode %}
+      <div class="tst-gear-categories__empty">
+        Add collection blocks to display the grid.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  #TST-Gear-Categories-{{ sid }} {
+    width: 100%;
+    color: var(--tst-section-text);
+    background: var(--tst-section-background);
+    padding-top: var(--tst-section-padding-top);
+    padding-bottom: var(--tst-section-padding-bottom);
+  }
+
+  #TST-Gear-Categories-{{ sid }},
+  #TST-Gear-Categories-{{ sid }} *,
+  #TST-Gear-Categories-{{ sid }} *::before,
+  #TST-Gear-Categories-{{ sid }} *::after {
+    box-sizing: border-box;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-categories__inner {
+    width: 100%;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__inner--full-width {
+    max-width: none;
+    padding-left: var(--tst-full-width-padding);
+    padding-right: var(--tst-full-width-padding);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-categories__header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__header--left {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__header--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__header--right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-categories__heading {
+    margin: 0;
+    padding: 0;
+    color: var(--tst-section-text);
+    font-size: var(--tst-heading-size);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__heading-line {
+    display: block;
+    width: {{ section.settings.heading_line_width }}px;
+    height: {{ section.settings.heading_line_height }}px;
+    margin-top: 14px;
+    background: var(--tst-accent);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-categories__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--tst-grid-gap);
+    grid-auto-flow: dense;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--tst-card-text);
+    text-decoration: none;
+    background: var(--tst-section-background);
+    border: 1px solid var(--tst-card-border);
+    border-radius: var(--tst-card-radius);
+    isolation: isolate;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card--1 {
+    grid-column: span 8;
+    min-height: var(--tst-top-card-height);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card--2 {
+    grid-column: span 4;
+    min-height: var(--tst-top-card-height);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card--3,
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card--4 {
+    grid-column: span 6;
+    min-height: var(--tst-bottom-card-height);
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card:nth-child(n + 5) {
+    grid-column: span 6;
+    min-height: var(--tst-bottom-card-height);
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__grid--count-1
+  .tst-gear-card--1 {
+    grid-column: 1 / -1;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__grid--count-2
+  .tst-gear-card--1 {
+    grid-column: span 7;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__grid--count-2
+  .tst-gear-card--2 {
+    grid-column: span 5;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-categories__grid--count-3
+  .tst-gear-card--3 {
+    grid-column: 1 / -1;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__media {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    overflow: hidden;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__image,
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__placeholder {
+    background: rgba(var(--color-foreground), 0.08);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        180deg,
+        var(--tst-overlay-start) 15%,
+        var(--tst-overlay-end) 100%
+      );
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    padding: 24px;
+    flex-direction: column;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--position-bottom-left
+  .tst-gear-card__content {
+    align-items: flex-start;
+    justify-content: flex-end;
+    text-align: left;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--position-bottom-center
+  .tst-gear-card__content {
+    align-items: center;
+    justify-content: flex-end;
+    text-align: center;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--position-bottom-right
+  .tst-gear-card__content {
+    align-items: flex-end;
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--position-center-left
+  .tst-gear-card__content {
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--position-center
+  .tst-gear-card__content {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--position-center-right
+  .tst-gear-card__content {
+    align-items: flex-end;
+    justify-content: center;
+    text-align: right;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin-bottom: 12px;
+    padding: 5px 9px;
+    color: var(--tst-accent-text);
+    background: var(--tst-accent);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__title {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    font-size: var(--tst-card-title-size);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card--1
+  .tst-gear-card__title {
+    font-size: calc(var(--tst-card-title-size) + 10px);
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__description {
+    max-width: 520px;
+    margin-top: 8px;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__description p {
+    margin: 0;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card__button {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    gap: 8px;
+    margin-top: 12px;
+    color: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  #TST-Gear-Categories-{{ sid }}
+  .tst-gear-card__button-arrow {
+    display: inline-flex;
+    color: var(--tst-accent);
+    font-size: 15px;
+    line-height: 1;
+    transition: transform 0.25s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card:hover .tst-gear-card__image {
+      transform: scale(1.045);
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-card:hover
+    .tst-gear-card__button-arrow {
+      transform: translateX(4px);
+    }
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-card:focus-visible {
+    outline: 2px solid var(--tst-accent);
+    outline-offset: 3px;
+  }
+
+  #TST-Gear-Categories-{{ sid }} .tst-gear-categories__empty {
+    padding: 40px 20px;
+    color: var(--tst-section-text);
+    border: 1px dashed var(--tst-card-border);
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #TST-Gear-Categories-{{ sid }} .tst-gear-categories__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card,
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-card:nth-child(n + 5) {
+      grid-column: span 1;
+      min-height: var(--tst-tablet-card-height);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card--1 {
+      grid-column: 1 / -1;
+      min-height: calc(var(--tst-tablet-card-height) + 100px);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card__content {
+      padding: 22px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #TST-Gear-Categories-{{ sid }} {
+      --tst-grid-gap: {{ section.settings.mobile_grid_gap }}px;
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-categories__inner,
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories__inner--full-width {
+      padding-left: var(--tst-mobile-padding);
+      padding-right: var(--tst-mobile-padding);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-categories__header {
+      margin-bottom: 22px;
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-categories__heading {
+      font-size: min(var(--tst-heading-size), 30px);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-categories__grid {
+      grid-template-columns: 1fr;
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card,
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-card:nth-child(n + 5) {
+      grid-column: 1 / -1;
+      min-height: var(--tst-mobile-card-height);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card--1 {
+      min-height: var(--tst-mobile-featured-height);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card__content {
+      padding: 20px;
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card__title,
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-card--1
+    .tst-gear-card__title {
+      font-size: min(var(--tst-card-title-size), 24px);
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card__description {
+      font-size: 12px;
+    }
+
+    #TST-Gear-Categories-{{ sid }} .tst-gear-card__button {
+      font-size: 9px;
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories--mobile-2
+    .tst-gear-categories__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories--mobile-2
+    .tst-gear-card {
+      grid-column: span 1;
+      min-height: var(--tst-mobile-card-height);
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories--mobile-2
+    .tst-gear-card--1 {
+      grid-column: 1 / -1;
+      min-height: var(--tst-mobile-featured-height);
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories--mobile-2
+    .tst-gear-card__content {
+      padding: 14px;
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories--mobile-2
+    .tst-gear-card:not(.tst-gear-card--1)
+    .tst-gear-card__title {
+      font-size: 16px;
+    }
+
+    #TST-Gear-Categories-{{ sid }}
+    .tst-gear-categories--mobile-2
+    .tst-gear-card:not(.tst-gear-card--1)
+    .tst-gear-card__description {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "TST Gear Categories",
+  "tag": "section",
+  "class": "section-tst-gear-categories",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default page width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full width"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "full_width_side_padding",
+      "label": "Full width side padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_side_padding",
+      "label": "Mobile side padding",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Mobile columns",
+      "default": "1",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 column"
+        },
+        {
+          "value": "2",
+          "label": "2 columns"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "GEAR CATEGORIES"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 18,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading_line",
+      "label": "Show heading line",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "heading_line_width",
+      "label": "Heading line width",
+      "min": 20,
+      "max": 160,
+      "step": 2,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "label": "Heading line thickness",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Card layout"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Desktop grid gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_grid_gap",
+      "label": "Mobile grid gap",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "top_card_height",
+      "label": "Desktop top card height",
+      "min": 280,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "bottom_card_height",
+      "label": "Desktop bottom card height",
+      "min": 160,
+      "max": 420,
+      "step": 20,
+      "unit": "px",
+      "default": 220
+    },
+    {
+      "type": "range",
+      "id": "tablet_card_height",
+      "label": "Tablet card height",
+      "min": 180,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 280
+    },
+    {
+      "type": "range",
+      "id": "mobile_featured_height",
+      "label": "Mobile featured card height",
+      "min": 220,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 360
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_height",
+      "label": "Mobile regular card height",
+      "min": 160,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Card title size",
+      "min": 16,
+      "max": 42,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_colors",
+      "label": "Enable custom colors",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Custom background",
+      "default": "#101010"
+    },
+    {
+      "type": "color",
+      "id": "custom_text_color",
+      "label": "Custom heading color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_text_color",
+      "label": "Custom card text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent_color",
+      "label": "Custom accent color",
+      "default": "#F35A25"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent_text_color",
+      "label": "Custom accent text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "custom_border_color",
+      "label": "Custom card border color",
+      "default": "#262626"
+    },
+    {
+      "type": "color",
+      "id": "custom_overlay_color",
+      "label": "Custom image overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection_card",
+      "name": "Collection card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image",
+          "info": "Leave blank to use the collection image"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge",
+          "info": "Leave blank to hide"
+        },
+        {
+          "type": "text",
+          "id": "custom_title",
+          "label": "Custom title",
+          "info": "Leave blank to use the collection title"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "SHOP COLLECTION"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_button_arrow",
+          "label": "Show button arrow",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "default": "bottom-left",
+          "options": [
+            {
+              "value": "bottom-left",
+              "label": "Bottom left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom right"
+            },
+            {
+              "value": "center-left",
+              "label": "Center left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "center-right",
+              "label": "Center right"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST Gear Categories",
+      "blocks": [
+        {
+          "type": "collection_card",
+          "settings": {
+            "badge_text": "POPULAR",
+            "custom_title": "TRUCKER SERIES",
+            "button_label": "SHOP COLLECTION",
+            "content_position": "bottom-left"
+          }
+        },
+        {
+          "type": "collection_card",
+          "settings": {
+            "custom_title": "LEATHER PATCH DESIGNS",
+            "button_label": "VIEW STYLES",
+            "content_position": "bottom-left"
+          }
+        },
+        {
+          "type": "collection_card",
+          "settings": {
+            "custom_title": "CUSTOM BRAND LOGISTICS",
+            "button_label": "LEARN MORE",
+            "content_position": "bottom-left"
+          }
+        },
+        {
+          "type": "collection_card",
+          "settings": {
+            "custom_title": "LIMITED DROPS",
+            "button_label": "VIEW RELEASES",
+            "content_position": "bottom-left"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

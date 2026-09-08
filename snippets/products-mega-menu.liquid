@@ -1,0 +1,123 @@
+{% comment %}
+  Renders a Shrine-pro style product mega menu for top-level header links.
+
+  Usage:
+  {% render 'products-mega-menu', link: link %}
+{% endcomment %}
+
+<products-mega-menu>
+  <header-menu>
+    <details id="ProductsMegaMenu-{{ link.handle }}" class="products-mega-menu">
+      <summary
+        id="HeaderMenu-{{ link.handle }}"
+        class="header__menu-item list-menu__item link focus-inset products-mega-menu__summary"
+      >
+        <span
+          {%- if link.child_active %}
+            class="header__active-menu-item"
+          {% endif %}
+        >
+          {{- link.title | escape -}}
+        </span>
+        {{- 'icon-caret.svg' | inline_asset_content -}}
+      </summary>
+
+      <div
+        id="ProductsMegaMenu-Content-{{ link.handle }}"
+        class="products-mega-menu__body color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup"
+        tabindex="-1"
+      >
+        <div class="products-mega-menu__overlay" aria-hidden="true"></div>
+        <div class="page-width">
+          <div class="products-mega-menu__container">
+            <ul class="products-mega-menu__list" role="list">
+              {%- for childlink in link.links -%}
+                <li class="products-mega-menu__item{% if forloop.first %} products-mega-menu__item--active{% endif %}">
+                  <a
+                    id="ProductsMegaMenu-Link-{{ link.handle }}-{{ childlink.handle }}"
+                    href="{{ childlink.url }}"
+                    class="products-mega-menu__link header__menu-item list-menu__item link link--text focus-inset caption-large{% if childlink.current %} list-menu__item--active{% endif %}"
+                    {% if childlink.current %}
+                      aria-current="page"
+                    {% endif %}
+                  >
+                    {% if childlink.url contains 'collections' and section.settings.products_mega_menu_display_collection_images %}
+                      {% assign link_collection_handle = childlink.url | split: '/collections/' | last | split: '?' | first %}
+                      {% assign link_current_collection = collections[link_collection_handle] %}
+                      {% if link_current_collection.featured_image != blank %}
+                        <span class="header__menu-item__preview-image">
+                          <img
+                            src="{{ link_current_collection.featured_image | image_url: width: 160 }}"
+                            alt=""
+                            width="80"
+                            height="80"
+                            loading="lazy"
+                          >
+                        </span>
+                      {% endif %}
+                    {% endif %}
+                    <span>{{ childlink.title | escape }}</span>
+                    {{- 'icon-caret.svg' | inline_asset_content -}}
+                  </a>
+
+                  <div class="products-mega-menu__content">
+                    <ul class="products-mega-menu__cards" role="list">
+                      {% if section.settings.products_mega_menu_display_collection_products and childlink.url contains 'collections' %}
+                        {% assign link_collection_handle = childlink.url | split: '/collections/' | last | split: '?' | first %}
+                        {% assign link_current_collection = collections[link_collection_handle] %}
+                        {% for product in link_current_collection.products limit: 6 %}
+                          <li class="products-mega-menu__card">
+                            {% render 'card-product',
+                              card_product: product,
+                              media_aspect_ratio: 'square',
+                              show_secondary_image: true,
+                              show_vendor: false,
+                              show_rating: false,
+                              extend_height: false,
+                              skip_styles: true
+                            %}
+                          </li>
+                        {% endfor %}
+                      {% endif %}
+
+                      {%- for grandchildlink in childlink.links limit: 6 -%}
+                        <li class="products-mega-menu__card">
+                          {% if grandchildlink.url contains 'products' %}
+                            {% assign product_handle = grandchildlink.url | split: '/products/' | last | split: '?' | first %}
+                            {% assign current_product = all_products[product_handle] %}
+                            {% render 'card-product',
+                              card_product: current_product,
+                              media_aspect_ratio: 'square',
+                              show_secondary_image: true,
+                              show_vendor: false,
+                              show_rating: false,
+                              extend_height: false,
+                              skip_styles: true
+                            %}
+                          {% elsif grandchildlink.url contains 'collections' %}
+                            {% assign collection_handle = grandchildlink.url | split: '/collections/' | last | split: '?' | first %}
+                            {% assign current_collection = collections[collection_handle] %}
+                            {% render 'card-collection',
+                              card_collection: current_collection,
+                              media_aspect_ratio: 'square',
+                              extend_height: false,
+                              columns: 1
+                            %}
+                          {% else %}
+                            <a class="products-mega-menu__text-link link" href="{{ grandchildlink.url }}">
+                              {{ grandchildlink.title | escape }}
+                            </a>
+                          {% endif %}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </details>
+  </header-menu>
+</products-mega-menu>

@@ -1,0 +1,319 @@
+.dawn-upsell {
+  display: block;
+  width: 100%;
+  margin-top: var(--du-margin-top, 16px);
+  margin-bottom: var(--du-margin-bottom, 16px);
+  color: var(--du-text);
+  background: var(--du-background);
+  box-sizing: border-box;
+}
+
+.dawn-upsell[hidden] {
+  display: none !important;
+}
+
+.dawn-upsell__inner {
+  width: 100%;
+}
+
+.dawn-upsell__heading {
+  margin: 0 0 12px;
+  color: var(--du-text);
+  font-size: var(--du-heading-size, 24px);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.dawn-upsell__list {
+  display: grid;
+  gap: var(--du-card-gap, 14px);
+}
+
+.dawn-upsell__card {
+  display: grid;
+  grid-template-columns: var(--du-image-size, 78px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  color: var(--du-text);
+  background: var(--du-card-background);
+  border: var(--du-border-width, 1px) solid var(--du-border);
+  border-radius: var(--du-card-radius, 10px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.dawn-upsell__media {
+  width: var(--du-image-size, 78px);
+  height: var(--du-image-size, 78px);
+  overflow: hidden;
+  border-radius: var(--du-image-radius, 8px);
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+.dawn-upsell__image,
+.dawn-upsell__media .placeholder-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dawn-upsell__content {
+  min-width: 0;
+}
+
+.dawn-upsell__title {
+  margin: 0;
+  color: var(--du-text);
+  font-size: var(--du-title-size, 16px);
+  font-weight: 700;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.dawn-upsell__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dawn-upsell__title a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.dawn-upsell__description {
+  margin-top: 5px;
+  color: var(--du-muted);
+  font-size: var(--du-description-size, 12px);
+  line-height: 1.3;
+}
+
+.dawn-upsell__description p {
+  margin: 0;
+}
+
+.dawn-upsell__variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.dawn-upsell__select {
+  width: auto;
+  min-width: 108px;
+  max-width: 160px;
+  min-height: 30px;
+  margin: 0;
+  padding: 4px 28px 4px 8px;
+  color: var(--du-text);
+  background-color: var(--du-card-background);
+  border: 1px solid var(--du-border);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.dawn-upsell__select:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.dawn-upsell__select option:disabled {
+  color: var(--du-muted);
+}
+
+.dawn-upsell__actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 88px;
+  gap: 8px;
+}
+
+.dawn-upsell__prices {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  color: var(--du-text);
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.dawn-upsell__price {
+  color: var(--du-text);
+  font-size: var(--du-price-size, 18px);
+  font-weight: 700;
+}
+
+.dawn-upsell__compare {
+  margin-top: 3px;
+  color: var(--du-muted);
+  font-size: max(11px, calc(var(--du-price-size, 18px) - 5px));
+  font-weight: 400;
+}
+
+.dawn-upsell__product-form,
+.dawn-upsell__form {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.dawn-upsell__product-form .product-form__error-message-wrapper {
+  margin: 0 0 6px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.dawn-upsell__button.button {
+  min-width: 0;
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--du-button-text);
+  background: var(--du-button-background);
+  border: 0;
+  border-radius: 7px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.dawn-upsell__button.button::before,
+.dawn-upsell__button.button::after {
+  display: none;
+}
+
+.dawn-upsell__button.button:hover:not([disabled]) {
+  filter: brightness(1.08);
+}
+
+.dawn-upsell__button.button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.dawn-upsell__button .loading__spinner {
+  width: 1.5rem;
+}
+
+.dawn-upsell__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 70px;
+  color: var(--du-muted);
+  font-size: 13px;
+}
+
+.dawn-upsell__loading-dot {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--du-border);
+  border-top-color: var(--du-text);
+  border-radius: 50%;
+  animation: dawn-upsell-spin 0.75s linear infinite;
+}
+
+.dawn-upsell__empty {
+  margin: 0;
+  padding: 12px;
+  color: var(--du-muted);
+  border: 1px dashed var(--du-border);
+  border-radius: var(--du-card-radius, 10px);
+  font-size: 13px;
+  text-align: center;
+}
+
+@keyframes dawn-upsell-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .dawn-upsell__heading {
+    margin-bottom: 10px;
+    font-size: min(var(--du-heading-size, 24px), 22px);
+  }
+
+  .dawn-upsell__card {
+    grid-template-columns: min(var(--du-image-size, 78px), 70px) minmax(0, 1fr) 78px;
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .dawn-upsell__media {
+    width: min(var(--du-image-size, 78px), 70px);
+    height: min(var(--du-image-size, 78px), 70px);
+  }
+
+  .dawn-upsell__actions {
+    width: 78px;
+    gap: 6px;
+  }
+
+  .dawn-upsell__button.button {
+    min-height: 36px;
+    padding: 7px 6px;
+    font-size: 14px;
+  }
+
+  .dawn-upsell__select {
+    min-width: 96px;
+    max-width: 135px;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .dawn-upsell__card {
+    grid-template-columns: 58px minmax(0, 1fr) 72px;
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .dawn-upsell__media {
+    width: 58px;
+    height: 58px;
+  }
+
+  .dawn-upsell__actions {
+    width: 72px;
+  }
+
+  .dawn-upsell__title {
+    font-size: min(var(--du-title-size, 16px), 14px);
+  }
+
+  .dawn-upsell__price {
+    font-size: min(var(--du-price-size, 18px), 16px);
+  }
+
+  .dawn-upsell__select {
+    min-width: 0;
+    max-width: 115px;
+    padding-right: 22px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dawn-upsell__loading-dot {
+    animation-duration: 1.5s;
+  }
+}

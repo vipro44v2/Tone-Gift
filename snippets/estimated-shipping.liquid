@@ -1,0 +1,38 @@
+<dynamic-dates
+  class="shrine-estimated-shipping{% if block.settings.icon_alignment == 'middle' %} shrine-estimated-shipping--middle{% endif %}"
+  data-date-format="{{ block.settings.date_format }}"
+  data-day-labels="{{ block.settings.days_labels }}"
+  data-month-labels="{{ block.settings.months_labels }}"
+  style="
+    --margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    --margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+  "
+  {{ block.shopify_attributes }}
+>
+  {% assign performance_icon = block.settings.icon | strip %}
+  {% unless block.settings.custom_icon == blank and performance_icon == blank %}
+    <div class="shrine-estimated-shipping__icon shrine-estimated-shipping__icon--{{ block.settings.icon_size }}" aria-hidden="true">
+      {% if block.settings.custom_icon != blank %}
+        <img
+          src="{{ block.settings.custom_icon | image_url: width: 150 }}"
+          alt=""
+          width="150"
+          height="{{ 150 | divided_by: block.settings.custom_icon.aspect_ratio | round }}"
+          loading="lazy"
+        >
+      {% else %}
+        {% render 'performance-icon', icon: performance_icon %}
+      {% endif %}
+    </div>
+  {% endunless %}
+
+  <div
+    class="shrine-estimated-shipping__text"
+    data-dynamic-date="true"
+    data-text="{{ block.settings.message | escape }}"
+    data-min-days="{{ block.settings.min_shipping_days }}"
+    data-max-days="{{ block.settings.max_shipping_days }}"
+  >
+    {{ block.settings.message | replace: '[start_date]', '-' | replace: '[end_date]', '-' }}
+  </div>
+</dynamic-dates>

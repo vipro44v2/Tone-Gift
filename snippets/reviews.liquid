@@ -1,0 +1,103 @@
+{% liquid
+  assign items_count = 0
+  if block.settings.text_1 != blank
+    assign items_count = items_count | plus: 1
+  endif
+  if block.settings.text_2 != blank
+    assign items_count = items_count | plus: 1
+  endif
+  if block.settings.text_3 != blank
+    assign items_count = items_count | plus: 1
+  endif
+%}
+
+{% capture stars %}
+  <span class="shrine-review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+{% endcapture %}
+
+<review-slider
+  class="shrine-reviews color-{{ block.settings.color_scheme }}{% if block.settings.show_custom_bg %} shrine-reviews--custom-bg{% endif %}"
+  data-autoplay="{{ block.settings.autoplay }}"
+  data-autoplay-speed="{{ block.settings.autoplay_speed | times: 1000 }}"
+  style="
+    --star-color: {{ block.settings.star_color }};
+    --bg-color: {{ block.settings.custom_bg_color }};
+    --border-radius: {{ block.settings.corner_radius | divided_by: 10.0 }}rem;
+    --border-width: {{ block.settings.border_width }}px;
+    --border-color: {{ block.settings.border_color }};
+    --margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    --margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="shrine-reviews__viewport">
+    <div class="shrine-reviews__track" data-review-track>
+      {% for index in (1..3) %}
+        {% liquid
+          assign author = ''
+          assign text = ''
+          assign image = blank
+
+          case index
+            when 1
+              assign author = block.settings.author_1
+              assign text = block.settings.text_1
+              assign image = block.settings.image_1
+            when 2
+              assign author = block.settings.author_2
+              assign text = block.settings.text_2
+              assign image = block.settings.image_2
+            when 3
+              assign author = block.settings.author_3
+              assign text = block.settings.text_3
+              assign image = block.settings.image_3
+          endcase
+        %}
+        {% if text != blank %}
+          <article class="shrine-reviews__slide" data-review-slide>
+            <div class="shrine-reviews__item shrine-reviews__item--{{ block.settings.avatar_alignment }}">
+              {% if image != blank %}
+                <div class="shrine-reviews__avatar" style="--avatar-radius: {{ block.settings.avatar_corner_radius | divided_by: 10.0 }}rem;">
+                  {{ image | image_url: width: 120 | image_tag: loading: 'lazy' }}
+                </div>
+              {% endif %}
+              <div class="shrine-reviews__content">
+                <div class="rte">{{ text }}</div>
+                {% if author != blank %}
+                  <div class="shrine-reviews__author">
+                    {{ author | replace: '[stars]', stars }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if items_count > 1 and block.settings.display_arrows %}
+    <div class="shrine-reviews__arrows">
+      <button class="shrine-reviews__arrow" type="button" data-review-prev aria-label="Previous review">
+        <span aria-hidden="true">&#8249;</span>
+      </button>
+      <button class="shrine-reviews__arrow" type="button" data-review-next aria-label="Next review">
+        <span aria-hidden="true">&#8250;</span>
+      </button>
+    </div>
+  {% endif %}
+
+  {% if items_count > 1 and block.settings.display_dots %}
+    <div class="shrine-reviews__dots" data-review-dots>
+      {% for index in (1..items_count) %}
+        <button
+          class="shrine-reviews__dot{% if forloop.first %} is-active{% endif %}"
+          type="button"
+          data-review-dot="{{ forloop.index0 }}"
+          aria-label="Go to review {{ forloop.index }}"
+          {% if forloop.first %}aria-current="true"{% endif %}
+        ></button>
+      {% endfor %}
+    </div>
+  {% endif %}
+</review-slider>

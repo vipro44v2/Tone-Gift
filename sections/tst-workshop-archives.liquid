@@ -1,0 +1,725 @@
+{% comment %}
+  Section: Workshop Archives
+  - Default / full-width layout
+  - Each block is one image
+  - Hover badge text
+  - Responsive on mobile
+{% endcomment %}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --wa-bg: {{ section.settings.background_color }};
+    --wa-text: {{ section.settings.text_color }};
+    --wa-accent: {{ section.settings.accent_color }};
+    --wa-badge-bg: {{ section.settings.badge_background }};
+    --wa-badge-text: {{ section.settings.badge_text_color }};
+    --wa-grid-gap: {{ section.settings.grid_gap }}px;
+    --wa-full-padding: {{ section.settings.full_width_padding }}px;
+    --wa-mobile-padding: {{ section.settings.mobile_padding }}px;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive {
+    background: var(--wa-bg);
+    color: var(--wa-text);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__inner {
+    width: 100%;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__inner--full-width {
+    padding-left: var(--wa-full-padding);
+    padding-right: var(--wa-full-padding);
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: {{ section.settings.header_spacing }}px;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__heading {
+    margin: 0;
+    color: var(--wa-text);
+    font-size: clamp(
+      {{ section.settings.heading_size_mobile }}px,
+      4vw,
+      {{ section.settings.heading_size_desktop }}px
+    );
+    font-weight: {{ section.settings.heading_weight }};
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__location {
+    margin: 8px 0 0;
+    color: var(--wa-accent);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: {{ section.settings.location_size }}px;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__grid {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.columns_desktop }}, minmax(0, 1fr));
+    gap: var(--wa-grid-gap);
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__item {
+    position: relative;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: {{ section.settings.card_radius }}px;
+    isolation: isolate;
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__item:hover,
+  #shopify-section-{{ section.id }} .workshop-archive__item:focus-visible {
+    border-color: var(--wa-accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--wa-accent) 35%, transparent);
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__media--landscape {
+    aspect-ratio: 16 / 9;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__media--wide {
+    aspect-ratio: 3 / 2;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__media--square {
+    aspect-ratio: 1 / 1;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__image,
+  #shopify-section-{{ section.id }} .workshop-archive__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__image {
+    object-fit: cover;
+    transition: transform 0.55s cubic-bezier(0.2, 0.65, 0.3, 1);
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__media--natural .workshop-archive__image {
+    height: auto;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__item:hover .workshop-archive__image,
+  #shopify-section-{{ section.id }} .workshop-archive__item:focus-visible .workshop-archive__image {
+    transform: scale({{ section.settings.hover_zoom | divided_by: 100.0 }});
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__placeholder {
+    min-height: 280px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__badge {
+    position: absolute;
+    left: {{ section.settings.badge_offset }}px;
+    bottom: {{ section.settings.badge_offset }}px;
+    z-index: 2;
+    max-width: calc(100% - {{ section.settings.badge_offset | times: 2 }}px);
+    padding: 10px 14px;
+    overflow: hidden;
+    color: var(--wa-badge-text);
+    background: var(--wa-badge-bg);
+    border: 1px solid color-mix(in srgb, var(--wa-accent) 30%, transparent);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: {{ section.settings.badge_size }}px;
+    line-height: 1.2;
+    letter-spacing: 0.045em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  #shopify-section-{{ section.id }} .workshop-archive__item:hover .workshop-archive__badge,
+  #shopify-section-{{ section.id }} .workshop-archive__item:focus-visible .workshop-archive__badge {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media screen and (max-width: 749px) {
+    #shopify-section-{{ section.id }} .workshop-archive {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .workshop-archive__inner,
+    #shopify-section-{{ section.id }} .workshop-archive__inner--full-width {
+      padding-left: var(--wa-mobile-padding);
+      padding-right: var(--wa-mobile-padding);
+    }
+
+    #shopify-section-{{ section.id }} .workshop-archive__header {
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: {{ section.settings.header_spacing_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .workshop-archive__location {
+      margin-top: 0;
+      font-size: {{ section.settings.location_size_mobile }}px;
+      text-align: left;
+      white-space: normal;
+    }
+
+    #shopify-section-{{ section.id }} .workshop-archive__grid {
+      grid-template-columns: repeat({{ section.settings.columns_mobile }}, minmax(0, 1fr));
+      gap: {{ section.settings.grid_gap_mobile }}px;
+    }
+
+    #shopify-section-{{ section.id }} .workshop-archive__badge {
+      left: {{ section.settings.badge_offset_mobile }}px;
+      bottom: {{ section.settings.badge_offset_mobile }}px;
+      max-width: calc(100% - {{ section.settings.badge_offset_mobile | times: 2 }}px);
+      padding: 8px 10px;
+      font-size: {{ section.settings.badge_size_mobile }}px;
+      opacity: 1;
+      transform: none;
+    }
+
+    #shopify-section-{{ section.id }} .workshop-archive__item:hover,
+    #shopify-section-{{ section.id }} .workshop-archive__item:focus-visible {
+      transform: none;
+    }
+  }
+
+  @media (hover: none) {
+    #shopify-section-{{ section.id }} .workshop-archive__badge {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #shopify-section-{{ section.id }} .workshop-archive__item,
+    #shopify-section-{{ section.id }} .workshop-archive__image,
+    #shopify-section-{{ section.id }} .workshop-archive__badge {
+      transition: none;
+    }
+  }
+{%- endstyle -%}
+
+<section class="workshop-archive">
+  <div
+    class="workshop-archive__inner{% if section.settings.section_width == 'default' %} page-width{% else %} workshop-archive__inner--full-width{% endif %}"
+  >
+    {% if section.settings.heading != blank or section.settings.location_text != blank %}
+      <div class="workshop-archive__header">
+        {% if section.settings.heading != blank %}
+          <h2 class="workshop-archive__heading">
+            {{ section.settings.heading | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.location_text != blank %}
+          <p class="workshop-archive__location">
+            {{ section.settings.location_text | escape }}
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="workshop-archive__grid">
+      {% for block in section.blocks %}
+        {% liquid
+          assign image_alt = block.settings.image.alt | default: block.settings.badge_text
+        %}
+
+        {% if block.settings.link != blank %}
+          <a
+            class="workshop-archive__item"
+            href="{{ block.settings.link }}"
+            {{ block.shopify_attributes }}
+          >
+        {% else %}
+          <div
+            class="workshop-archive__item"
+            {{ block.shopify_attributes }}
+          >
+        {% endif %}
+
+          <div class="workshop-archive__media workshop-archive__media--{{ section.settings.image_ratio }}">
+            {% if block.settings.image != blank %}
+              {{
+                block.settings.image
+                | image_url: width: 1800
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '360, 540, 720, 900, 1200, 1500, 1800',
+                  sizes: '(min-width: 990px) 50vw, 100vw',
+                  class: 'workshop-archive__image',
+                  alt: image_alt
+              }}
+            {% else %}
+              {{ 'image' | placeholder_svg_tag: 'workshop-archive__placeholder placeholder-svg' }}
+            {% endif %}
+
+            {% if block.settings.badge_text != blank %}
+              <span class="workshop-archive__badge">
+                {{ block.settings.badge_text | escape }}
+              </span>
+            {% endif %}
+          </div>
+
+        {% if block.settings.link != blank %}
+          </a>
+        {% else %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "TST Workshop archives",
+  "tag": "section",
+  "class": "section section-workshop-archives",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Workshop Archives"
+    },
+    {
+      "type": "text",
+      "id": "location_text",
+      "label": "Location text",
+      "default": "LOC: 45.5051° N, 122.6750° W"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default (theme width)"
+        },
+        {
+          "value": "full_width",
+          "label": "Full width"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 column"
+        },
+        {
+          "value": "2",
+          "label": "2 columns"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        {
+          "value": "landscape",
+          "label": "Landscape 16:9"
+        },
+        {
+          "value": "wide",
+          "label": "Wide 3:2"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "natural",
+          "label": "Original image ratio"
+        }
+      ],
+      "default": "landscape"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#0d0d0d"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Heading color",
+      "default": "#f2f2f2"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#ff9d84"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge background",
+      "default": "#101010"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text",
+      "default": "#ff9d84"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Heading size desktop",
+      "min": 24,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 22,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "location_size",
+      "label": "Location size desktop",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "location_size_mobile",
+      "label": "Location size mobile",
+      "min": 9,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "label": "Badge text size desktop",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "badge_size_mobile",
+      "label": "Badge text size mobile",
+      "min": 9,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "header",
+      "content": "Spacing and style"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Grid gap desktop",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "grid_gap_mobile",
+      "label": "Grid gap mobile",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "header_spacing",
+      "label": "Space below header desktop",
+      "min": 16,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "header_spacing_mobile",
+      "label": "Space below header mobile",
+      "min": 12,
+      "max": 72,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "badge_offset",
+      "label": "Badge offset desktop",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "badge_offset_mobile",
+      "label": "Badge offset mobile",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "hover_zoom",
+      "label": "Image zoom on hover",
+      "min": 100,
+      "max": 115,
+      "step": 1,
+      "unit": "%",
+      "default": 104
+    },
+    {
+      "type": "range",
+      "id": "full_width_padding",
+      "label": "Full width side padding desktop",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding",
+      "label": "Side padding mobile",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top desktop",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom desktop",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "archive_item",
+      "name": "Archive image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Hover badge text",
+          "default": "DSGN_09 // PATTERN"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST Workshop archives",
+      "blocks": [
+        {
+          "type": "archive_item",
+          "settings": {
+            "badge_text": "DSGN_01 // STITCHING"
+          }
+        },
+        {
+          "type": "archive_item",
+          "settings": {
+            "badge_text": "DSGN_02 // PATTERN"
+          }
+        },
+        {
+          "type": "archive_item",
+          "settings": {
+            "badge_text": "DSGN_03 // CRAFT"
+          }
+        },
+        {
+          "type": "archive_item",
+          "settings": {
+            "badge_text": "DSGN_04 // LEATHER"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

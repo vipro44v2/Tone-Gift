@@ -1,0 +1,93 @@
+{% liquid
+  assign item_count = 0
+  if block.settings.top_text_1 != blank or block.settings.bottom_text_1 != blank
+    assign item_count = item_count | plus: 1
+  endif
+  if block.settings.top_text_2 != blank or block.settings.bottom_text_2 != blank
+    assign item_count = item_count | plus: 1
+  endif
+  if block.settings.top_text_3 != blank or block.settings.bottom_text_3 != blank
+    assign item_count = item_count | plus: 1
+  endif
+  if block.settings.top_text_4 != blank or block.settings.bottom_text_4 != blank
+    assign item_count = item_count | plus: 1
+  endif
+%}
+
+<dynamic-dates
+  class="shrine-shipping-checkpoints"
+  data-date-format="{{ block.settings.date_format }}"
+  data-day-labels="{{ block.settings.days_labels }}"
+  data-month-labels="{{ block.settings.months_labels }}"
+  style="
+    --item-count: {{ item_count }};
+    --margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    --margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+  "
+  {{ block.shopify_attributes }}
+>
+  {% for index in (1..4) %}
+    {% liquid
+      assign icon = ''
+      assign top_text = ''
+      assign bottom_text = ''
+      assign min_days = 0
+      assign max_days = 0
+
+      case index
+        when 1
+          assign icon = block.settings.icon_1
+          assign top_text = block.settings.top_text_1
+          assign bottom_text = block.settings.bottom_text_1
+          assign min_days = block.settings.min_days_1
+          assign max_days = block.settings.max_days_1
+        when 2
+          assign icon = block.settings.icon_2
+          assign top_text = block.settings.top_text_2
+          assign bottom_text = block.settings.bottom_text_2
+          assign min_days = block.settings.min_days_2
+          assign max_days = block.settings.max_days_2
+        when 3
+          assign icon = block.settings.icon_3
+          assign top_text = block.settings.top_text_3
+          assign bottom_text = block.settings.bottom_text_3
+          assign min_days = block.settings.min_days_3
+          assign max_days = block.settings.max_days_3
+        when 4
+          assign icon = block.settings.icon_4
+          assign top_text = block.settings.top_text_4
+          assign bottom_text = block.settings.bottom_text_4
+          assign min_days = block.settings.min_days_4
+          assign max_days = block.settings.max_days_4
+      endcase
+    %}
+    {% unless top_text == blank and bottom_text == blank %}
+      <div class="shrine-shipping-checkpoints__item">
+        {% assign performance_icon = icon | strip %}
+        {% if performance_icon != blank %}
+          <div class="shrine-shipping-checkpoints__icon" aria-hidden="true">
+            {% render 'performance-icon', icon: performance_icon %}
+          </div>
+        {% endif %}
+        <p
+          class="shrine-shipping-checkpoints__top"
+          data-dynamic-date="true"
+          data-text="{{ top_text | escape }}"
+          data-min-days="{{ min_days }}"
+          data-max-days="{{ max_days }}"
+        >
+          {{ top_text | replace: '[start_date]', '-' | replace: '[end_date]', '-' }}
+        </p>
+        <p
+          class="shrine-shipping-checkpoints__bottom"
+          data-dynamic-date="true"
+          data-text="{{ bottom_text | escape }}"
+          data-min-days="{{ min_days }}"
+          data-max-days="{{ max_days }}"
+        >
+          {{ bottom_text | replace: '[start_date]', '-' | replace: '[end_date]', '-' }}
+        </p>
+      </div>
+    {% endunless %}
+  {% endfor %}
+</dynamic-dates>

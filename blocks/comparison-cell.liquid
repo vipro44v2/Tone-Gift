@@ -1,0 +1,90 @@
+{%- liquid
+  assign cell_text = block.settings.text
+  assign cell_alignment = block.settings.alignment
+-%}
+
+<td class="tw:h-[68px] tw:px-6 tw:py-4 tw:align-middle tw:text-[1.4rem] tw:leading-normal tw:text-neutral-950{% if cell_alignment == 'left' %} tw:text-left{% elsif cell_alignment == 'right' %} tw:text-right{% else %} tw:text-center{% endif %}" {{ block.shopify_attributes }}>
+  {%- if block.settings.value_type == 'check' -%}
+    <span class="tw:inline-flex tw:h-6 tw:w-6 tw:items-center tw:justify-center tw:text-[#66c900]" aria-label="Included">
+      {{ 'icon-checkmark.svg' | inline_asset_content }}
+    </span>
+  {%- elsif block.settings.value_type == 'cross' -%}
+    <span class="tw:text-[2.4rem] tw:font-bold tw:leading-none" aria-label="Not included">&times;</span>
+  {%- elsif block.settings.value_type == 'dash' -%}
+    <span class="tw:text-neutral-400" aria-label="Not included">-</span>
+  {%- elsif cell_text != blank -%}
+    <span class="{% if block.settings.emphasize %}tw:font-bold tw:text-neutral-950{% endif %}">
+      {{ cell_text | escape }}
+    </span>
+  {%- endif -%}
+</td>
+
+{% schema %}
+{
+  "name": "Comparison cell",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "value_type",
+      "label": "Value type",
+      "options": [
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "check",
+          "label": "Check mark"
+        },
+        {
+          "value": "cross",
+          "label": "Cross"
+        },
+        {
+          "value": "dash",
+          "label": "Dash"
+        }
+      ],
+      "default": "text"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Included"
+    },
+    {
+      "type": "checkbox",
+      "id": "emphasize",
+      "label": "Emphasize text",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Comparison cell"
+    }
+  ]
+}
+{% endschema %}

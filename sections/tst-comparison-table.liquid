@@ -1,0 +1,1199 @@
+<section class="section-{{ section.id }} tst-comparison-table color-{{ section.settings.color_scheme }} gradient {{ section.settings.visibility }}">
+  <style>
+    .section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+      {% if section.settings.enable_custom_colors %}
+        background: {{ section.settings.section_bg }};
+        color: {{ section.settings.section_text }};
+      {% else %}
+        background: rgb(var(--color-background));
+        color: rgb(var(--color-foreground));
+      {% endif %}
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__container {
+      max-width: {{ section.settings.container_width }}px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: {{ section.settings.gap_mobile }}px;
+      align-items: center;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__content {
+      text-align: {{ section.settings.mobile_alignment }};
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__heading {
+      margin: 0;
+      font-size: {{ section.settings.heading_size_mobile }}px;
+      line-height: 1.15;
+      font-weight: 700;
+      {% if section.settings.enable_custom_colors %}
+        color: {{ section.settings.heading_color }};
+      {% else %}
+        color: rgb(var(--color-foreground));
+      {% endif %}
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__text {
+      margin-top: {{ section.settings.text_spacing }}px;
+      font-size: {{ section.settings.text_size_mobile }}px;
+      line-height: 1.6;
+      {% if section.settings.enable_custom_colors %}
+        color: {{ section.settings.section_text }};
+      {% else %}
+        color: rgba(var(--color-foreground), 0.8);
+      {% endif %}
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__text p {
+      margin: 0 0 12px;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__button {
+      margin-top: {{ section.settings.button_spacing }}px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 26px;
+      border-radius: {{ section.settings.button_radius }}px;
+      text-decoration: none;
+      font-weight: 700;
+      {% if section.settings.button_style_secondary %}
+        background: transparent;
+        {% if section.settings.enable_custom_colors %}
+          color: {{ section.settings.button_bg }};
+          border: 1px solid {{ section.settings.button_bg }};
+        {% else %}
+          color: rgb(var(--color-button));
+          border: 1px solid rgb(var(--color-button));
+        {% endif %}
+      {% else %}
+        {% if section.settings.enable_custom_colors %}
+          background: {{ section.settings.button_bg }};
+          color: {{ section.settings.button_text }};
+          border: 1px solid {{ section.settings.button_bg }};
+        {% else %}
+          background: rgb(var(--color-button));
+          color: rgb(var(--color-button-text));
+          border: 1px solid rgb(var(--color-button));
+        {% endif %}
+      {% endif %}
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table-wrap {
+      width: 100%;
+      overflow-x: visible;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table {
+      width: 100%;
+      min-width: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: {{ section.settings.corner_radius }}px;
+      table-layout: fixed;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table th,
+    .section-{{ section.id }} .tst-comparison-table__table td {
+      padding: {{ section.settings.cell_padding_mobile }}px;
+      text-align: center;
+      vertical-align: middle;
+      position: relative;
+      font-size: {{ section.settings.cell_text_size_mobile }}px;
+      line-height: 1.35;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table th:first-child,
+    .section-{{ section.id }} .tst-comparison-table__table td:first-child {
+      width: var(--benefit-mobile-width);
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table th:not(:first-child),
+    .section-{{ section.id }} .tst-comparison-table__table td:not(:first-child) {
+      width: calc((100% - var(--benefit-mobile-width)) / var(--value-columns));
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table th {
+      font-weight: 800;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__benefit {
+      font-weight: 700;
+      text-align: {{ section.settings.benefit_alignment }} !important;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__highlight {
+      {% if section.settings.enable_custom_colors %}
+        background: {{ section.settings.highlight_bg }};
+        color: {{ section.settings.highlight_text }};
+      {% else %}
+        background: rgb(var(--color-button));
+        color: rgb(var(--color-button-text));
+      {% endif %}
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__regular {
+      {% if section.settings.enable_custom_colors %}
+        background: {{ section.settings.regular_bg }};
+        color: {{ section.settings.regular_text }};
+      {% else %}
+        background: rgb(var(--color-background));
+        color: rgb(var(--color-foreground));
+      {% endif %}
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__row:nth-child(even) .tst-comparison-table__highlight::after,
+    .section-{{ section.id }} .tst-comparison-table__row:nth-child(even) .tst-comparison-table__regular::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: currentColor;
+      pointer-events: none;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__row:nth-child(even) .tst-comparison-table__highlight::after {
+      opacity: {{ section.settings.highlighted_overlay_opacity | divided_by: 100.0 }};
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__row:nth-child(even) .tst-comparison-table__regular::after {
+      opacity: {{ section.settings.regular_overlay_opacity | divided_by: 100.0 }};
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__row:not(:last-child) .tst-comparison-table__highlight {
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,{{ section.settings.highlighted_separator_opacity | divided_by: 100.0 }});
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__row:not(:last-child) .tst-comparison-table__regular {
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,{{ section.settings.regular_separator_opacity | divided_by: 100.0 }});
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table--minimal {
+      border-radius: 0;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table--minimal th,
+    .section-{{ section.id }} .tst-comparison-table__table--minimal td {
+      background: transparent !important;
+      color: inherit !important;
+      border-bottom: 1px solid rgba(var(--color-foreground), {{ section.settings.minimalistic_border_opacity | divided_by: 100.0 }});
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__table--minimal tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__logo img {
+      max-width: {{ section.settings.logo_width_mobile }}px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__others-logo img {
+      max-width: {{ section.settings.others_logo_width_mobile }}px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__icon {
+      width: {{ section.settings.icon_box_size_mobile }}px;
+      height: {{ section.settings.icon_box_size_mobile }}px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__icon svg {
+      width: {{ section.settings.icon_size_mobile }}px;
+      height: {{ section.settings.icon_size_mobile }}px;
+      display: block;
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__icon--check {
+      color: {{ section.settings.checkmark_color }};
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__icon--x {
+      color: {{ section.settings.x_color }};
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__icon--solid.tst-comparison-table__icon--check {
+      background: {{ section.settings.checkmark_bg_color }};
+      color: {{ section.settings.checkmark_solid_icon_color }};
+    }
+
+    .section-{{ section.id }} .tst-comparison-table__icon--solid.tst-comparison-table__icon--x {
+      background: {{ section.settings.x_bg_color }};
+      color: {{ section.settings.x_solid_icon_color }};
+    }
+
+    @media screen and (max-width: 749px) {
+      .section-{{ section.id }} .tst-comparison-table__container {
+        padding: 0 {{ section.settings.mobile_container_padding }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__table th,
+      .section-{{ section.id }} .tst-comparison-table__table td {
+        padding: {{ section.settings.cell_padding_mobile }}px {{ section.settings.cell_padding_mobile_horizontal }}px;
+      }
+    }
+
+    @media screen and (min-width: 750px) {
+      .section-{{ section.id }} {
+        padding-top: {{ section.settings.padding_top }}px;
+        padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__container {
+        padding: 0 {{ section.settings.container_padding }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__grid {
+        gap: {{ section.settings.gap }}px;
+        grid-template-columns: {% if section.settings.layout == 'table_first' %}{{ section.settings.table_width }}% 1fr{% else %}1fr {{ section.settings.table_width }}%{% endif %};
+      }
+
+      {% if section.settings.layout == 'table_first' %}
+        .section-{{ section.id }} .tst-comparison-table__table-wrap {
+          order: 1;
+        }
+
+        .section-{{ section.id }} .tst-comparison-table__content {
+          order: 2;
+        }
+      {% endif %}
+
+      .section-{{ section.id }} .tst-comparison-table__content {
+        text-align: {{ section.settings.desktop_alignment }};
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__heading {
+        font-size: {{ section.settings.heading_size }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__text {
+        font-size: {{ section.settings.text_size }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__table th:first-child,
+      .section-{{ section.id }} .tst-comparison-table__table td:first-child,
+      .section-{{ section.id }} .tst-comparison-table__table th:not(:first-child),
+      .section-{{ section.id }} .tst-comparison-table__table td:not(:first-child) {
+        width: auto;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__table th,
+      .section-{{ section.id }} .tst-comparison-table__table td {
+        padding: {{ section.settings.cell_padding }}px;
+        font-size: {{ section.settings.cell_text_size }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__logo img {
+        max-width: {{ section.settings.logo_width }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__others-logo img {
+        max-width: {{ section.settings.others_logo_width }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__icon {
+        width: {{ section.settings.icon_box_size }}px;
+        height: {{ section.settings.icon_box_size }}px;
+      }
+
+      .section-{{ section.id }} .tst-comparison-table__icon svg {
+        width: {{ section.settings.icon_size }}px;
+        height: {{ section.settings.icon_size }}px;
+      }
+    }
+  </style>
+
+  <div class="tst-comparison-table__container">
+    <div class="tst-comparison-table__grid">
+      <div class="tst-comparison-table__content">
+        {% if section.settings.heading != blank %}
+          <h2 class="tst-comparison-table__heading">{{ section.settings.heading }}</h2>
+        {% endif %}
+
+        {% if section.settings.text != blank %}
+          <div class="tst-comparison-table__text rte">{{ section.settings.text }}</div>
+        {% endif %}
+
+        {% if section.settings.button_label != blank %}
+          <a
+            {% if section.settings.button_link != blank %}
+              href="{{ section.settings.button_link }}"
+            {% else %}
+              role="link" aria-disabled="true"
+            {% endif %}
+            class="tst-comparison-table__button"
+          >
+            {{ section.settings.button_label }}
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="tst-comparison-table__table-wrap">
+        {% liquid
+          assign competitors_count = section.settings.number_of_competitors
+          if section.settings.style == 'minimal'
+            assign competitors_count = 1
+          endif
+
+          assign check_solid = false
+          assign x_solid = false
+
+          if section.settings.checkmark_style == 'solid' or section.settings.style == 'minimal'
+            assign check_solid = true
+          endif
+
+          if section.settings.x_style == 'solid' or section.settings.style == 'minimal'
+            assign x_solid = true
+          endif
+        %}
+
+        <table
+          class="tst-comparison-table__table tst-comparison-table__table--{{ section.settings.style }}"
+          style="--value-columns: {{ competitors_count | plus: 1 }}; --benefit-mobile-width: {{ section.settings.benefit_col_width_mobile }}%;"
+        >
+          <thead>
+            <tr>
+              <th class="tst-comparison-table__regular">&nbsp;</th>
+
+              <th class="{% if section.settings.style == 'centered' %}tst-comparison-table__highlight{% else %}tst-comparison-table__regular{% endif %}">
+                <div class="tst-comparison-table__logo" style="font-size: {{ section.settings.us_label_size }}px;">
+                  {% if section.settings.logo != blank %}
+                    {{ section.settings.logo | image_url: width: 400 | image_tag: loading: 'lazy', alt: shop.name }}
+                  {% else %}
+                    {{ section.settings.us_label | replace: '[shop_name]', shop.name }}
+                  {% endif %}
+                </div>
+              </th>
+
+              {% for i in (1..competitors_count) %}
+                {% liquid
+                  if i == 1
+                    assign competitor_label = section.settings.others_label
+                    assign competitor_logo = section.settings.others_logo
+                    assign competitor_size = section.settings.others_label_size
+                  elsif i == 2
+                    assign competitor_label = section.settings.others_2_label
+                    assign competitor_logo = section.settings.others_2_logo
+                    assign competitor_size = section.settings.others_2_label_size
+                  else
+                    assign competitor_label = section.settings.others_3_label
+                    assign competitor_logo = section.settings.others_3_logo
+                    assign competitor_size = section.settings.others_3_label_size
+                  endif
+                %}
+
+                <th class="tst-comparison-table__regular">
+                  <div class="tst-comparison-table__others-logo" style="font-size: {{ competitor_size }}px;">
+                    {% if competitor_logo != blank %}
+                      {{ competitor_logo | image_url: width: 400 | image_tag: loading: 'lazy', alt: competitor_label }}
+                    {% else %}
+                      {{ competitor_label }}
+                    {% endif %}
+                  </div>
+                </th>
+              {% endfor %}
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for block in section.blocks %}
+              <tr class="tst-comparison-table__row" {{ block.shopify_attributes }}>
+                <td class="tst-comparison-table__benefit {% if section.settings.style == 'classic' %}tst-comparison-table__highlight{% else %}tst-comparison-table__regular{% endif %}">
+                  {{ block.settings.benefit }}
+                </td>
+
+                <td class="{% if section.settings.style == 'centered' %}tst-comparison-table__highlight{% else %}tst-comparison-table__regular{% endif %}">
+                  {% if block.settings.us %}
+                    <span class="tst-comparison-table__icon tst-comparison-table__icon--check {% if check_solid %}tst-comparison-table__icon--solid{% endif %}">
+                      <svg viewBox="0 0 448 512"><path fill="currentColor" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                    </span>
+                  {% else %}
+                    <span class="tst-comparison-table__icon tst-comparison-table__icon--x {% if x_solid %}tst-comparison-table__icon--solid{% endif %}">
+                      <svg viewBox="0 0 384 512"><path fill="currentColor" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+                    </span>
+                  {% endif %}
+                </td>
+
+                {% for i in (1..competitors_count) %}
+                  {% liquid
+                    if i == 1
+                      assign competitor_checked = block.settings.others
+                    elsif i == 2
+                      assign competitor_checked = block.settings.others_2
+                    else
+                      assign competitor_checked = block.settings.others_3
+                    endif
+                  %}
+
+                  <td class="tst-comparison-table__regular">
+                    {% if competitor_checked %}
+                      <span class="tst-comparison-table__icon tst-comparison-table__icon--check {% if check_solid %}tst-comparison-table__icon--solid{% endif %}">
+                        <svg viewBox="0 0 448 512"><path fill="currentColor" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                      </span>
+                    {% else %}
+                      <span class="tst-comparison-table__icon tst-comparison-table__icon--x {% if x_solid %}tst-comparison-table__icon--solid{% endif %}">
+                        <svg viewBox="0 0 384 512"><path fill="currentColor" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+                      </span>
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "TST Comparison table",
+  "settings": [
+    {
+      "type": "select",
+      "id": "visibility",
+      "label": "Display on",
+      "default": "always-display",
+      "options": [
+        { "value": "desktop-hidden", "label": "Mobile only" },
+        { "value": "mobile-hidden", "label": "Desktop only" },
+        { "value": "always-display", "label": "All devices" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_colors",
+      "label": "Enable custom colors",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Comparison table"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Talk about how and why your brand is better than the others.</p>"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size desktop",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 20,
+      "max": 52,
+      "step": 2,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size desktop",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Text size mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "text_spacing",
+      "label": "Text spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "desktop_alignment",
+      "label": "Desktop content alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_alignment",
+      "label": "Mobile content alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_style_secondary",
+      "label": "Secondary button style",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "button_spacing",
+      "label": "Button spacing",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "label": "Container width",
+      "min": 900,
+      "max": 1800,
+      "step": 20,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding",
+      "label": "Container padding desktop",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding",
+      "label": "Container padding mobile",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Desktop table placement",
+      "default": "table_second",
+      "options": [
+        { "value": "table_first", "label": "Table first" },
+        { "value": "table_second", "label": "Table second" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "table_width",
+      "label": "Table width desktop",
+      "min": 40,
+      "max": 75,
+      "step": 5,
+      "default": 55
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap desktop",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap mobile",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Table"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Table style",
+      "default": "centered",
+      "options": [
+        { "value": "classic", "label": "Classic" },
+        { "value": "centered", "label": "Centered" },
+        { "value": "minimal", "label": "Minimalistic" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "number_of_competitors",
+      "label": "Number of displayed competitors",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "benefit_col_width_mobile",
+      "label": "Benefit column width mobile",
+      "min": 24,
+      "max": 50,
+      "step": 2,
+      "default": 34
+    },
+    {
+      "type": "select",
+      "id": "benefit_alignment",
+      "label": "Benefit text alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "cell_padding",
+      "label": "Cell padding desktop",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "cell_padding_mobile",
+      "label": "Cell padding mobile vertical",
+      "min": 6,
+      "max": 30,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "cell_padding_mobile_horizontal",
+      "label": "Cell padding mobile horizontal",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "cell_text_size",
+      "label": "Cell text size desktop",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "cell_text_size_mobile",
+      "label": "Cell text size mobile",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Our label/logo"
+    },
+    {
+      "type": "text",
+      "id": "us_label",
+      "label": "Our label",
+      "default": "[shop_name]"
+    },
+    {
+      "type": "range",
+      "id": "us_label_size",
+      "label": "Label font size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Our logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Desktop logo width",
+      "min": 25,
+      "max": 150,
+      "step": 5,
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "label": "Mobile logo width",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Competitors"
+    },
+    {
+      "type": "text",
+      "id": "others_label",
+      "label": "Competitor 1 label",
+      "default": "Others"
+    },
+    {
+      "type": "range",
+      "id": "others_label_size",
+      "label": "Competitor 1 label size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "image_picker",
+      "id": "others_logo",
+      "label": "Competitor 1 logo"
+    },
+    {
+      "type": "text",
+      "id": "others_2_label",
+      "label": "Competitor 2 label",
+      "default": "Competitor 2"
+    },
+    {
+      "type": "range",
+      "id": "others_2_label_size",
+      "label": "Competitor 2 label size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "image_picker",
+      "id": "others_2_logo",
+      "label": "Competitor 2 logo"
+    },
+    {
+      "type": "text",
+      "id": "others_3_label",
+      "label": "Competitor 3 label",
+      "default": "Competitor 3"
+    },
+    {
+      "type": "range",
+      "id": "others_3_label_size",
+      "label": "Competitor 3 label size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "image_picker",
+      "id": "others_3_logo",
+      "label": "Competitor 3 logo"
+    },
+    {
+      "type": "range",
+      "id": "others_logo_width",
+      "label": "Competitor logo width desktop",
+      "min": 25,
+      "max": 150,
+      "step": 5,
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "others_logo_width_mobile",
+      "label": "Competitor logo width mobile",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Icons"
+    },
+    {
+      "type": "select",
+      "id": "checkmark_style",
+      "label": "Checkmark style",
+      "default": "regular",
+      "options": [
+        { "value": "regular", "label": "Regular" },
+        { "value": "solid", "label": "Solid" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "x_style",
+      "label": "X style",
+      "default": "regular",
+      "options": [
+        { "value": "regular", "label": "Regular" },
+        { "value": "solid", "label": "Solid" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "icon_box_size",
+      "label": "Icon box size desktop",
+      "min": 20,
+      "max": 70,
+      "step": 2,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "icon_box_size_mobile",
+      "label": "Icon box size mobile",
+      "min": 14,
+      "max": 60,
+      "step": 2,
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size desktop",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "icon_size_mobile",
+      "label": "Icon size mobile",
+      "min": 8,
+      "max": 36,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "checkmark_color",
+      "label": "Checkmark color",
+      "default": "#53AF01"
+    },
+    {
+      "type": "color",
+      "id": "checkmark_bg_color",
+      "label": "Solid checkmark background",
+      "default": "#53AF01"
+    },
+    {
+      "type": "color",
+      "id": "checkmark_solid_icon_color",
+      "label": "Solid checkmark icon color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "x_color",
+      "label": "X color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "x_bg_color",
+      "label": "Solid X background",
+      "default": "#DBDBDB"
+    },
+    {
+      "type": "color",
+      "id": "x_solid_icon_color",
+      "label": "Solid X icon color",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Separators and overlays"
+    },
+    {
+      "type": "range",
+      "id": "highlighted_separator_opacity",
+      "label": "Highlighted cells separator opacity",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "regular_separator_opacity",
+      "label": "Regular cells separator opacity",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "highlighted_overlay_opacity",
+      "label": "Even rows highlighted overlay opacity",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "regular_overlay_opacity",
+      "label": "Even rows regular overlay opacity",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "minimalistic_border_opacity",
+      "label": "Minimal rows separator opacity",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Custom colors"
+    },
+    {
+      "type": "paragraph",
+      "content": "These colors only work when Enable custom colors is turned on."
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "section_text",
+      "label": "Section text",
+      "default": "#2E2A39"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#2E2A39"
+    },
+    {
+      "type": "color",
+      "id": "highlight_bg",
+      "label": "Highlighted cells background",
+      "default": "#2E2A39"
+    },
+    {
+      "type": "color",
+      "id": "highlight_text",
+      "label": "Highlighted cells text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "regular_bg",
+      "label": "Regular cells background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "regular_text",
+      "label": "Regular cells text",
+      "default": "#2E2A39"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#DD1D1D"
+    },
+    {
+      "type": "color",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 99,
+      "step": 3,
+      "default": 27
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 99,
+      "step": 3,
+      "default": 27
+    }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Table row",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "benefit",
+          "label": "Benefit",
+          "default": "<strong>Benefit</strong>"
+        },
+        {
+          "type": "checkbox",
+          "id": "us",
+          "label": "Us",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "others",
+          "label": "Competitor 1",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "others_2",
+          "label": "Competitor 2",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "others_3",
+          "label": "Competitor 3",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST Comparison table",
+      "blocks": [
+        { "type": "row" },
+        { "type": "row" },
+        { "type": "row" }
+      ]
+    }
+  ]
+}
+{% endschema %}

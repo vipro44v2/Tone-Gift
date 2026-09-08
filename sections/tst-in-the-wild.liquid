@@ -1,0 +1,980 @@
+{% liquid
+  assign sid = section.id
+
+  assign desktop_items = section.settings.desktop_items_per_view
+  assign mobile_items = section.settings.mobile_items_per_view
+
+  assign desktop_card_percent = 100.0 | divided_by: desktop_items
+  assign mobile_card_percent = 100.0 | divided_by: mobile_items
+
+  assign desktop_gap_total = desktop_items | minus: 1 | times: section.settings.card_gap
+  assign desktop_gap_share = desktop_gap_total | times: 1.0 | divided_by: desktop_items
+
+  assign mobile_gap_total = mobile_items | minus: 1 | times: section.settings.mobile_card_gap
+  assign mobile_gap_share = mobile_gap_total | times: 1.0 | divided_by: mobile_items
+
+  assign image_sizes = '(min-width: 750px) ' | append: desktop_card_percent | append: 'vw, ' | append: mobile_card_percent | append: 'vw'
+
+  assign enable_autoplay = false
+
+  if section.settings.auto_slide and section.blocks.size > 1
+    assign enable_autoplay = true
+  endif
+%}
+
+<section
+  id="TST-In-The-Wild-{{ sid }}"
+  class="
+    tst-wild
+    color-{{ section.settings.color_scheme }}
+    gradient
+    {% if section.settings.use_custom_colors %}
+      tst-wild--custom-colors
+    {% endif %}
+    {% if enable_autoplay %}
+      tst-wild--autoplay
+      tst-wild--direction-{{ section.settings.slide_direction }}
+    {% else %}
+      tst-wild--manual
+    {% endif %}
+  "
+  style="
+    --tst-background:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+
+    --tst-heading-color:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_heading_color }}
+      {% else %}
+        rgb(var(--color-foreground))
+      {% endif %};
+
+    --tst-text-color:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_text_color }}
+      {% else %}
+        rgba(var(--color-foreground), 0.78)
+      {% endif %};
+
+    --tst-fade-solid:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+
+    --tst-fade-transparent:
+      {% if section.settings.use_custom_colors %}
+        {{ section.settings.custom_background | color_modify: 'alpha', 0 }}
+      {% else %}
+        rgba(var(--color-background), 0)
+      {% endif %};
+
+    --tst-padding-top: {{ section.settings.padding_top }}px;
+    --tst-padding-bottom: {{ section.settings.padding_bottom }}px;
+
+    --tst-full-width-padding: {{ section.settings.full_width_padding }}px;
+    --tst-mobile-side-padding: {{ section.settings.mobile_side_padding }}px;
+
+    --tst-heading-size: {{ section.settings.heading_size }}px;
+    --tst-mobile-heading-size: {{ section.settings.mobile_heading_size }}px;
+
+    --tst-subheading-size: {{ section.settings.subheading_size }}px;
+    --tst-mobile-subheading-size: {{ section.settings.mobile_subheading_size }}px;
+
+    --tst-heading-gap: {{ section.settings.heading_gap }}px;
+    --tst-content-gap: {{ section.settings.content_gap }}px;
+
+    --tst-desktop-card-gap: {{ section.settings.card_gap }}px;
+--tst-mobile-card-gap: {{ section.settings.mobile_card_gap }}px;
+
+--tst-desktop-card-width: calc(
+  {{ desktop_card_percent }}cqw - {{ desktop_gap_share }}px
+);
+
+--tst-mobile-card-width: calc(
+  {{ mobile_card_percent }}cqw - {{ mobile_gap_share }}px
+);
+
+--tst-card-radius: {{ section.settings.card_radius }}px;
+
+--tst-desktop-fade-width: {{ section.settings.fade_width }}px;
+--tst-mobile-fade-width: {{ section.settings.mobile_fade_width }}px;
+    --tst-fade-opacity: {{ section.settings.fade_opacity | divided_by: 100.0 }};
+
+    --tst-speed: {{ section.settings.slide_speed }}s;
+  "
+>
+  <div
+    class="
+      tst-wild__inner
+      {% if section.settings.section_width == 'default' %}
+        page-width
+      {% else %}
+        tst-wild__inner--full-width
+      {% endif %}
+    "
+  >
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div
+        class="
+          tst-wild__header
+          tst-wild__header--{{ section.settings.text_alignment }}
+        "
+      >
+        {% if section.settings.heading != blank %}
+          <h2 class="tst-wild__heading">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.subheading != blank %}
+          <div class="tst-wild__subheading rte">
+            {{ section.settings.subheading }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <div class="tst-wild__slider-wrapper">
+        {% if section.settings.show_edge_fade %}
+          <span
+            class="tst-wild__fade tst-wild__fade--left"
+            aria-hidden="true"
+          ></span>
+
+          <span
+            class="tst-wild__fade tst-wild__fade--right"
+            aria-hidden="true"
+          ></span>
+        {% endif %}
+
+        <div
+          class="tst-wild__viewport"
+          {% if enable_autoplay %}
+            aria-label="Automatic image slider"
+          {% else %}
+            aria-label="Scrollable image gallery"
+          {% endif %}
+        >
+          <div class="tst-wild__track">
+            <div class="tst-wild__group">
+              {% for block in section.blocks %}
+                {% liquid
+                  assign loading_value = 'lazy'
+                  assign fetch_priority = 'auto'
+
+                  if forloop.index <= 4 and section.index <= 2
+                    assign loading_value = 'eager'
+                  endif
+
+                  if forloop.first and section.index == 1
+                    assign fetch_priority = 'high'
+                  endif
+                %}
+
+                {% if block.settings.link != blank %}
+                  <a
+                    href="{{ block.settings.link }}"
+                    class="tst-wild__card"
+                    {{ block.shopify_attributes }}
+                  >
+                {% else %}
+                  <div
+                    class="tst-wild__card"
+                    {{ block.shopify_attributes }}
+                  >
+                {% endif %}
+
+                    <div class="tst-wild__media">
+                      {% if block.settings.image != blank %}
+                        {{
+                          block.settings.image
+                          | image_url: width: 1600
+                          | image_tag:
+                            loading: loading_value,
+                            fetchpriority: fetch_priority,
+                            widths: '320, 480, 640, 800, 1000, 1200, 1600',
+                            sizes: image_sizes,
+                            class: 'tst-wild__image',
+                            alt: block.settings.alt_text
+                        }}
+                      {% else %}
+                        {{
+                          'image'
+                          | placeholder_svg_tag:
+                            'tst-wild__placeholder placeholder-svg'
+                        }}
+                      {% endif %}
+                    </div>
+
+                {% if block.settings.link != blank %}
+                  </a>
+                {% else %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if enable_autoplay %}
+              <div
+                class="tst-wild__group"
+                aria-hidden="true"
+              >
+                {% for block in section.blocks %}
+                  {% if block.settings.link != blank %}
+                    <a
+                      href="{{ block.settings.link }}"
+                      class="tst-wild__card"
+                      tabindex="-1"
+                    >
+                  {% else %}
+                    <div class="tst-wild__card">
+                  {% endif %}
+
+                      <div class="tst-wild__media">
+                        {% if block.settings.image != blank %}
+                          {{
+                            block.settings.image
+                            | image_url: width: 1600
+                            | image_tag:
+                              loading: 'lazy',
+                              widths: '320, 480, 640, 800, 1000, 1200, 1600',
+                              sizes: image_sizes,
+                              class: 'tst-wild__image',
+                              alt: ''
+                          }}
+                        {% else %}
+                          {{
+                            'image'
+                            | placeholder_svg_tag:
+                              'tst-wild__placeholder placeholder-svg'
+                          }}
+                        {% endif %}
+                      </div>
+
+                  {% if block.settings.link != blank %}
+                    </a>
+                  {% else %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% elsif request.design_mode %}
+      <div class="tst-wild__empty">
+        Add image blocks to display the gallery.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  #TST-In-The-Wild-{{ sid }} {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  color: var(--tst-heading-color);
+  background: var(--tst-background);
+  padding-top: var(--tst-padding-top);
+  padding-bottom: var(--tst-padding-bottom);
+
+  /* Giá trị mặc định trên desktop */
+  --tst-card-gap: var(--tst-desktop-card-gap);
+  --tst-card-width: var(--tst-desktop-card-width);
+  --tst-fade-width: var(--tst-desktop-fade-width);
+}
+
+  #TST-In-The-Wild-{{ sid }},
+  #TST-In-The-Wild-{{ sid }} *,
+  #TST-In-The-Wild-{{ sid }} *::before,
+  #TST-In-The-Wild-{{ sid }} *::after {
+    box-sizing: border-box;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__inner {
+    width: 100%;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__inner--full-width {
+    max-width: none;
+    padding-left: var(--tst-full-width-padding);
+    padding-right: var(--tst-full-width-padding);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tst-heading-gap);
+    margin-bottom: var(--tst-content-gap);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__header--left {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__header--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__header--right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__heading {
+    margin: 0;
+    padding: 0;
+    color: var(--tst-heading-color);
+    font-size: var(--tst-heading-size);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__subheading {
+    margin: 0;
+    color: var(--tst-text-color);
+    font-size: var(--tst-subheading-size);
+    font-weight: 400;
+    line-height: 1.45;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__subheading p {
+    margin: 0;
+  }
+
+ #TST-In-The-Wild-{{ sid }} .tst-wild__slider-wrapper {
+  position: relative;
+  width: 100%;
+  container-type: inline-size;
+}
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__viewport {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__viewport::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  #TST-In-The-Wild-{{ sid }}.tst-wild--autoplay .tst-wild__viewport {
+    overflow: hidden;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__track {
+    display: flex;
+    align-items: stretch;
+    width: max-content;
+    min-width: max-content;
+    will-change: transform;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__group {
+    display: flex;
+    align-items: stretch;
+    flex: 0 0 auto;
+    gap: var(--tst-card-gap);
+    padding-right: var(--tst-card-gap);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__card {
+    position: relative;
+    display: block;
+    width: var(--tst-card-width);
+    min-width: var(--tst-card-width);
+    flex: 0 0 var(--tst-card-width);
+    overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--tst-card-radius);
+    scroll-snap-align: start;
+    isolation: isolate;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+
+    {% case section.settings.image_ratio %}
+      {% when 'square' %}
+        aspect-ratio: 1 / 1;
+      {% when 'portrait' %}
+        aspect-ratio: 4 / 5;
+      {% when 'landscape' %}
+        aspect-ratio: 4 / 3;
+      {% when 'wide' %}
+        aspect-ratio: 16 / 9;
+    {% endcase %}
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__image,
+  #TST-In-The-Wild-{{ sid }} .tst-wild__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__placeholder {
+    background: rgba(var(--color-foreground), 0.08);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 4;
+    display: block;
+    width: var(--tst-fade-width);
+    opacity: var(--tst-fade-opacity);
+    pointer-events: none;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__fade--left {
+    left: 0;
+    background: linear-gradient(
+      to right,
+      var(--tst-fade-solid) 0%,
+      var(--tst-fade-transparent) 100%
+    );
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__fade--right {
+    right: 0;
+    background: linear-gradient(
+      to left,
+      var(--tst-fade-solid) 0%,
+      var(--tst-fade-transparent) 100%
+    );
+  }
+
+  #TST-In-The-Wild-{{ sid }}.tst-wild--manual .tst-wild__viewport {
+    scroll-snap-type: x mandatory;
+    cursor: grab;
+  }
+
+  #TST-In-The-Wild-{{ sid }}.tst-wild--manual
+  .tst-wild__viewport:active {
+    cursor: grabbing;
+  }
+
+  #TST-In-The-Wild-{{ sid }}.tst-wild--direction-right-to-left
+  .tst-wild__track {
+    animation:
+      tst-wild-right-to-left-{{ sid }}
+      var(--tst-speed)
+      linear
+      infinite;
+  }
+
+  #TST-In-The-Wild-{{ sid }}.tst-wild--direction-left-to-right
+  .tst-wild__track {
+    animation:
+      tst-wild-left-to-right-{{ sid }}
+      var(--tst-speed)
+      linear
+      infinite;
+  }
+
+  @keyframes tst-wild-right-to-left-{{ sid }} {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @keyframes tst-wild-left-to-right-{{ sid }} {
+    from {
+      transform: translate3d(-50%, 0, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    #TST-In-The-Wild-{{ sid }} .tst-wild__card:hover .tst-wild__image {
+      transform: scale(1.04);
+    }
+
+    {% if section.settings.pause_on_hover and enable_autoplay %}
+      #TST-In-The-Wild-{{ sid }}:hover .tst-wild__track {
+        animation-play-state: paused;
+      }
+    {% endif %}
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__card:focus-visible {
+    outline: 2px solid var(--tst-heading-color);
+    outline-offset: 4px;
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__empty {
+    width: 100%;
+    padding: 50px 20px;
+    color: var(--tst-text-color);
+    border: 1px dashed currentColor;
+    text-align: center;
+  }
+
+@media screen and (max-width: 749px) {
+  #TST-In-The-Wild-{{ sid }} {
+    /* Ghi đè đúng số ảnh và khoảng cách trên mobile */
+    --tst-card-gap: var(--tst-mobile-card-gap);
+    --tst-card-width: var(--tst-mobile-card-width);
+    --tst-fade-width: var(--tst-mobile-fade-width);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__inner--full-width {
+    padding-left: var(--tst-mobile-side-padding);
+    padding-right: var(--tst-mobile-side-padding);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__heading {
+    font-size: var(--tst-mobile-heading-size);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__subheading {
+    font-size: var(--tst-mobile-subheading-size);
+  }
+
+  #TST-In-The-Wild-{{ sid }} .tst-wild__header {
+    margin-bottom: calc(var(--tst-content-gap) * 0.7);
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "TST In The Wild",
+  "tag": "section",
+  "class": "section-tst-in-the-wild",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default theme width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full width"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "full_width_padding",
+      "label": "Full width side padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "mobile_side_padding",
+      "label": "Mobile full width padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "IN THE WILD"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Tag @TerraExpedition to be featured.</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Desktop heading size",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 54
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "label": "Mobile heading size",
+      "min": 22,
+      "max": 52,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Desktop subheading size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "mobile_subheading_size",
+      "label": "Mobile subheading size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Heading and subheading gap",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Text and slider gap",
+      "min": 16,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_slide",
+      "label": "Enable auto slider",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "slide_direction",
+      "label": "Slide direction",
+      "default": "right-to-left",
+      "options": [
+        {
+          "value": "right-to-left",
+          "label": "Right to left"
+        },
+        {
+          "value": "left-to-right",
+          "label": "Left to right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "slide_speed",
+      "label": "Auto slider speed",
+      "info": "Higher value means slower movement",
+      "min": 10,
+      "max": 150,
+      "step": 5,
+      "unit": "s",
+      "default": 45
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause slider on hover",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Desktop image gap",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_gap",
+      "label": "Mobile image gap",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+  "type": "range",
+  "id": "desktop_items_per_view",
+  "label": "Images visible on desktop",
+  "min": 1,
+  "max": 6,
+  "step": 1,
+  "default": 4
+},
+{
+  "type": "range",
+  "id": "mobile_items_per_view",
+  "label": "Images visible on mobile",
+  "min": 1,
+  "max": 3,
+  "step": 1,
+  "default": 1
+},
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "default": "square",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "Landscape"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Edge fade"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_edge_fade",
+      "label": "Show edge fade",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "fade_width",
+      "label": "Desktop fade width",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "mobile_fade_width",
+      "label": "Mobile fade width",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "fade_opacity",
+      "label": "Fade opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_colors",
+      "label": "Enable custom colors",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Custom background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "custom_heading_color",
+      "label": "Custom heading color",
+      "default": "#F4F4F4"
+    },
+    {
+      "type": "color",
+      "id": "custom_text_color",
+      "label": "Custom subheading color",
+      "default": "#F0B3A3"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Image alt text"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Image link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST In The Wild",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,525 @@
+{% comment %}
+  Renders product variant-picker
+
+  Accepts:
+  - product: {Object} product object.
+  - block: {Object} passing the block information.
+  - product_form_id: {String} Id of the product form to which the variant picker is associated.
+
+  Usage:
+  {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
+{% endcomment %}
+
+{%- unless product.has_only_default_variant -%}
+  {%- if block.settings.show_variant_images -%}
+    <style>
+      
+      #variant-selects-{{ section.id }}.variant-selects--image-list .product-form__input--image-list {
+        width: 100%;
+        max-width: none;
+        margin: 0 0 1.6rem;
+        padding: 0;
+        border: 0;
+      }
+
+      #variant-selects-{{ section.id }}.variant-selects--image-list .product-form__input--image-list .form__label {
+        margin-bottom: 0.8rem;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+        width: 100%;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__label {
+        position: relative;
+        overflow: visible;
+        display: flex !important;
+        align-items: center;
+        width: 100%;
+        min-width: 0;
+        min-height: 5.4rem;
+        margin: 0 !important;
+        padding: 0.6rem 1rem !important;
+        gap: 1rem;
+        color: rgb(var(--color-foreground)) !important;
+        background: rgb(var(--color-background)) !important;
+        border: 1px solid rgba(var(--color-foreground), 0.18) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        cursor: pointer;
+        text-align: left;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__media {
+        display: flex;
+        flex: 0 0 4rem;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        overflow: hidden;
+        background: rgba(var(--color-foreground), 0.04);
+        border-radius: 0;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__image,
+      #variant-selects-{{ section.id }} .tst-variant-image-list__placeholder {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__name {
+        display: -webkit-box;
+        min-width: 0;
+        overflow: hidden;
+        font-size: 1.3rem;
+        font-weight: 500;
+        line-height: 1.3;
+        letter-spacing: 0.01em;
+        text-transform: none;
+        overflow-wrap: anywhere;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input:checked + .tst-variant-image-list__label {
+        color: rgb(var(--color-foreground)) !important;
+        background: rgba(var(--color-foreground), 0.045) !important;
+        border-color: rgb(var(--color-foreground)) !important;
+        box-shadow: inset 0 0 0 1px rgb(var(--color-foreground)) !important;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input:focus-visible + .tst-variant-image-list__label {
+        outline: 2px solid rgb(var(--color-foreground));
+        outline-offset: 2px;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input.disabled + .tst-variant-image-list__label,
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input[aria-disabled='true'] + .tst-variant-image-list__label {
+        opacity: 0.45;
+      }
+
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input.disabled + .tst-variant-image-list__label .tst-variant-image-list__name,
+      #variant-selects-{{ section.id }} .tst-variant-image-list__input[aria-disabled='true'] + .tst-variant-image-list__label .tst-variant-image-list__name {
+        text-decoration: line-through;
+      }
+
+      @media (hover: hover) {
+        #variant-selects-{{ section.id }} .tst-variant-image-list__label:hover {
+          border-color: rgba(var(--color-foreground), 0.65) !important;
+        }
+      }
+
+      @media screen and (max-width: 749px) {
+        #variant-selects-{{ section.id }} .tst-variant-image-grid {
+          gap: 0.6rem;
+        }
+
+        #variant-selects-{{ section.id }} .tst-variant-image-list__label {
+          min-height: 4.8rem;
+          padding: 0.5rem 0.7rem !important;
+          gap: 0.7rem;
+        }
+
+        #variant-selects-{{ section.id }} .tst-variant-image-list__media {
+          flex-basis: 3.6rem;
+          width: 3.6rem;
+          height: 3.6rem;
+        }
+
+        #variant-selects-{{ section.id }} .tst-variant-image-list__name {
+          font-size: 1.15rem;
+        }
+      }
+
+      @media screen and (max-width: 360px) {
+        #variant-selects-{{ section.id }} .tst-variant-image-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      #variant-selects-{{ section.id }} .tst-variant-image-list__name {
+        flex: 1 1 auto;
+      }
+
+      /* Best Seller badge - overlay on variant border */
+      #variant-selects-{{ section.id }} .tst-variant-image-list__best-seller {
+        position: absolute;
+        top: 0;
+        z-index: 5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.6rem;
+        padding: 0.45rem 0.85rem;
+        pointer-events: none;
+        user-select: none;
+
+        {% if block.settings.best_seller_badge_position == 'top_left' %}
+          left: 0;
+          right: auto;
+        {% else %}
+          right: 0;
+          left: auto;
+        {% endif %}
+
+        color: {{ block.settings.best_seller_badge_text_color }};
+        background: linear-gradient(
+          135deg,
+          {{ block.settings.best_seller_badge_background }} 0%,
+          {{ block.settings.best_seller_badge_gradient }} 100%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: {{ block.settings.best_seller_badge_radius }}px;
+        box-shadow:
+          0 5px 14px rgba(0, 0, 0, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.32);
+        font-size: {{ block.settings.best_seller_badge_font_size }}px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+
+        transform:
+          translate(
+            {{ block.settings.best_seller_badge_offset_x }}px,
+            {{ block.settings.best_seller_badge_offset_y }}px
+          )
+          rotate({{ block.settings.best_seller_badge_rotate }}deg);
+        transform-origin: center;
+        transition: filter 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      #variant-selects-{{ section.id }}
+      .tst-variant-image-list__input:checked
+      + .tst-variant-image-list__label
+      .tst-variant-image-list__best-seller {
+        box-shadow:
+          0 7px 18px rgba(249, 115, 22, 0.35),
+          0 0 0 2px rgba(249, 115, 22, 0.13),
+          inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      }
+
+      @media (hover: hover) {
+        #variant-selects-{{ section.id }}
+        .tst-variant-image-list__label:hover
+        .tst-variant-image-list__best-seller {
+          filter: brightness(1.07);
+          box-shadow:
+            0 7px 18px rgba(0, 0, 0, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+      }
+
+      @media screen and (max-width: 749px) {
+        #variant-selects-{{ section.id }} .tst-variant-image-list__best-seller {
+          min-height: 2.2rem;
+          padding: 0.35rem 0.6rem;
+          font-size: {{ block.settings.best_seller_badge_font_size_mobile }}px;
+        }
+      }
+    </style>
+  {%- endif -%}
+
+  <variant-selects
+    id="variant-selects-{{ section.id }}"
+    class="{% if block.settings.show_variant_images %}variant-selects--image-list{% endif %}"
+    data-section="{{ section.id }}"
+    {{ block.shopify_attributes }}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        assign picker_type = block.settings.picker_type
+
+        if block.settings.show_variant_images
+          assign picker_type = 'image_button'
+        elsif swatch_count > 0 and block.settings.swatch_shape != 'none'
+          if block.settings.picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          else
+            assign picker_type = 'swatch'
+          endif
+        endif
+      -%}
+
+      {%- if picker_type == 'image_button' -%}
+        <fieldset class="js product-form__input product-form__input--pill product-form__input--image-list">
+          <legend class="form__label">
+            {{ option.name }}:
+            <span data-selected-value>
+              {{- option.selected_value -}}
+            </span>
+          </legend>
+
+          <div class="tst-variant-image-grid">
+            {%- assign option_index = option.position | minus: 1 -%}
+
+            {%- for option_value in option.values -%}
+              {%- liquid
+                assign option_image = blank
+
+                if option_value.variant != blank
+                  assign option_image = option_value.variant.featured_media.preview_image
+
+                  if option_image == blank
+                    assign option_image = option_value.variant.featured_image
+                  endif
+                endif
+
+                if option_image == blank
+                  for image_variant in product.variants
+                    if image_variant.options[option_index] == option_value
+                      if image_variant.featured_media != blank
+                        assign option_image = image_variant.featured_media.preview_image
+                      elsif image_variant.featured_image != blank
+                        assign option_image = image_variant.featured_image
+                      endif
+
+                      if option_image != blank
+                        break
+                      endif
+                    endif
+                  endfor
+                endif
+
+                assign input_id = section.id | append: '-' | append: option.position | append: '-' | append: forloop.index0
+                assign input_name = option.name | append: '-' | append: option.position
+              -%}
+
+              <input
+                type="radio"
+                id="{{ input_id }}"
+                class="tst-variant-image-list__input{% unless option_value.available %} disabled{% endunless %}"
+                name="{{ input_name | escape }}"
+                value="{{ option_value | escape }}"
+                form="{{ product_form_id }}"
+                data-option-value-id="{{ option_value.id }}"
+                {% if option_value.product_url != blank %}
+                  data-product-url="{{ option_value.product_url }}"
+                {% endif %}
+                {% if option_value.selected %}
+                  checked
+                {% endif %}
+                {% unless option_value.available %}
+                  aria-disabled="true"
+                {% endunless %}
+              >
+
+              <label class="tst-variant-image-list__label" for="{{ input_id }}">
+                <span class="tst-variant-image-list__media">
+                  {%- if option_image != blank -%}
+                    {{
+                      option_image
+                      | image_url: width: 120
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '60, 90, 120',
+                        sizes: '48px',
+                        class: 'tst-variant-image-list__image',
+                        alt: option_value
+                    }}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag: 'tst-variant-image-list__placeholder' }}
+                  {%- endif -%}
+                </span>
+
+                <span class="tst-variant-image-list__name">{{ option_value }}</span>
+
+{%- if block.settings.show_best_seller_badge
+  and option.position == 1
+  and forloop.first
+-%}
+  <span
+    class="tst-variant-image-list__best-seller"
+    aria-label="{{ block.settings.best_seller_badge_text | escape }}"
+  >
+    {{ block.settings.best_seller_badge_text }}
+  </span>
+{%- endif -%}
+
+{%- unless option_value.available -%}
+                  <span class="visually-hidden">
+                    {{- 'products.product.variant_sold_out_or_unavailable' | t -}}
+                  </span>
+                {%- endunless -%}
+              </label>
+            {%- endfor -%}
+          </div>
+        </fieldset>
+
+      {%- elsif picker_type == 'swatch' -%}
+        <fieldset class="js product-form__input product-form__input--swatch">
+          <legend class="form__label">
+            {{ option.name }}:
+            <span data-selected-value>
+              {{- option.selected_value -}}
+            </span>
+          </legend>
+
+          {% render 'product-variant-options',
+            product: product,
+            option: option,
+            block: block,
+            picker_type: picker_type
+          %}
+        </fieldset>
+
+      {%- elsif picker_type == 'button' -%}
+        <fieldset class="js product-form__input product-form__input--pill">
+          <legend class="form__label">
+            {{ option.name }}:
+            <span data-selected-value>
+              {{- option.selected_value -}}
+            </span>
+          </legend>
+
+          {% render 'product-variant-options',
+            product: product,
+            option: option,
+            block: block,
+            picker_type: picker_type
+          %}
+        </fieldset>
+
+      {%- else -%}
+        <div class="product-form__input product-form__input--dropdown">
+          <label
+            class="form__label"
+            for="Option-{{ section.id }}-{{ forloop.index0 }}"
+          >
+            {{ option.name }}:
+            <span data-tst-dropdown-selected>
+              {{- option.selected_value -}}
+            </span>
+          </label>
+
+          <div class="select">
+            {%- if picker_type == 'swatch_dropdown' -%}
+              <span
+                data-selected-value
+                class="dropdown-swatch"
+              >
+                {% render 'swatch',
+                  swatch: option.selected_value.swatch,
+                  shape: block.settings.swatch_shape
+                %}
+              </span>
+            {%- endif -%}
+
+            <select
+              id="Option-{{ section.id }}-{{ forloop.index0 }}"
+              class="select__select"
+              name="options[{{ option.name | escape }}]"
+              form="{{ product_form_id }}"
+            >
+              {% render 'product-variant-options',
+                product: product,
+                option: option,
+                block: block,
+                picker_type: picker_type
+              %}
+            </select>
+
+            <span class="svg-wrapper">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <script
+      type="application/json"
+      data-selected-variant
+    >
+      {{ product.selected_or_first_available_variant | json }}
+    </script>
+
+    <script
+      type="application/json"
+      data-tst-instant-variants
+    >
+      [
+        {%- for variant in product.variants -%}
+          {%- liquid
+            assign tst_variant_media = variant.featured_media
+            assign tst_variant_image = blank
+
+            if tst_variant_media != blank
+              assign tst_variant_image = tst_variant_media.preview_image
+            endif
+
+            if tst_variant_image == blank and variant.featured_image != blank
+              assign tst_variant_image = variant.featured_image
+            endif
+
+            capture tst_media_id
+              if tst_variant_media != blank
+                echo section.id
+                echo '-'
+                echo tst_variant_media.id
+              endif
+            endcapture
+
+            capture tst_image_srcset
+              if tst_variant_image != blank
+                echo tst_variant_image | image_url: width: 480
+                echo ' 480w, '
+                echo tst_variant_image | image_url: width: 720
+                echo ' 720w, '
+                echo tst_variant_image | image_url: width: 960
+                echo ' 960w, '
+                echo tst_variant_image | image_url: width: 1200
+                echo ' 1200w, '
+                echo tst_variant_image | image_url: width: 1600
+                echo ' 1600w'
+              endif
+            endcapture
+          -%}
+
+          {
+            "id": {{ variant.id | json }},
+            "available": {{ variant.available | json }},
+            "options": {{ variant.options | json }},
+            "mediaId":
+              {%- if tst_media_id != blank -%}
+                {{ tst_media_id | strip | json }}
+              {%- else -%}
+                null
+              {%- endif -%},
+            "imageSrc":
+              {%- if tst_variant_image != blank -%}
+                {{ tst_variant_image | image_url: width: 1600 | json }}
+              {%- else -%}
+                null
+              {%- endif -%},
+            "imageSrcset":
+              {%- if tst_variant_image != blank -%}
+                {{ tst_image_srcset | strip | json }}
+              {%- else -%}
+                null
+              {%- endif -%}
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    </script>
+  </variant-selects>
+{%- endunless -%}

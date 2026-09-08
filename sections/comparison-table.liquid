@@ -1,0 +1,403 @@
+{{ 'tailwind.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .comparison-table-{{ section.id }} {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .comparison-table-{{ section.id }} thead th:nth-child(2),
+  .comparison-table-{{ section.id }} tbody td:nth-child(2) {
+    background: {{ section.settings.highlight_color }};
+    color: {{ section.settings.highlight_text_color }};
+  }
+
+  .comparison-table-{{ section.id }} thead th:nth-child(2) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .comparison-table-{{ section.id }} tbody tr:nth-child(even) th,
+  .comparison-table-{{ section.id }} tbody tr:nth-child(even) td:not(:nth-child(2)) {
+    background: rgb(244 244 244);
+  }
+
+  .comparison-table-{{ section.id }} tbody tr:nth-child(even) td:nth-child(2) {
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)),
+      {{ section.settings.highlight_color }};
+  }
+
+  .comparison-table-{{ section.id }} tbody th,
+  .comparison-table-{{ section.id }} tbody td {
+    border-top: 1px solid rgb(228 228 231);
+    height: 68px;
+    padding: 16px 24px;
+    vertical-align: middle;
+  }
+
+  .comparison-table-{{ section.id }} tbody td:nth-child(2) {
+    border-top-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .comparison-table-{{ section.id }} tbody tr:first-child th,
+  .comparison-table-{{ section.id }} tbody tr:first-child td {
+    border-top: 0;
+  }
+
+  .comparison-table-{{ section.id }} tbody tr:last-child th {
+    border-bottom-left-radius: 12px;
+  }
+
+  .comparison-table-{{ section.id }} tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="tw:mx-auto tw:grid tw:max-w-[1150px] tw:items-center tw:gap-14 tw:lg:grid-cols-[minmax(0,470px)_640px] tw:lg:justify-center">
+      {%- if section.settings.eyebrow != blank or section.settings.heading != blank or section.settings.text != blank -%}
+        <div class="tw:max-w-[420px] tw:lg:mt-[74px]{% if section.settings.heading_alignment == 'center' %} tw:mx-auto tw:text-center{% elsif section.settings.heading_alignment == 'right' %} tw:ml-auto tw:text-right{% endif %}">
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="tw:mb-2 tw:text-[1.4rem] tw:font-bold tw:uppercase tw:tracking-[0.08em] tw:text-neutral-500">
+              {{ section.settings.eyebrow | escape }}
+            </p>
+          {%- endif -%}
+
+          {%- if section.settings.heading != blank -%}
+            <h2 class="inline-richtext {{ section.settings.heading_size }} tw:m-0 tw:font-extrabold tw:tracking-normal tw:text-neutral-950">
+              {{ section.settings.heading }}
+            </h2>
+          {%- endif -%}
+
+          {%- if section.settings.text != blank -%}
+            <div class="rte tw:mt-[18px] tw:text-[1.6rem] tw:leading-[1.7] tw:text-neutral-600">
+              {{ section.settings.text }}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="tw:overflow-x-auto">
+        <table class="comparison-table-{{ section.id }} tw:w-full tw:min-w-[640px] tw:text-center tw:text-[1.4rem]">
+          <caption class="visually-hidden">
+            {{ section.settings.heading | default: section.settings.table_caption | escape }}
+          </caption>
+
+          <thead>
+            <tr>
+              <th scope="col" class="tw:h-[102px] tw:w-1/3 tw:px-6 tw:py-5 tw:align-middle tw:text-[1.6rem] tw:font-extrabold tw:leading-[1.45]">
+                <span class="visually-hidden">{{ section.settings.feature_heading | escape }}</span>
+              </th>
+              <th scope="col" class="tw:h-[102px] tw:w-1/3 tw:px-6 tw:py-5 tw:align-middle tw:text-[1.6rem] tw:font-extrabold tw:leading-[1.45]">
+                {{ section.settings.column_1_heading | escape }}
+              </th>
+              <th scope="col" class="tw:h-[102px] tw:w-1/3 tw:px-6 tw:py-5 tw:align-middle tw:text-[1.6rem] tw:font-extrabold tw:leading-[1.45] tw:text-neutral-950">
+                {{ section.settings.column_2_heading | escape }}
+              </th>
+              {%- if section.settings.column_3_heading != blank -%}
+                <th scope="col" class="tw:h-[102px] tw:px-6 tw:py-5 tw:align-middle tw:text-[1.6rem] tw:font-extrabold tw:leading-[1.45] tw:text-neutral-950">
+                  {{ section.settings.column_3_heading | escape }}
+                </th>
+              {%- endif -%}
+            </tr>
+          </thead>
+
+          <tbody>
+            {% content_for 'blocks' %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Comparison table",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Comparison table"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Talk about how and why your brand is better than the others.</p>"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "h0",
+          "label": "Large"
+        }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Table headings"
+    },
+    {
+      "type": "text",
+      "id": "table_caption",
+      "label": "Accessible table caption",
+      "default": "Comparison table"
+    },
+    {
+      "type": "text",
+      "id": "feature_heading",
+      "label": "Feature heading",
+      "default": "Feature"
+    },
+    {
+      "type": "text",
+      "id": "column_1_heading",
+      "label": "Column 1 heading",
+      "default": "Section Test(pass: sang)"
+    },
+    {
+      "type": "text",
+      "id": "column_2_heading",
+      "label": "Column 2 heading",
+      "default": "Others"
+    },
+    {
+      "type": "text",
+      "id": "column_3_heading",
+      "label": "Column 3 heading"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlighted column color",
+      "default": "#2f2a3b"
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Highlighted column text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "comparison-row"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Comparison table",
+      "blocks": [
+        {
+          "type": "comparison-row",
+          "settings": {
+            "feature": "Benefit"
+          },
+          "blocks": [
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "check"
+              }
+            },
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "cross"
+              }
+            }
+          ]
+        },
+        {
+          "type": "comparison-row",
+          "settings": {
+            "feature": "Benefit"
+          },
+          "blocks": [
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "check"
+              }
+            },
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "cross"
+              }
+            }
+          ]
+        },
+        {
+          "type": "comparison-row",
+          "settings": {
+            "feature": "Benefit"
+          },
+          "blocks": [
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "check"
+              }
+            },
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "cross"
+              }
+            }
+          ]
+        },
+        {
+          "type": "comparison-row",
+          "settings": {
+            "feature": "Benefit"
+          },
+          "blocks": [
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "check"
+              }
+            },
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "cross"
+              }
+            }
+          ]
+        },
+        {
+          "type": "comparison-row",
+          "settings": {
+            "feature": "Benefit"
+          },
+          "blocks": [
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "check"
+              }
+            },
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "cross"
+              }
+            }
+          ]
+        },
+        {
+          "type": "comparison-row",
+          "settings": {
+            "feature": "Benefit"
+          },
+          "blocks": [
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "check"
+              }
+            },
+            {
+              "type": "comparison-cell",
+              "settings": {
+                "value_type": "cross"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

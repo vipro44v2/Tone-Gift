@@ -1,0 +1,2151 @@
+{{ 'section-blog-post.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+<article class="article-template">
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when '@app' -%}
+        <div class="page-width page-width--narrow">
+          {% render block %}
+        </div>
+      {%- when 'featured_image' -%}
+        {%- if article.image -%}
+          <div
+            class="article-template__hero-container{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            <div
+              class="article-template__hero-{{ block.settings.image_height }} media"
+              {% if block.settings.image_height == 'adapt' and article.image %}
+                style="padding-bottom: {{ 1 | divided_by: article.image.aspect_ratio | times: 100 }}%;"
+              {% endif %}
+            >
+              <img
+                srcset="
+                  {% if article.image.width >= 350 %}{{ article.image | image_url: width: 350 }} 350w,{% endif %}
+                  {% if article.image.width >= 750 %}{{ article.image | image_url: width: 750 }} 750w,{% endif %}
+                  {% if article.image.width >= 1100 %}{{ article.image | image_url: width: 1100 }} 1100w,{% endif %}
+                  {% if article.image.width >= 1500 %}{{ article.image | image_url: width: 1500 }} 1500w,{% endif %}
+                  {% if article.image.width >= 2200 %}{{ article.image | image_url: width: 2200 }} 2200w,{% endif %}
+                  {% if article.image.width >= 3000 %}{{ article.image | image_url: width: 3000 }} 3000w,{% endif %}
+                  {{ article.image | image_url }} {{ article.image.width }}w
+                "
+                sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw"
+                src="{{ article.image | image_url: width: 1100 }}"
+                loading="eager"
+                fetchpriority="high"
+                width="{{ article.image.width }}"
+                height="{{ article.image.height }}"
+                alt="{{ article.image.alt | escape }}"
+              >
+            </div>
+          </div>
+        {%- endif -%}
+
+      {%- when 'title' -%}
+        <header
+          class="page-width page-width--narrow{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          <h1
+            class="article-template__title"
+          >
+            {{ article.title | escape }}
+          </h1>
+          {%- if block.settings.blog_show_date -%}
+            <span class="circle-divider caption-with-letter-spacing">
+              {{- article.published_at | time_tag: format: 'date' -}}
+            </span>
+          {%- endif -%}
+          {%- if block.settings.blog_show_author -%}
+            <span class="caption-with-letter-spacing">
+              <span>{{ article.author }}</span>
+            </span>
+          {%- endif -%}
+        </header>
+
+      {%- when 'content' -%}
+        {%- liquid
+          assign related_articles_limit = block.settings.related_articles_limit
+          assign related_articles_shown = 0
+        -%}
+
+
+        {%- style -%}
+          #TstArticleContent-{{ block.id }} {
+            margin-top: 36px;
+            margin-bottom: 36px;
+          }
+
+          #TstArticleContent-{{ block.id }} .article-template__content {
+            margin-top: 0;
+            margin-bottom: 0;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related--desktop {
+            min-width: 0;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__card {
+            padding: 24px;
+            border: 1px solid {{ block.settings.related_border_color }};
+            border-radius: 16px;
+            background: rgba(var(--color-foreground), 0.025);
+            box-shadow: 0 10px 30px rgba(var(--color-foreground), 0.05);
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__heading {
+            margin: 0 0 16px;
+            font-size: 20px;
+            line-height: 1.3;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__item {
+            margin: 0;
+            padding: 0;
+            border-bottom: 1px solid {{ block.settings.related_divider_color }};
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__item:last-child {
+            border-bottom: 0;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__link {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            padding: 13px 0;
+            color: rgb(var(--color-foreground));
+            text-decoration: none;
+            font-size: 14px;
+            line-height: 1.45;
+            transition:
+              color 0.2s ease,
+              transform 0.2s ease;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__link span {
+            min-width: 0;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__link svg {
+            flex: 0 0 auto;
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            opacity: 0.5;
+            transition:
+              opacity 0.2s ease,
+              transform 0.2s ease;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__link:hover {
+            color: rgba(var(--color-foreground), 0.72);
+            transform: translateX(3px);
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related__link:hover svg {
+            opacity: 1;
+            transform: translateX(2px);
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related-mobile {
+            display: none;
+            visibility: hidden;
+            opacity: 0;
+          }
+
+          #TstArticleContent-{{ block.id }} .tst-article-related-mobile.is-ready {
+            visibility: visible;
+            opacity: 1;
+          }
+
+          @media screen and (min-width: 990px) {
+            #TstArticleContent-{{ block.id }} {
+              display: grid;
+              grid-template-columns: minmax(230px, 3fr) minmax(0, 7fr);
+              gap: clamp(36px, 4.5vw, 72px);
+              align-items: start;
+              margin-top: 52px;
+              margin-bottom: 52px;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-content-main {
+              min-width: 0;
+            }
+
+            {% if block.settings.sticky_related_desktop %}
+              #TstArticleContent-{{ block.id }} .tst-article-related--desktop {
+                position: sticky;
+                top: 24px;
+                align-self: start;
+                max-height: calc(100vh - 48px);
+                overflow: visible;
+                will-change: transform;
+              }
+
+              #TstArticleContent-{{ block.id }} .tst-article-related__card {
+                max-height: calc(100vh - 48px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                scrollbar-width: thin;
+              }
+            {% endif %}
+          }
+
+          @media screen and (max-width: 989px) {
+            #TstArticleContent-{{ block.id }} {
+              display: block;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related--desktop {
+              display: none;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile {
+              display: block;
+              width: min(100%, 620px);
+              margin: 28px auto;
+              overflow: hidden;
+              border: 1px solid {{ block.settings.related_border_color }};
+              border-radius: 14px;
+              background: rgb(var(--color-background));
+              box-shadow: 0 8px 24px rgba(var(--color-foreground), 0.06);
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile__summary {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 16px;
+              min-height: 54px;
+              padding: 14px 16px;
+              cursor: pointer;
+              list-style: none;
+              font-size: 15px;
+              font-weight: 600;
+              line-height: 1.4;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile__summary::-webkit-details-marker {
+              display: none;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile__summary svg {
+              flex: 0 0 auto;
+              width: 18px;
+              height: 18px;
+              transition: transform 0.25s ease;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile[open] .tst-article-related-mobile__summary svg {
+              transform: rotate(180deg);
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile__body {
+              max-height: 320px;
+              overflow-y: auto;
+              padding: 0 16px 8px;
+              border-top: 1px solid {{ block.settings.related_divider_color }};
+              overscroll-behavior: contain;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related__link {
+              padding: 12px 0;
+              font-size: 14px;
+            }
+          }
+
+          @media screen and (max-width: 749px) {
+            #TstArticleContent-{{ block.id }} {
+              margin-top: 30px;
+              margin-bottom: 30px;
+            }
+
+            #TstArticleContent-{{ block.id }} .tst-article-related-mobile {
+              width: 100%;
+              margin: 24px auto;
+            }
+          }
+        {%- endstyle -%}
+
+        {%- capture related_articles_markup -%}
+          {%- for related_article in blog.articles -%}
+            {%- if related_article.id != article.id and related_articles_shown < related_articles_limit -%}
+              <li class="tst-article-related__item">
+                <a class="tst-article-related__link" href="{{ related_article.url }}">
+                  <span>{{ related_article.title | escape }}</span>
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </li>
+              {%- assign related_articles_shown = related_articles_shown | plus: 1 -%}
+            {%- endif -%}
+
+            {%- if related_articles_shown >= related_articles_limit -%}
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+
+        <div
+          id="TstArticleContent-{{ block.id }}"
+          class="tst-article-content-shell page-width{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if blog.articles_count > 1 -%}
+            <aside class="tst-article-related tst-article-related--desktop" aria-label="{{ block.settings.related_articles_heading | escape }}">
+              <div class="tst-article-related__card">
+                <h2 class="tst-article-related__heading">{{ block.settings.related_articles_heading | escape }}</h2>
+                <ul class="tst-article-related__list" role="list">
+                  {{ related_articles_markup }}
+                </ul>
+              </div>
+            </aside>
+          {%- endif -%}
+
+          <div class="tst-article-content-main">
+            <div class="article-template__content rte" data-article-body>
+              {{ article.content }}
+            </div>
+
+            {%- for random_block in section.blocks -%}
+              {%- if random_block.type == 'random_products' -%}
+                {%- liquid
+                  assign inline_source_collection = random_block.settings.source_collection
+                  if inline_source_collection == blank
+                    assign inline_source_collection = collections['all']
+                  endif
+                  assign inline_desktop_columns_minus_one = random_block.settings.columns_desktop | minus: 1
+                  assign inline_desktop_gap_total = inline_desktop_columns_minus_one | times: random_block.settings.gap_desktop
+                  assign inline_section_id = section.id | append: '-article-inline-' | append: random_block.id
+                -%}
+
+                {%- style -%}
+                  #TstArticleRandomProductsInline-{{ random_block.id }} {
+                    display: none;
+                    width: 100%;
+                    margin: 42px 0;
+                    padding: {{ random_block.settings.padding_top_mobile | divided_by: 2 }}px 0 {{ random_block.settings.padding_bottom_mobile | divided_by: 2 }}px;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }}.is-ready {
+                    display: block;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    margin: 0 0 {{ random_block.settings.heading_spacing_mobile }}px;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__heading {
+                    flex: 1 1 auto;
+                    min-width: 0;
+                    margin: 0;
+                    text-align: {{ random_block.settings.heading_alignment }};
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__viewport {
+                    width: 100%;
+                    min-width: 0;
+                    overflow: hidden;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track {
+                    display: flex;
+                    align-items: stretch;
+                    gap: {{ random_block.settings.gap_mobile }}px;
+                    width: 100%;
+                    margin: 0;
+                    padding: 0 0 8px;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    list-style: none;
+                    scroll-snap-type: x mandatory;
+                    scroll-behavior: smooth;
+                    scrollbar-width: none;
+                    -webkit-overflow-scrolling: touch;
+                    overscroll-behavior-inline: contain;
+                    cursor: grab;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track::-webkit-scrollbar {
+                    display: none;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track.is-dragging {
+                    cursor: grabbing;
+                    scroll-behavior: auto;
+                    scroll-snap-type: none;
+                    user-select: none;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item {
+                    display: flex;
+                    min-width: 0;
+                    margin: 0;
+                    padding: 0;
+                    scroll-snap-align: start;
+                    scroll-snap-stop: always;
+
+                    {% case random_block.settings.products_visible_mobile %}
+                      {% when '1' %}
+                        flex: 0 0 100%;
+                      {% when '1_preview' %}
+                        flex: 0 0 82%;
+                      {% when '1_5' %}
+                        flex: 0 0 64%;
+                      {% when '2' %}
+                        flex: 0 0 calc((100% - {{ random_block.settings.gap_mobile }}px) / 2);
+                      {% when '2_preview' %}
+                        flex: 0 0 44%;
+                      {% when '4_grid' %}
+                        flex: 0 0 calc((100% - {{ random_block.settings.gap_mobile }}px) / 2);
+                      {% else %}
+                        flex: 0 0 82%;
+                    {% endcase %}
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item[hidden] {
+                    display: none !important;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item > *,
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item .card-wrapper {
+                    width: 100%;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track,
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track li {
+                    list-style: none;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} a {
+                    text-decoration: none;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .card__heading a {
+                    display: -webkit-box;
+                    overflow: hidden;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: {{ random_block.settings.title_lines }};
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} img {
+                    user-select: none;
+                    -webkit-user-drag: none;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrows {
+                    display: flex;
+                    flex: 0 0 auto;
+                    align-items: center;
+                    gap: 8px;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrow {
+                    width: 40px;
+                    height: 40px;
+                    padding: 0;
+                    border: 1px solid rgba(var(--color-foreground), 0.18);
+                    border-radius: 50%;
+                    background: rgb(var(--color-background));
+                    color: rgb(var(--color-foreground));
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrow:hover {
+                    background: rgba(var(--color-foreground), 0.06);
+                    transform: translateY(-1px);
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrow:disabled {
+                    opacity: 0.3;
+                    pointer-events: none;
+                  }
+
+                  #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrow svg {
+                    width: 18px;
+                    height: 18px;
+                    display: block;
+                  }
+
+                  @media screen and (max-width: 749px) {
+                    #TstArticleRandomProductsInline-{{ random_block.id }} {
+                      margin: 32px 0;
+                    }
+
+                    #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrows {
+                      {% if random_block.settings.enable_slider_mobile and random_block.settings.show_arrows_mobile %}
+                        display: flex;
+                      {% else %}
+                        display: none;
+                      {% endif %}
+                    }
+
+                    #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrow {
+                      width: 38px;
+                      height: 38px;
+                    }
+
+                    {% if random_block.settings.enable_slider_mobile %}
+                      {% if random_block.settings.products_visible_mobile == '4_grid' %}
+                        #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track {
+                          display: grid;
+                          grid-template-rows: repeat(2, auto);
+                          grid-auto-flow: column;
+                          grid-auto-columns: calc((100% - {{ random_block.settings.gap_mobile }}px) / 2);
+                          column-gap: {{ random_block.settings.gap_mobile }}px;
+                          row-gap: {{ random_block.settings.gap_mobile }}px;
+                          overflow-x: auto;
+                          overflow-y: hidden;
+                          scroll-snap-type: x mandatory;
+                        }
+
+                        #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item {
+                          width: auto;
+                          min-width: 0;
+                          flex: none;
+                          scroll-snap-align: none;
+                        }
+
+                        #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item:nth-child(4n + 1) {
+                          scroll-snap-align: start;
+                          scroll-snap-stop: always;
+                        }
+                      {% endif %}
+                    {% else %}
+                      #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track {
+                        display: grid;
+                        overflow: visible;
+                        scroll-snap-type: none;
+                        cursor: default;
+                        {% if random_block.settings.products_visible_mobile == '1' or random_block.settings.products_visible_mobile == '1_preview' or random_block.settings.products_visible_mobile == '1_5' %}
+                          grid-template-columns: minmax(0, 1fr);
+                        {% else %}
+                          grid-template-columns: repeat(2, minmax(0, 1fr));
+                        {% endif %}
+                      }
+
+                      #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item {
+                        width: auto;
+                        min-width: 0;
+                        flex: none;
+                        scroll-snap-align: none;
+                      }
+                    {% endif %}
+                  }
+
+                  @media screen and (min-width: 750px) {
+                    #TstArticleRandomProductsInline-{{ random_block.id }} {
+                      margin: 48px 0;
+                      padding: {{ random_block.settings.padding_top | divided_by: 2 }}px 0 {{ random_block.settings.padding_bottom | divided_by: 2 }}px;
+                    }
+
+                    #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__header {
+                      margin-bottom: {{ random_block.settings.heading_spacing }}px;
+                    }
+
+                    #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__track {
+                      gap: {{ random_block.settings.gap_desktop }}px;
+                    }
+
+                    #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__item {
+                      flex: 0 0 calc(
+                        (100% - {{ inline_desktop_gap_total }}px) /
+                        {{ random_block.settings.columns_desktop }}
+                      );
+                    }
+
+                    #TstArticleRandomProductsInline-{{ random_block.id }} .tst-article-products__arrows {
+                      {% if random_block.settings.show_arrows_desktop %}
+                        display: flex;
+                      {% else %}
+                        display: none;
+                      {% endif %}
+                    }
+                  }
+                {%- endstyle -%}
+
+                <tst-article-random-products
+                  id="TstArticleRandomProductsInline-{{ random_block.id }}"
+                  class="tst-article-products tst-article-products--inline color-{{ random_block.settings.color_scheme }} gradient"
+                  data-products-count="{{ random_block.settings.products_to_show }}"
+                  data-mobile-slider="{{ random_block.settings.enable_slider_mobile }}"
+                  data-mobile-layout="{{ random_block.settings.products_visible_mobile }}"
+                  data-inline-random-products
+                >
+                  {% if random_block.settings.heading != blank
+                    or random_block.settings.show_arrows_desktop
+                    or random_block.settings.show_arrows_mobile
+                  %}
+                    <div class="tst-article-products__header">
+                      {% if random_block.settings.heading != blank %}
+                        <h2 class="tst-article-products__heading inline-richtext {{ random_block.settings.heading_size }}">
+                          {{ random_block.settings.heading }}
+                        </h2>
+                      {% endif %}
+
+                      {% if random_block.settings.show_arrows_desktop or random_block.settings.show_arrows_mobile %}
+                        <div class="tst-article-products__arrows">
+                          <button
+                            type="button"
+                            class="tst-article-products__arrow"
+                            data-article-products-prev
+                            aria-label="Previous products"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path d="M15 19 8 12l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </button>
+
+                          <button
+                            type="button"
+                            class="tst-article-products__arrow"
+                            data-article-products-next
+                            aria-label="Next products"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </button>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  {% if inline_source_collection != blank and inline_source_collection.products_count > 0 %}
+                    <div class="tst-article-products__viewport">
+                      <ul
+                        class="tst-article-products__track"
+                        data-article-products-track
+                        role="list"
+                        aria-label="{{ random_block.settings.heading | default: 'Recommended products' | escape }}"
+                      >
+                        {%- assign inline_skip_card_product_styles = false -%}
+
+                        {%- for card_product in inline_source_collection.products
+                          limit: random_block.settings.random_pool_size
+                        -%}
+                          {% if random_block.settings.show_sold_out or card_product.available %}
+                            <li
+                              class="tst-article-products__item"
+                              data-article-product-card
+                            >
+                              {% render 'card-product',
+                                card_product: card_product,
+                                media_aspect_ratio: random_block.settings.image_ratio,
+                                image_shape: 'default',
+                                show_secondary_image: random_block.settings.show_secondary_image,
+                                show_vendor: random_block.settings.show_vendor,
+                                show_rating: random_block.settings.show_rating,
+                                lazy_load: true,
+                                skip_styles: inline_skip_card_product_styles,
+                                section_id: inline_section_id
+                              %}
+                            </li>
+
+                            {%- assign inline_skip_card_product_styles = true -%}
+                          {% endif %}
+                        {%- endfor -%}
+                      </ul>
+                    </div>
+                  {% endif %}
+                </tst-article-random-products>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          {%- if blog.articles_count > 1 -%}
+            <details class="tst-article-related-mobile" data-related-mobile>
+              <summary class="tst-article-related-mobile__summary">
+                <span>{{ block.settings.mobile_dropdown_title | default: block.settings.related_articles_heading | escape }}</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="tst-article-related-mobile__body">
+                <ul class="tst-article-related__list" role="list">
+                  {{ related_articles_markup }}
+                </ul>
+              </div>
+            </details>
+          {%- endif -%}
+        </div>
+
+
+        <script>
+          (() => {
+            const shell = document.getElementById('TstArticleContent-{{ block.id }}');
+
+            if (!shell) return;
+
+            const dropdown = shell.querySelector('[data-related-mobile]');
+            const inlineRandomProducts = shell.querySelector('[data-inline-random-products]');
+            const articleBody = shell.querySelector('[data-article-body]');
+
+            if (!articleBody) return;
+
+            const placeDropdown = () => {
+              if (!dropdown) return;
+
+              if (!window.matchMedia('(max-width: 989px)').matches) {
+                dropdown.classList.remove('is-ready');
+                return;
+              }
+
+              if (dropdown.parentElement === articleBody) {
+                dropdown.classList.add('is-ready');
+                return;
+              }
+
+              let placementElements = Array.from(articleBody.children);
+
+              if (placementElements.length < 3) {
+                const nestedElements = Array.from(
+                  articleBody.querySelectorAll(
+                    'p, h2, h3, h4, blockquote, figure, ul, ol'
+                  )
+                ).filter((element) => !element.closest('li, table'));
+
+                if (nestedElements.length > placementElements.length) {
+                  placementElements = nestedElements;
+                }
+              }
+
+              if (!placementElements.length) {
+                articleBody.appendChild(dropdown);
+                dropdown.classList.add('is-ready');
+                return;
+              }
+
+              const targetIndex = Math.max(
+                0,
+                Math.min(
+                  placementElements.length - 1,
+                  Math.floor(placementElements.length * 0.42)
+                )
+              );
+
+              placementElements[targetIndex].insertAdjacentElement(
+                'afterend',
+                dropdown
+              );
+
+              dropdown.classList.add('is-ready');
+            };
+
+            const placeInlineRandomProducts = () => {
+              if (!inlineRandomProducts) return;
+
+              if (inlineRandomProducts.parentElement === articleBody) {
+                inlineRandomProducts.classList.add('is-ready');
+                return;
+              }
+
+              let placementElements = Array.from(articleBody.children).filter(
+                (element) =>
+                  !element.matches('[data-related-mobile], [data-inline-random-products]')
+              );
+
+              if (placementElements.length < 3) {
+                const nestedElements = Array.from(
+                  articleBody.querySelectorAll(
+                    'p, h2, h3, h4, blockquote, figure, ul, ol'
+                  )
+                ).filter(
+                  (element) =>
+                    !element.closest('li, table, [data-related-mobile], [data-inline-random-products]')
+                );
+
+                if (nestedElements.length > placementElements.length) {
+                  placementElements = nestedElements;
+                }
+              }
+
+              if (!placementElements.length) {
+                articleBody.appendChild(inlineRandomProducts);
+                inlineRandomProducts.classList.add('is-ready');
+                return;
+              }
+
+              const targetIndex = Math.max(
+                0,
+                Math.min(
+                  placementElements.length - 1,
+                  Math.floor(placementElements.length * 0.1)
+                )
+              );
+
+              placementElements[targetIndex].insertAdjacentElement(
+                'afterend',
+                inlineRandomProducts
+              );
+
+              inlineRandomProducts.classList.add('is-ready');
+            };
+
+            placeDropdown();
+            placeInlineRandomProducts();
+
+            window.addEventListener('resize', placeDropdown, { passive: true });
+          })();
+        </script>
+
+      {%- when 'share' -%}
+        <div
+          class="article-template__social-sharing page-width page-width--narrow{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {% assign share_url = request.origin | append: article.url %}
+          {% render 'share-button', block: block, share_link: share_url %}
+        </div>
+      {%- when 'random_products' -%}
+        {%- comment -%}
+          Block đáy trang được render ở vòng lặp phía sau nút Back to blog.
+        {%- endcomment -%}
+
+      {%- when 'comments' -%}
+        {%- comment -%}
+          Block bình luận được render ở vòng lặp phía sau nút Back to blog.
+        {%- endcomment -%}
+    {%- endcase -%}
+  {%- endfor -%}
+
+  <div class="article-template__back element-margin-top center{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+    <a href="{{ blog.url }}" class="article-template__link link animate-arrow">
+      <span class="icon-wrap">
+        <span class="svg-wrapper">
+          {{- 'icon-arrow.svg' | inline_asset_content -}}
+        </span>
+      </span>
+      {{ 'blogs.article.back_to_blog' | t: title: blog.title | escape }}
+    </a>
+  </div>
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'random_products' -%}
+      {%- liquid
+        assign random_source_collection = block.settings.source_collection
+
+        if random_source_collection == blank
+          assign random_source_collection = collections['all']
+        endif
+
+        assign desktop_columns_minus_one = block.settings.columns_desktop | minus: 1
+        assign desktop_gap_total = desktop_columns_minus_one | times: block.settings.gap_desktop
+      -%}
+
+      {%- style -%}
+        #TstArticleRandomProducts-{{ block.id }} {
+          padding-top: {{ block.settings.padding_top_mobile }}px;
+          padding-bottom: {{ block.settings.padding_bottom_mobile }}px;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          margin-bottom: {{ block.settings.heading_spacing_mobile }}px;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__heading {
+          flex: 1 1 auto;
+          min-width: 0;
+          margin: 0;
+          text-align: {{ block.settings.heading_alignment }};
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__viewport {
+          width: 100%;
+          min-width: 0;
+          overflow: hidden;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track {
+          display: flex;
+          align-items: stretch;
+          gap: {{ block.settings.gap_mobile }}px;
+          width: 100%;
+          margin: 0;
+          padding: 0 0 8px;
+          overflow-x: auto;
+          overflow-y: hidden;
+          list-style: none;
+          scroll-snap-type: x mandatory;
+          scroll-behavior: smooth;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior-inline: contain;
+          cursor: grab;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track::-webkit-scrollbar {
+          display: none;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track.is-dragging {
+          cursor: grabbing;
+          scroll-behavior: auto;
+          scroll-snap-type: none;
+          user-select: none;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item {
+          display: flex;
+          min-width: 0;
+          scroll-snap-align: start;
+          scroll-snap-stop: always;
+
+          {% case block.settings.products_visible_mobile %}
+            {% when '1' %}
+              flex: 0 0 100%;
+
+            {% when '1_preview' %}
+              flex: 0 0 82%;
+
+            {% when '1_5' %}
+              flex: 0 0 64%;
+
+            {% when '2' %}
+              flex: 0 0 calc((100% - {{ block.settings.gap_mobile }}px) / 2);
+
+            {% when '2_preview' %}
+              flex: 0 0 44%;
+
+            {% when '4_grid' %}
+              flex: 0 0 calc((100% - {{ block.settings.gap_mobile }}px) / 2);
+
+            {% else %}
+              flex: 0 0 82%;
+          {% endcase %}
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item[hidden] {
+          display: none !important;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item > *,
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item .card-wrapper {
+          width: 100%;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .card__heading a {
+          display: -webkit-box;
+          overflow: hidden;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: {{ block.settings.title_lines }};
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} img {
+          user-select: none;
+          -webkit-user-drag: none;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrows {
+          display: flex;
+          flex: 0 0 auto;
+          align-items: center;
+          gap: 8px;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrow {
+          width: 42px;
+          height: 42px;
+          padding: 0;
+          border: 1px solid rgba(var(--color-foreground), 0.18);
+          border-radius: 50%;
+          background: rgb(var(--color-background));
+          color: rgb(var(--color-foreground));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition:
+            opacity 0.2s ease,
+            transform 0.2s ease,
+            background 0.2s ease;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrow:hover {
+          background: rgba(var(--color-foreground), 0.06);
+          transform: translateY(-1px);
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrow:disabled {
+          opacity: 0.3;
+          pointer-events: none;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrow svg {
+          width: 18px;
+          height: 18px;
+          display: block;
+        }
+
+        #TstArticleRandomProducts-{{ block.id }} .tst-article-products__empty {
+          padding: 28px 20px;
+          border: 1px dashed rgba(var(--color-foreground), 0.25);
+          text-align: center;
+        }
+
+        @media screen and (max-width: 749px) {
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__header {
+            gap: 12px;
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrows {
+            {% if block.settings.enable_slider_mobile and block.settings.show_arrows_mobile %}
+              display: flex;
+            {% else %}
+              display: none;
+            {% endif %}
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrow {
+            width: 38px;
+            height: 38px;
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .card__heading {
+            line-height: 1.3;
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .price {
+            line-height: 1.3;
+          }
+
+          {% if block.settings.enable_slider_mobile %}
+            {% if block.settings.products_visible_mobile == '4_grid' %}
+              #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track {
+                display: grid;
+                grid-template-rows: repeat(2, auto);
+                grid-auto-flow: column;
+                grid-auto-columns: calc((100% - {{ block.settings.gap_mobile }}px) / 2);
+                column-gap: {{ block.settings.gap_mobile }}px;
+                row-gap: {{ block.settings.gap_mobile }}px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scroll-snap-type: x mandatory;
+              }
+
+              #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item {
+                width: auto;
+                min-width: 0;
+                flex: none;
+                scroll-snap-align: none;
+              }
+
+              #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item:nth-child(4n + 1) {
+                scroll-snap-align: start;
+                scroll-snap-stop: always;
+              }
+            {% endif %}
+          {% else %}
+            #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track {
+              display: grid;
+              overflow: visible;
+              scroll-snap-type: none;
+              cursor: default;
+              {% if block.settings.products_visible_mobile == '1' or block.settings.products_visible_mobile == '1_preview' or block.settings.products_visible_mobile == '1_5' %}
+                grid-template-columns: minmax(0, 1fr);
+              {% else %}
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+              {% endif %}
+            }
+
+            #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item {
+              width: auto;
+              min-width: 0;
+              flex: none;
+              scroll-snap-align: none;
+            }
+          {% endif %}
+        }
+
+        @media screen and (max-width: 374px) {
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track {
+            gap: 10px;
+          }
+
+          {% if block.settings.products_visible_mobile == '2' %}
+            #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item {
+              flex-basis: calc((100% - 10px) / 2);
+            }
+          {% endif %}
+        }
+
+        @media screen and (min-width: 750px) {
+          #TstArticleRandomProducts-{{ block.id }} {
+            padding-top: {{ block.settings.padding_top }}px;
+            padding-bottom: {{ block.settings.padding_bottom }}px;
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__header {
+            margin-bottom: {{ block.settings.heading_spacing }}px;
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__track {
+            gap: {{ block.settings.gap_desktop }}px;
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__item {
+            flex: 0 0 calc(
+              (100% - {{ desktop_gap_total }}px) /
+              {{ block.settings.columns_desktop }}
+            );
+          }
+
+          #TstArticleRandomProducts-{{ block.id }} .tst-article-products__arrows {
+            {% if block.settings.show_arrows_desktop %}
+              display: flex;
+            {% else %}
+              display: none;
+            {% endif %}
+          }
+        }
+      {%- endstyle -%}
+
+      <tst-article-random-products
+        id="TstArticleRandomProducts-{{ block.id }}"
+        class="tst-article-products color-{{ block.settings.color_scheme }} gradient"
+        data-products-count="{{ block.settings.products_to_show }}"
+        data-mobile-slider="{{ block.settings.enable_slider_mobile }}"
+        data-mobile-layout="{{ block.settings.products_visible_mobile }}"
+        {{ block.shopify_attributes }}
+      >
+        <div class="page-width">
+          {% if block.settings.heading != blank
+            or block.settings.show_arrows_desktop
+            or block.settings.show_arrows_mobile
+          %}
+            <div class="tst-article-products__header">
+              {% if block.settings.heading != blank %}
+                <h2 class="tst-article-products__heading inline-richtext {{ block.settings.heading_size }}">
+                  {{ block.settings.heading }}
+                </h2>
+              {% endif %}
+
+              {% if block.settings.show_arrows_desktop or block.settings.show_arrows_mobile %}
+                <div class="tst-article-products__arrows">
+                  <button
+                    type="button"
+                    class="tst-article-products__arrow"
+                    data-article-products-prev
+                    aria-label="Previous products"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M15 19 8 12l7-7"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="tst-article-products__arrow"
+                    data-article-products-next
+                    aria-label="Next products"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="m9 5 7 7-7 7"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if random_source_collection != blank and random_source_collection.products_count > 0 %}
+            <div class="tst-article-products__viewport">
+              <ul
+                class="tst-article-products__track"
+                data-article-products-track
+                role="list"
+                aria-label="{{ block.settings.heading | default: 'Recommended products' | escape }}"
+              >
+                {%- assign skip_card_product_styles = false -%}
+
+                {%- for card_product in random_source_collection.products
+                  limit: block.settings.random_pool_size
+                -%}
+                  {% if block.settings.show_sold_out or card_product.available %}
+                    <li
+                      class="tst-article-products__item"
+                      data-article-product-card
+                    >
+                      {% render 'card-product',
+                        card_product: card_product,
+                        media_aspect_ratio: block.settings.image_ratio,
+                        image_shape: 'default',
+                        show_secondary_image: block.settings.show_secondary_image,
+                        show_vendor: block.settings.show_vendor,
+                        show_rating: block.settings.show_rating,
+                        lazy_load: true,
+                        skip_styles: skip_card_product_styles
+                      %}
+                    </li>
+
+                    {%- assign skip_card_product_styles = true -%}
+                  {% endif %}
+                {%- endfor -%}
+              </ul>
+            </div>
+          {% elsif request.design_mode %}
+            <div class="tst-article-products__empty">
+              Store hiện chưa có sản phẩm trong collection được chọn.
+            </div>
+          {% endif %}
+        </div>
+      </tst-article-random-products>
+      {%- when 'comments' -%}
+        {%- if blog.comments_enabled? -%}
+          <div
+            id="ArticleCommentsBlock-{{ block.id }}"
+            class="article-template__comment-wrapper"
+            style="background-color: {{ block.settings.background_color }};"
+            {{ block.shopify_attributes }}
+          >
+            <div
+              id="comments"
+              class="page-width page-width--narrow{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+            >
+              {%- if article.comments_count > 0 -%}
+                {%- assign anchorId = '#Comments-' | append: article.id -%}
+
+                <h2 id="Comments-{{ article.id }}" tabindex="-1">
+                  {{ 'blogs.article.comments' | t: count: article.comments_count }}
+                </h2>
+
+                {% paginate article.comments by 5 %}
+                  <div class="article-template__comments">
+                    {%- if comment.status == 'pending' and comment.content -%}
+                      <article id="{{ comment.id }}" class="article-template__comments-comment">
+                        {{ comment.content }}
+                        <footer class="right">
+                          <span class="circle-divider caption-with-letter-spacing">
+                            {{ comment.author }}
+                          </span>
+                        </footer>
+                      </article>
+                    {%- endif -%}
+
+                    {%- for comment in article.comments -%}
+                      <article id="{{ comment.id }}" class="article-template__comments-comment">
+                        {{ comment.content }}
+                        <footer class="right">
+                          <span class="circle-divider caption-with-letter-spacing">
+                            {{ comment.author }}
+                          </span>
+                          <span class="caption-with-letter-spacing">
+                            {{- comment.created_at | time_tag: format: 'date' -}}
+                          </span>
+                        </footer>
+                      </article>
+                    {%- endfor -%}
+
+                    {% render 'pagination', paginate: paginate, anchor: anchorId %}
+                  </div>
+                {% endpaginate %}
+              {%- endif -%}
+
+              {% form 'new_comment', article %}
+                {%- liquid
+                  assign post_message = 'blogs.article.success'
+                  if blog.moderated? and comment.status == 'unapproved'
+                    assign post_message = 'blogs.article.success_moderated'
+                  endif
+                -%}
+
+                <h2>{{ 'blogs.article.comment_form_title' | t }}</h2>
+
+                {%- if form.errors -%}
+                  <div class="form__message" role="alert">
+                    <h3 class="form-status caption-large text-body" tabindex="-1" autofocus>
+                      <span class="svg-wrapper">
+                        {{- 'icon-error.svg' | inline_asset_content -}}
+                      </span>
+                      {{ 'templates.contact.form.error_heading' | t }}
+                    </h3>
+                  </div>
+
+                  <ul class="form-status-list caption-large">
+                    {%- for field in form.errors -%}
+                      <li>
+                        <a href="#CommentForm-{{ field }}" class="link">
+                          {%- if form.errors.translated_fields[field] contains 'author' -%}
+                            {{ 'blogs.article.name' | t }}
+                          {%- elsif form.errors.translated_fields[field] contains 'body' -%}
+                            {{ 'blogs.article.message' | t }}
+                          {%- else -%}
+                            {{ form.errors.translated_fields[field] }}
+                          {%- endif -%}
+                          {{ form.errors.messages[field] }}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- elsif form.posted_successfully? -%}
+                  <div class="form-status-list form__message" role="status">
+                    <h3 class="form-status" tabindex="-1" autofocus>
+                      <span class="svg-wrapper">
+                        {{- 'icon-success.svg' | inline_asset_content -}}
+                      </span>
+                      {{ post_message | t }}
+                    </h3>
+                  </div>
+                {%- endif -%}
+
+                <div
+                  {% if blog.moderated? == false %}
+                    class="article-template__comments-fields"
+                  {% endif %}
+                >
+                  <div class="article-template__comment-fields">
+                    <div class="field field--with-error">
+                      <input
+                        type="text"
+                        name="comment[author]"
+                        id="CommentForm-author"
+                        class="field__input"
+                        autocomplete="name"
+                        value="{{ form.author }}"
+                        aria-required="true"
+                        required
+                        {% if form.errors contains 'author' %}
+                          aria-invalid="true"
+                          aria-describedby="CommentForm-author-error"
+                        {% endif %}
+                        placeholder="{{ 'blogs.article.name' | t }}"
+                      >
+                      <label class="field__label" for="CommentForm-author">
+                        {{- 'blogs.article.name' | t }}
+                        <span aria-hidden="true">*</span>
+                      </label>
+
+                      {%- if form.errors contains 'author' -%}
+                        <small id="CommentForm-author-error">
+                          <span class="form__message">
+                            <span class="svg-wrapper">
+                              {{- 'icon-error.svg' | inline_asset_content -}}
+                            </span>
+                            {{- 'blogs.article.name' | t }}
+                            {{ form.errors.messages.author }}.
+                          </span>
+                        </small>
+                      {%- endif -%}
+                    </div>
+
+                    <div class="field field--with-error">
+                      <input
+                        type="email"
+                        name="comment[email]"
+                        id="CommentForm-email"
+                        autocomplete="email"
+                        class="field__input"
+                        value="{{ form.email }}"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        aria-required="true"
+                        required
+                        {% if form.errors contains 'email' %}
+                          aria-invalid="true"
+                          aria-describedby="CommentForm-email-error"
+                        {% endif %}
+                        placeholder="{{ 'blogs.article.email' | t }}"
+                      >
+                      <label class="field__label" for="CommentForm-email">
+                        {{- 'blogs.article.email' | t }}
+                        <span aria-hidden="true">*</span>
+                      </label>
+
+                      {%- if form.errors contains 'email' -%}
+                        <small id="CommentForm-email-error">
+                          <span class="form__message">
+                            <span class="svg-wrapper">
+                              {{- 'icon-error.svg' | inline_asset_content -}}
+                            </span>
+                            {{- 'blogs.article.email' | t }}
+                            {{ form.errors.messages.email }}.
+                          </span>
+                        </small>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  <div class="field field--with-error">
+                    <textarea
+                      rows="5"
+                      name="comment[body]"
+                      id="CommentForm-body"
+                      class="text-area field__input"
+                      aria-required="true"
+                      required
+                      {% if form.errors contains 'body' %}
+                        aria-invalid="true"
+                        aria-describedby="CommentForm-body-error"
+                      {% endif %}
+                      placeholder="{{ 'blogs.article.message' | t }}"
+                    >{{ form.body }}</textarea>
+                    <label class="form__label field__label" for="CommentForm-body">
+                      {{- 'blogs.article.message' | t }}
+                      <span aria-hidden="true">*</span>
+                    </label>
+                  </div>
+
+                  {%- if form.errors contains 'body' -%}
+                    <small id="CommentForm-body-error">
+                      <span class="form__message">
+                        <span class="svg-wrapper">
+                          {{- 'icon-error.svg' | inline_asset_content -}}
+                        </span>
+                        {{- 'blogs.article.message' | t }}
+                        {{ form.errors.messages.body }}.
+                      </span>
+                    </small>
+                  {%- endif -%}
+                </div>
+
+                {%- if blog.moderated? -%}
+                  <p class="article-template__comment-warning caption">
+                    {{ 'blogs.article.moderated' | t }}
+                  </p>
+                {%- endif -%}
+
+                <input
+                  type="submit"
+                  class="button"
+                  value="{{ 'blogs.article.post' | t }}"
+                >
+              {% endform %}
+            </div>
+          </div>
+        {%- elsif request.design_mode -%}
+          <div
+            class="page-width page-width--narrow"
+            {{ block.shopify_attributes }}
+          >
+            <p>
+              Enable comments for this blog in Shopify admin to display this block.
+            </p>
+          </div>
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+
+  <script>
+    if (!customElements.get('tst-article-random-products')) {
+      class TstArticleRandomProducts extends HTMLElement {
+        connectedCallback() {
+          if (this.dataset.initialized === 'true') return;
+
+          this.dataset.initialized = 'true';
+
+          this.track = this.querySelector('[data-article-products-track]');
+          this.prevButton = this.querySelector('[data-article-products-prev]');
+          this.nextButton = this.querySelector('[data-article-products-next]');
+
+          if (!this.track) return;
+
+          this.randomizeProducts();
+          this.bindArrowEvents();
+          this.bindMouseDragging();
+
+          this.handleScroll = () => {
+            window.requestAnimationFrame(() => this.updateArrowState());
+          };
+
+          this.handleResize = () => {
+            this.updateArrowState();
+          };
+
+          this.track.addEventListener('scroll', this.handleScroll, {
+            passive: true
+          });
+
+          window.addEventListener('resize', this.handleResize);
+
+          window.requestAnimationFrame(() => {
+            this.updateArrowState();
+          });
+        }
+
+        disconnectedCallback() {
+          if (this.track && this.handleScroll) {
+            this.track.removeEventListener('scroll', this.handleScroll);
+          }
+
+          if (this.handleResize) {
+            window.removeEventListener('resize', this.handleResize);
+          }
+        }
+
+        randomizeProducts() {
+          const cards = Array.from(
+            this.track.querySelectorAll('[data-article-product-card]')
+          );
+
+          if (!cards.length) return;
+
+          for (let index = cards.length - 1; index > 0; index--) {
+            const randomIndex = Math.floor(Math.random() * (index + 1));
+
+            [cards[index], cards[randomIndex]] = [
+              cards[randomIndex],
+              cards[index]
+            ];
+          }
+
+          cards.forEach((card) => {
+            this.track.appendChild(card);
+          });
+
+          const requestedCount =
+            parseInt(this.dataset.productsCount, 10) || cards.length;
+
+          const visibleCount = Math.min(requestedCount, cards.length);
+
+          cards.forEach((card, index) => {
+            card.hidden = index >= visibleCount;
+          });
+
+          this.track.scrollLeft = 0;
+        }
+
+        getVisibleCards() {
+          return Array.from(
+            this.track.querySelectorAll(
+              '[data-article-product-card]:not([hidden])'
+            )
+          );
+        }
+
+        getScrollStep() {
+          const firstCard = this.getVisibleCards()[0];
+
+          if (!firstCard) {
+            return this.track.clientWidth;
+          }
+
+          const trackStyles = window.getComputedStyle(this.track);
+
+          const gap =
+            parseFloat(trackStyles.columnGap) ||
+            parseFloat(trackStyles.gap) ||
+            0;
+
+          const isMobile = window.matchMedia('(max-width: 749px)').matches;
+          const mobileSliderEnabled = this.dataset.mobileSlider === 'true';
+          const mobileLayout = this.dataset.mobileLayout;
+
+          if (isMobile && mobileSliderEnabled && mobileLayout === '4_grid') {
+            return this.track.clientWidth + gap;
+          }
+
+          return firstCard.getBoundingClientRect().width + gap;
+        }
+
+        bindArrowEvents() {
+          if (this.prevButton) {
+            this.prevButton.addEventListener('click', () => {
+              this.track.scrollBy({
+                left: -this.getScrollStep(),
+                behavior: 'smooth'
+              });
+            });
+          }
+
+          if (this.nextButton) {
+            this.nextButton.addEventListener('click', () => {
+              this.track.scrollBy({
+                left: this.getScrollStep(),
+                behavior: 'smooth'
+              });
+            });
+          }
+        }
+
+        bindMouseDragging() {
+          let isDragging = false;
+          let startX = 0;
+          let initialScrollLeft = 0;
+          let hasMoved = false;
+          let preventNextClick = false;
+          let activePointerId = null;
+
+          this.track.addEventListener('dragstart', (event) => {
+            event.preventDefault();
+          });
+
+          this.track.addEventListener('pointerdown', (event) => {
+            if (event.pointerType !== 'mouse' || event.button !== 0) return;
+
+            if (
+              event.target.closest(
+                'button, input, select, textarea, label'
+              )
+            ) {
+              return;
+            }
+
+            isDragging = true;
+            hasMoved = false;
+            activePointerId = event.pointerId;
+            startX = event.clientX;
+            initialScrollLeft = this.track.scrollLeft;
+
+            this.track.classList.add('is-dragging');
+
+            try {
+              this.track.setPointerCapture(activePointerId);
+            } catch (error) {}
+          });
+
+          this.track.addEventListener('pointermove', (event) => {
+            if (!isDragging || event.pointerId !== activePointerId) return;
+
+            const distance = event.clientX - startX;
+
+            if (Math.abs(distance) > 4) {
+              hasMoved = true;
+              event.preventDefault();
+            }
+
+            this.track.scrollLeft = initialScrollLeft - distance;
+          });
+
+          const finishDragging = () => {
+            if (!isDragging) return;
+
+            isDragging = false;
+            this.track.classList.remove('is-dragging');
+
+            if (activePointerId !== null) {
+              try {
+                this.track.releasePointerCapture(activePointerId);
+              } catch (error) {}
+            }
+
+            activePointerId = null;
+
+            if (hasMoved) {
+              preventNextClick = true;
+
+              const scrollStep = this.getScrollStep();
+
+              if (scrollStep > 0) {
+                const nearestPosition =
+                  Math.round(this.track.scrollLeft / scrollStep) *
+                  scrollStep;
+
+                this.track.scrollTo({
+                  left: nearestPosition,
+                  behavior: 'smooth'
+                });
+              }
+
+              window.setTimeout(() => {
+                preventNextClick = false;
+              }, 80);
+            }
+          };
+
+          this.track.addEventListener('pointerup', finishDragging);
+          this.track.addEventListener('pointercancel', finishDragging);
+          this.track.addEventListener('lostpointercapture', finishDragging);
+
+          this.track.addEventListener(
+            'click',
+            (event) => {
+              if (!preventNextClick) return;
+
+              event.preventDefault();
+              event.stopPropagation();
+            },
+            true
+          );
+        }
+
+        updateArrowState() {
+          if (!this.track) return;
+
+          const maximumScroll =
+            this.track.scrollWidth - this.track.clientWidth;
+
+          if (this.prevButton) {
+            this.prevButton.disabled = this.track.scrollLeft <= 2;
+          }
+
+          if (this.nextButton) {
+            this.nextButton.disabled =
+              maximumScroll <= 2 ||
+              this.track.scrollLeft >= maximumScroll - 2;
+          }
+        }
+      }
+
+      customElements.define(
+        'tst-article-random-products',
+        TstArticleRandomProducts
+      );
+    }
+  </script>
+</article>
+
+<script type="application/ld+json">
+  {{ article | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main-article.name",
+  "tag": "section",
+  "class": "section",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "featured_image",
+      "name": "t:sections.main-article.blocks.featured_image.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "image_height",
+          "options": [
+            {
+              "value": "adapt",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__1.label"
+            },
+            {
+              "value": "small",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__2.label"
+            },
+            {
+              "value": "medium",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__3.label"
+            },
+            {
+              "value": "large",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__4.label"
+            }
+          ],
+          "default": "adapt",
+          "label": "t:sections.main-article.blocks.featured_image.settings.image_height.label"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "t:sections.main-article.blocks.title.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "blog_show_date",
+          "default": true,
+          "label": "t:sections.main-article.blocks.title.settings.blog_show_date.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "blog_show_author",
+          "default": false,
+          "label": "t:sections.main-article.blocks.title.settings.blog_show_author.label"
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "name": "t:sections.main-article.blocks.content.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "related_articles_heading",
+          "label": "Related articles heading",
+          "default": "Related articles"
+        },
+        {
+          "type": "text",
+          "id": "mobile_dropdown_title",
+          "label": "Mobile dropdown title",
+          "default": "Related articles"
+        },
+        {
+          "type": "range",
+          "id": "related_articles_limit",
+          "label": "Number of related articles",
+          "min": 3,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "checkbox",
+          "id": "sticky_related_desktop",
+          "label": "Sticky related articles on desktop",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "related_border_color",
+          "label": "Related border color",
+          "default": "#E6E6E6"
+        },
+        {
+          "type": "color",
+          "id": "related_divider_color",
+          "label": "Related divider color",
+          "default": "#EAEAEA"
+        }
+      ]
+    },
+    {
+      "type": "share",
+      "name": "t:sections.main-article.blocks.share.name",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "text",
+          "id": "share_label",
+          "label": "t:sections.main-article.blocks.share.settings.text.label",
+          "default": "t:sections.main-article.blocks.share.settings.text.default"
+        }
+      ]
+    },
+    {
+      "type": "comments",
+      "name": "Leave a comment",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Background color",
+          "default": "#F3F3F3"
+        }
+      ]
+    },
+    {
+  "type": "random_products",
+  "name": "Random product slider",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": "h2",
+      "options": [
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "h0",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "id": "source_collection",
+      "label": "Source collection",
+      "info": "Leave blank to randomly select products from the entire store."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Number of products",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "random_pool_size",
+      "label": "Random product pool",
+      "info": "Products are randomly selected from this initial pool.",
+      "min": 4,
+      "max": 50,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sold_out",
+      "label": "Show sold-out products",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Slider layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Products visible on desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "products_visible_mobile",
+      "label": "Products visible on mobile",
+      "default": "1_preview",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 product"
+        },
+        {
+          "value": "1_preview",
+          "label": "1 product + preview"
+        },
+        {
+          "value": "1_5",
+          "label": "1.5 products"
+        },
+        {
+          "value": "2",
+          "label": "2 products"
+        },
+        {
+          "value": "2_preview",
+          "label": "2 products + preview"
+        },
+        {
+          "value": "4_grid",
+          "label": "4 products (2 x 2)"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_slider_mobile",
+      "label": "Enable slider on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "Desktop gap",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Mobile gap",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows_desktop",
+      "label": "Show arrows on desktop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows_mobile",
+      "label": "Show arrows on mobile",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Product card"
+    },
+    {
+      "type": "range",
+      "id": "title_lines",
+      "label": "Product title lines",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "default": "adapt",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "Adapt to image"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show second image on hover",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "label": "Heading spacing desktop",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing_mobile",
+      "label": "Heading spacing mobile",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ]
+}
+  ]
+}
+{% endschema %}

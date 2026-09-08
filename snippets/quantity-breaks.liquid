@@ -1,0 +1,209 @@
+{% liquid
+  assign item_count = 0
+  for index in (1..4)
+    assign quantity_key = 'option_' | append: index | append: '_quantity'
+    assign option_quantity = block.settings[quantity_key] | plus: 0
+    if option_quantity > 0
+      assign item_count = item_count | plus: 1
+    endif
+  endfor
+
+  assign selected_variant = product.selected_or_first_available_variant
+  assign base_price = selected_variant.price
+  assign quantity_color_scheme = block.settings.color_scheme
+  unless quantity_color_scheme contains 'scheme-'
+    assign quantity_color_scheme = 'scheme-1'
+  endunless
+  assign has_badge = false
+  if block.settings.option_1_badge != blank or block.settings.option_2_badge != blank or block.settings.option_3_badge != blank or block.settings.option_4_badge != blank
+    assign has_badge = true
+  endif
+%}
+
+<quantity-breaks
+  id="quantity-breaks-{{ section.id }}"
+  class="quantity-breaks quantity-breaks--{{ block.settings.style }} color-{{ quantity_color_scheme }}{% if block.settings.space_images %} quantity-breaks--space-images{% endif %}{% if has_badge %} quantity-breaks--has-badge{% endif %}{% if block.settings.full_width_pickers %} quantity-breaks-full-width-pickers{% endif %} quantity-breaks--vertical-image-{{ block.settings.vertical_images_position }} quantity-breaks--vertical-prices-{{ block.settings.vertical_prices_layout }}{% if block.settings.display_selected_indicator %} quantity-breaks--show-indicator{% endif %}{% if block.settings.image_width == 100 %} quantity-breaks--max-width-images{% endif %}"
+  data-section="{{ section.id }}"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-update-prices="{{ block.settings.update_prices }}"
+  style="--items-count: {{ item_count }}; --image-width: {{ block.settings.image_width }}%; --border-radius: {{ block.settings.border_radius | divided_by: 10.0 }}rem; --border-width: {{ block.settings.border_width | divided_by: 10.0 }}rem;{% if block.settings.hide_pickers_overlay %} --pickers-overlay-opacity: 0; --pickers-hover-overlay-opacity: 0;{% endif %} --margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem; --margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.headline != blank %}
+    <h3 class="quantity-breaks__title">
+      <span></span>
+      <span>{{ block.settings.headline }}</span>
+      <span></span>
+    </h3>
+  {% endif %}
+
+  <div class="quantity-breaks-container">
+    {% for index in (1..4) %}
+      {% liquid
+        assign quantity_key = 'option_' | append: index | append: '_quantity'
+        assign option_id = 'option_' | append: index
+        assign badge_key = 'option_' | append: index | append: '_badge'
+        assign badge_style_key = 'option_' | append: index | append: '_badge_style'
+        assign badge_color_key = 'option_' | append: index | append: '_badge_color'
+        assign image_key = 'option_' | append: index | append: '_image'
+        assign label_key = 'option_' | append: index | append: '_label'
+        assign benefit_key = 'option_' | append: index | append: '_benefit'
+        assign benefit_position_key = 'option_' | append: index | append: '_benefit_position'
+        assign benefit_style_key = 'option_' | append: index | append: '_benefit_style'
+        assign benefit_color_key = 'option_' | append: index | append: '_benefit_color'
+        assign caption_key = 'option_' | append: index | append: '_caption'
+        assign percentage_key = 'option_' | append: index | append: '_percentage_off_text'
+        assign fixed_key = 'option_' | append: index | append: '_fixed_amount_off'
+        assign price_text_key = 'option_' | append: index | append: '_price_text'
+        assign compare_base_key = 'option_' | append: index | append: '_compare_price'
+        assign compare_text_key = 'option_' | append: index | append: '_compare_price_text'
+
+        assign option_quantity = block.settings[quantity_key] | plus: 0
+        assign badge = block.settings[badge_key]
+        assign badge_style = block.settings[badge_style_key]
+        assign badge_color = block.settings[badge_color_key]
+        assign option_image = block.settings[image_key]
+        assign label = block.settings[label_key]
+        assign benefit = block.settings[benefit_key]
+        assign benefit_position = block.settings[benefit_position_key]
+        assign benefit_style = block.settings[benefit_style_key]
+        assign benefit_color = block.settings[benefit_color_key]
+        unless badge_color contains 'scheme-'
+          assign badge_color = 'scheme-1'
+        endunless
+        unless benefit_color contains 'scheme-'
+          assign benefit_color = 'scheme-1'
+        endunless
+        assign default_color_scheme = settings.color_schemes | first
+        assign badge_background = default_color_scheme.settings.button
+        assign badge_text = default_color_scheme.settings.button_label
+        assign benefit_color_accent = default_color_scheme.settings.button
+        assign benefit_text_color = default_color_scheme.settings.button_label
+        for color_scheme in settings.color_schemes
+          if color_scheme.id == badge_color
+            assign badge_background = color_scheme.settings.button
+            assign badge_text = color_scheme.settings.button_label
+          endif
+          if color_scheme.id == benefit_color
+            assign benefit_color_accent = color_scheme.settings.button
+            assign benefit_text_color = color_scheme.settings.button_label
+          endif
+        endfor
+
+        assign caption = block.settings[caption_key]
+        assign percentage_discount = block.settings[percentage_key] | plus: 0
+        assign percentage_left = 100 | minus: percentage_discount | divided_by: 100.0
+        assign fixed_amount_off = block.settings[fixed_key] | times: 100
+        assign price_text = block.settings[price_text_key]
+        assign compare_base = block.settings[compare_base_key]
+        assign compare_text = block.settings[compare_text_key]
+
+        assign option_price = base_price | times: option_quantity | times: percentage_left | minus: fixed_amount_off
+        assign compare_price = base_price
+        if compare_base == 'compare_price' and selected_variant.compare_at_price > base_price
+          assign compare_price = selected_variant.compare_at_price
+        endif
+        assign option_compare_price = compare_price | times: option_quantity
+        assign amount_saved = option_compare_price | minus: option_price
+        assign amount_saved_rounded = amount_saved | divided_by: 100.0 | ceil | times: 100
+        assign price_each = option_price | divided_by: option_quantity
+        assign compare_price_each = option_compare_price | divided_by: option_quantity
+        assign price_formatted = option_price | money
+        assign compare_price_formatted = option_compare_price | money
+        assign price_each_formatted = price_each | money
+        assign compare_price_each_formatted = compare_price_each | money
+        assign amount_saved_formatted = amount_saved | money
+        assign amount_saved_rounded_formatted = amount_saved_rounded | money
+        assign rendered_badge = badge | replace: '[quantity]', option_quantity | replace: '[price]', price_formatted | replace: '[compare_price]', compare_price_formatted | replace: '[price_each]', price_each_formatted | replace: '[compare_price_each]', compare_price_each_formatted | replace: '[amount_saved]', amount_saved_formatted | replace: '[amount_saved_rounded]', amount_saved_rounded_formatted
+        assign rendered_label = label | replace: '[quantity]', option_quantity | replace: '[price]', price_formatted | replace: '[compare_price]', compare_price_formatted | replace: '[price_each]', price_each_formatted | replace: '[compare_price_each]', compare_price_each_formatted | replace: '[amount_saved]', amount_saved_formatted | replace: '[amount_saved_rounded]', amount_saved_rounded_formatted
+        assign rendered_benefit = benefit | replace: '[quantity]', option_quantity | replace: '[price]', price_formatted | replace: '[compare_price]', compare_price_formatted | replace: '[price_each]', price_each_formatted | replace: '[compare_price_each]', compare_price_each_formatted | replace: '[amount_saved]', amount_saved_formatted | replace: '[amount_saved_rounded]', amount_saved_rounded_formatted
+        assign rendered_caption = caption | replace: '[quantity]', option_quantity | replace: '[price]', price_formatted | replace: '[compare_price]', compare_price_formatted | replace: '[price_each]', price_each_formatted | replace: '[compare_price_each]', compare_price_each_formatted | replace: '[amount_saved]', amount_saved_formatted | replace: '[amount_saved_rounded]', amount_saved_rounded_formatted
+        assign rendered_price_text = price_text | replace: '[quantity]', option_quantity | replace: '[price]', price_formatted | replace: '[compare_price]', compare_price_formatted | replace: '[price_each]', price_each_formatted | replace: '[compare_price_each]', compare_price_each_formatted | replace: '[amount_saved]', amount_saved_formatted | replace: '[amount_saved_rounded]', amount_saved_rounded_formatted
+        assign rendered_compare_text = compare_text | replace: '[quantity]', option_quantity | replace: '[price]', price_formatted | replace: '[compare_price]', compare_price_formatted | replace: '[price_each]', price_each_formatted | replace: '[compare_price_each]', compare_price_each_formatted | replace: '[amount_saved]', amount_saved_formatted | replace: '[amount_saved_rounded]', amount_saved_rounded_formatted
+      %}
+
+      {% if option_quantity > 0 %}
+        <input
+          id="QuantityBreak-{{ section.id }}-{{ index }}"
+          class="quantity-breaks__radio"
+          type="radio"
+          name="quantity"
+          value="{{ option_quantity }}"
+          form="{{ product_form_id }}"
+          {% if block.settings.preselected == option_id %}
+            checked
+          {% endif %}
+        >
+        <label
+          for="QuantityBreak-{{ section.id }}-{{ index }}"
+          class="quantity-break{% if badge != blank %} quantity-break--badge{% else %} quantity-break--no-badge{% endif %} quantity-break--badge-style-{{ badge_style }} quantity-break--benefit-{{ benefit_position }}"
+          data-quantity="{{ option_quantity }}"
+          data-percentage-left="{{ percentage_left }}"
+          data-fixed-discount="{{ fixed_amount_off }}"
+          data-compare-price-base="{{ compare_base }}"
+        >
+          {% if badge != blank %}
+            <p
+              class="quantity-break__badge color-{{ badge_color }} dynamic-price variant-price-update"
+              data-text="{{ badge | escape }}"
+              style="--quantity-break-badge-background: {{ badge_background }}; --quantity-break-badge-text: {{ badge_text }}; background: {{ badge_background }} !important; color: {{ badge_text }} !important; border-color: {{ badge_background }} !important;"
+            >
+              {{ rendered_badge }}
+            </p>
+          {% endif %}
+
+          <div class="quantity-break__image-and-content">
+            {% if option_image != blank %}
+              <div class="quantity-break__image">
+                {{ option_image | image_url: width: 600 | image_tag: loading: 'lazy', widths: '120, 180, 240, 360, 600' }}
+              </div>
+            {% endif %}
+
+            <div class="quantity-break__content">
+              <div class="quantity-break__left">
+                <span class="quantity-break__label">
+                  {% if label != blank %}
+                    <span class="quantity-break__label-text dynamic-price variant-price-update" data-text="{{ label | escape }}">
+                      {{ rendered_label }}
+                    </span>
+                  {% endif %}
+                  {% if benefit != blank %}
+                    <span
+                      class="quantity-break__benefit quantity-break__benefit--{{ benefit_style }} color-{{ benefit_color }} dynamic-price variant-price-update"
+                      data-text="{{ benefit | escape }}"
+                      style="--quantity-break-benefit-color: {{ benefit_color_accent }}; --quantity-break-benefit-text: {{ benefit_text_color }};{% if benefit_style == 'solid' %} background: {{ benefit_color_accent }} !important; color: {{ benefit_text_color }} !important; border-color: {{ benefit_color_accent }} !important;{% else %} color: {{ benefit_color_accent }} !important; border-color: {{ benefit_color_accent }} !important;{% endif %}"
+                    >
+                      {{ rendered_benefit }}
+                    </span>
+                  {% endif %}
+                </span>
+                {% if caption != blank %}
+                  <span class="quantity-break__caption dynamic-price variant-price-update" data-text="{{ caption | escape }}">
+                    {{ rendered_caption }}
+                  </span>
+                {% endif %}
+              </div>
+
+              <div class="quantity-break__right dynamic-price">
+                {% if price_text != blank %}
+                  <span class="quantity-break__price variant-price-update" data-text="{{ price_text | escape }}">
+                    {{ rendered_price_text }}
+                  </span>
+                {% endif %}
+                {% if compare_text != blank %}
+                  <span class="quantity-break__compare-price variant-price-update{% if option_compare_price <= option_price %} hidden{% endif %}" data-text="{{ compare_text | escape }}">
+                    {{ rendered_compare_text }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </label>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <script type="application/json" data-quantity-breaks-variants>
+    {{ product.variants | json }}
+  </script>
+</quantity-breaks>

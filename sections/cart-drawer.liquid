@@ -1,0 +1,361 @@
+{%- render 'cart-drawer' -%}
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading_text",
+      "label": "Heading text",
+      "default": "Cart &bull; [count] items",
+      "info": "Use [count] to show cart item count."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_countdown",
+      "label": "Enable countdown",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "countdown_text",
+      "label": "Countdown text",
+      "default": "<strong>Cart reserved for [timer]</strong>"
+    },
+    {
+      "type": "range",
+      "id": "countdown_duration",
+      "min": 60,
+      "max": 1800,
+      "step": 60,
+      "unit": "s",
+      "label": "Countdown duration",
+      "default": 300
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_progress_bar",
+      "label": "Enable free shipping progress",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "progress_goal",
+      "min": 10,
+      "max": 500,
+      "step": 5,
+      "unit": "$",
+      "label": "Progress goal",
+      "default": 50
+    },
+    {
+      "type": "text",
+      "id": "progress_message",
+      "label": "Progress message",
+      "default": "Spend [amount] more to get free shipping!"
+    },
+    {
+      "type": "text",
+      "id": "progress_success_message",
+      "label": "Success message",
+      "default": "You unlocked free shipping!"
+    },
+    {
+  "type": "checkbox",
+  "id": "enable_quantity_progress_bar",
+  "label": "Enable free shipping by quantity",
+  "default": false
+},
+{
+  "type": "range",
+  "id": "quantity_progress_goal",
+  "min": 2,
+  "max": 10,
+  "step": 1,
+  "label": "Free shipping quantity goal",
+  "default": 2
+},
+{
+  "type": "text",
+  "id": "quantity_progress_message",
+  "label": "Quantity progress message",
+  "default": "Buy [quantity] more to get free shipping!",
+  "info": "Use [quantity] to show the remaining quantity."
+},
+{
+  "type": "text",
+  "id": "quantity_progress_success_message",
+  "label": "Quantity success message",
+  "default": "You unlocked free shipping!"
+},
+{
+  "type": "checkbox",
+  "id": "enable_total_savings",
+  "label": "Show total savings",
+  "default": true
+},
+{
+  "type": "text",
+  "id": "savings_label",
+  "label": "Savings label",
+  "default": "Savings"
+},
+{
+  "type": "range",
+  "id": "cart_item_price_mobile_size",
+  "min": 10,
+  "max": 24,
+  "step": 1,
+  "unit": "px",
+  "label": "Product price size - mobile",
+  "default": 13
+},
+{
+  "type": "header",
+  "content": "Mobile total price sizes"
+},
+{
+  "type": "range",
+  "id": "savings_price_mobile_size",
+  "min": 10,
+  "max": 30,
+  "step": 1,
+  "unit": "px",
+  "label": "Savings price size - mobile",
+  "default": 16
+},
+{
+  "type": "range",
+  "id": "estimated_total_price_mobile_size",
+  "min": 10,
+  "max": 30,
+  "step": 1,
+  "unit": "px",
+  "label": "Estimated total price size - mobile",
+  "default": 18
+},
+{
+  "type": "checkbox",
+  "id": "show_tax_note",
+  "label": "Show taxes and shipping note",
+  "default": true
+},
+{
+  "type": "checkbox",
+  "id": "enable_discount_field",
+  "label": "Enable discount field",
+  "default": true
+},
+    {
+      "type": "text",
+      "id": "discount_placeholder",
+      "label": "Discount placeholder",
+      "default": "Enter discount code"
+    },
+    {
+      "type": "text",
+      "id": "discount_button_label",
+      "label": "Discount button label",
+      "default": "Apply"
+    },
+    {
+      "type": "text",
+      "id": "discount_error_message",
+      "label": "Discount error",
+      "default": "Please enter a discount code."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_terms_checkbox",
+      "label": "Enable terms checkbox",
+      "default": false
+    },
+    {
+      "type": "inline_richtext",
+      "id": "terms_text",
+      "label": "Terms text",
+      "default": "I agree to the terms and conditions."
+    },
+    {
+      "type": "text",
+      "id": "terms_warning",
+      "label": "Terms warning",
+      "default": "Please accept the terms and conditions."
+    },
+    {
+  "type": "header",
+  "content": "Cart upsells"
+},
+{
+  "type": "checkbox",
+  "id": "enable_cart_upsells",
+  "label": "Show cart upsells",
+  "default": true
+},
+{
+  "type": "select",
+  "id": "cart_upsell_source",
+  "label": "Product source",
+  "options": [
+    {
+      "value": "manual",
+      "label": "Manual products"
+    },
+    {
+      "value": "collection",
+      "label": "Collection"
+    },
+    {
+      "value": "recommendations",
+      "label": "Shopify recommendations"
+    }
+  ],
+  "default": "manual"
+},
+{
+  "type": "product_list",
+  "id": "cart_upsell_products",
+  "label": "Manual products",
+  "limit": 10,
+  "info": "Select up to 10 products. Products already in the cart are automatically hidden."
+},
+{
+  "type": "range",
+  "id": "cart_upsell_limit",
+  "label": "Maximum products displayed",
+  "min": 3,
+  "max": 10,
+  "step": 1,
+  "default": 8
+},
+{
+  "type": "checkbox",
+  "id": "cart_upsell_preview_next",
+  "label": "Preview next product",
+  "default": true,
+  "info": "Shows two products and part of the next product."
+},
+{
+  "type": "collection",
+  "id": "cart_upsell_collection",
+  "label": "Collection",
+  "info": "Used for Collection mode and as a fallback when recommendations are empty."
+},
+{
+  "type": "select",
+  "id": "cart_upsell_recommendation_intent",
+  "label": "Recommendation type",
+  "options": [
+    {
+      "value": "complementary",
+      "label": "Complementary products"
+    },
+    {
+      "value": "related",
+      "label": "Related products"
+    }
+  ],
+  "default": "complementary"
+},
+{
+  "type": "inline_richtext",
+  "id": "cart_upsell_heading",
+  "label": "Heading",
+  "default": "<strong>You may also like</strong>"
+},
+{
+  "type": "range",
+  "id": "cart_upsell_title_words",
+  "label": "Maximum title words",
+  "min": 2,
+  "max": 10,
+  "step": 1,
+  "default": 5
+},
+{
+  "type": "checkbox",
+  "id": "cart_upsell_show_price",
+  "label": "Show product price",
+  "default": true
+},
+{
+  "type": "text",
+  "id": "cart_upsell_add_label",
+  "label": "Add button label",
+  "default": "Add"
+},
+{
+  "type": "text",
+  "id": "cart_upsell_adding_label",
+  "label": "Adding button label",
+  "default": "Adding..."
+},
+{
+  "type": "text",
+  "id": "cart_upsell_loading_label",
+  "label": "Recommendations loading text",
+  "default": "Loading recommendations..."
+},
+    {
+  "type": "header",
+  "content": "Checkout trust bar"
+},
+{
+  "type": "checkbox",
+  "id": "enable_checkout_trust_bar",
+  "label": "Show checkout trust bar",
+  "default": true
+},
+{
+  "type": "text",
+  "id": "checkout_trust_icon_1",
+  "label": "Item 1 icon",
+  "default": "✅"
+},
+{
+  "type": "text",
+  "id": "checkout_trust_text_1",
+  "label": "Item 1 text",
+  "default": "Buy 2 free ship"
+},
+{
+  "type": "text",
+  "id": "checkout_trust_icon_2",
+  "label": "Item 2 icon",
+  "default": "🔒"
+},
+{
+  "type": "text",
+  "id": "checkout_trust_text_2",
+  "label": "Item 2 text",
+  "default": "Secure Checkout"
+},
+{
+  "type": "text",
+  "id": "checkout_trust_icon_3",
+  "label": "Item 3 icon",
+  "default": "↩️"
+},
+{
+  "type": "text",
+  "id": "checkout_trust_text_3",
+  "label": "Item 3 text",
+  "default": "30-Day Returns"
+},
+    {
+      "type": "checkbox",
+      "id": "enable_payment_badges",
+      "label": "Show payment badges",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "enabled_payment_types",
+      "label": "Custom payment icons",
+      "info": "Comma-separated payment types. Leave blank to use shop payment types."
+    }
+  ]
+}
+{% endschema %}

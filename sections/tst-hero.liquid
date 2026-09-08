@@ -1,0 +1,703 @@
+<section class="tst-hero section-{{ section.id }}">
+  <style>
+    .section-{{ section.id }} {
+      position: relative;
+      width: 100%;
+      min-height: {{ section.settings.desktop_height }}vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: {{ section.settings.text_color }};
+    }
+
+    .section-{{ section.id }} .tst-hero__media {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .section-{{ section.id }} .tst-hero__media video,
+    .section-{{ section.id }} .tst-hero__media img,
+    .section-{{ section.id }} .tst-hero__media svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: {{ section.settings.image_position }};
+      display: block;
+    }
+
+    .section-{{ section.id }} .tst-hero__overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: rgba(0,0,0, {{ section.settings.overlay_opacity | divided_by: 100.0 }});
+    }
+
+    .section-{{ section.id }} .tst-hero__content {
+      position: relative;
+      z-index: 3;
+      width: min(90%, {{ section.settings.content_width }}px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translateY({{ section.settings.content_offset_y }}px);
+    }
+
+    .section-{{ section.id }} .tst-hero__logos {
+      position: relative;
+      width: {{ section.settings.logo_width }}px;
+      max-width: 90vw;
+      height: {{ section.settings.logo_height }}px;
+      margin-bottom: {{ section.settings.logo_margin_bottom }}px;
+    }
+
+    .section-{{ section.id }} .tst-hero__logo-frame,
+    .section-{{ section.id }} .tst-hero__signature {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: none;
+      transition: opacity {{ section.settings.logo_fade_speed }}ms ease;
+    }
+
+    .section-{{ section.id }} .tst-hero__logo-frame img,
+    .section-{{ section.id }} .tst-hero__signature svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .section-{{ section.id }} .tst-hero__signature.is-visible {
+      opacity: 1;
+    }
+
+    .section-{{ section.id }} .tst-hero__signature #SigAnim path {
+      stroke-dashoffset: 9999;
+    }
+
+    .section-{{ section.id }} .tst-hero__cta {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .section-{{ section.id }} .tst-hero__cta.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-{{ section.id }} .tst-hero__heading {
+      margin: 0 0 14px;
+      font-size: {{ section.settings.heading_size }}px;
+      line-height: 1.05;
+      font-weight: 700;
+    }
+
+    .section-{{ section.id }} .tst-hero__text {
+      margin: 0 auto;
+      max-width: {{ section.settings.text_width }}px;
+      font-size: {{ section.settings.text_size }}px;
+      line-height: 1.6;
+    }
+
+    .section-{{ section.id }} .tst-hero__button {
+      display: inline-flex;
+      margin-top: {{ section.settings.button_margin_top }}px;
+      color: {{ section.settings.button_color }};
+      font-size: {{ section.settings.button_size }}px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .section-{{ section.id }} .tst-hero__scroll {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      bottom: {{ section.settings.scroll_bottom }}px;
+      transform: translateX(-50%);
+      color: {{ section.settings.text_color }};
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      opacity: .85;
+    }
+
+    @media (max-width: 749px) {
+      .section-{{ section.id }} {
+        min-height: {{ section.settings.mobile_height }}vh;
+      }
+
+      .section-{{ section.id }} .tst-hero__content {
+        width: min(92%, {{ section.settings.mobile_content_width }}px);
+        transform: translateY({{ section.settings.mobile_content_offset_y }}px);
+      }
+
+      .section-{{ section.id }} .tst-hero__logos {
+        width: {{ section.settings.mobile_logo_width }}px;
+        height: {{ section.settings.mobile_logo_height }}px;
+      }
+
+      .section-{{ section.id }} .tst-hero__heading {
+        font-size: {{ section.settings.mobile_heading_size }}px;
+      }
+
+      .section-{{ section.id }} .tst-hero__text {
+        font-size: {{ section.settings.mobile_text_size }}px;
+      }
+
+      .section-{{ section.id }} .tst-hero__button {
+        font-size: {{ section.settings.mobile_button_size }}px;
+      }
+
+      {% if section.settings.mobile_hide_scroll %}
+        .section-{{ section.id }} .tst-hero__scroll {
+          display: none;
+        }
+      {% endif %}
+    }
+  </style>
+
+  <div class="tst-hero__media">
+    {% if section.settings.video != blank %}
+      {{ section.settings.video | video_tag: autoplay: true, loop: true, muted: true, controls: false, playsinline: true }}
+    {% elsif section.settings.video_url != blank %}
+      <video autoplay muted loop playsinline {% if section.settings.poster != blank %}poster="{{ section.settings.poster | image_url: width: 2400 }}"{% endif %}>
+        <source src="{{ section.settings.video_url }}" type="video/mp4">
+      </video>
+    {% elsif section.settings.image != blank %}
+      <img src="{{ section.settings.image | image_url: width: 2400 }}" alt="{{ section.settings.image.alt | escape }}" loading="eager">
+    {% else %}
+      {{ 'lifestyle-1' | placeholder_svg_tag }}
+    {% endif %}
+  </div>
+
+  <div class="tst-hero__overlay"></div>
+
+  <div class="tst-hero__content">
+    {% assign logo_blocks = section.blocks | where: 'type', 'logo' %}
+
+    {% if logo_blocks.size > 0 or section.settings.signature_svg != blank %}
+      <div class="tst-hero__logos">
+        {% for block in logo_blocks %}
+          {% if block.settings.logo != blank %}
+            <div class="tst-hero__logo-frame" data-tst-logo-frame {{ block.shopify_attributes }}>
+              <img src="{{ block.settings.logo | image_url: width: 1600 }}" alt="{{ block.settings.logo.alt | escape }}">
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        {% if section.settings.signature_svg != blank %}
+          <div class="tst-hero__signature" data-tst-signature>
+            {{ section.settings.signature_svg }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="tst-hero__cta" data-tst-cta>
+      {% if section.settings.heading != blank %}
+        <h1 class="tst-hero__heading">{{ section.settings.heading }}</h1>
+      {% endif %}
+
+      {% if section.settings.text != blank %}
+        <div class="tst-hero__text">{{ section.settings.text }}</div>
+      {% endif %}
+
+      {% if section.settings.button_label != blank %}
+        <a class="tst-hero__button" href="{{ section.settings.button_link }}">
+          {{ section.settings.button_label }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if section.settings.show_scroll %}
+    <div class="tst-hero__scroll">Scroll</div>
+  {% endif %}
+
+  <script>
+    (() => {
+      const section = document.querySelector('.section-{{ section.id }}');
+      if (!section) return;
+
+      const frames = section.querySelectorAll('[data-tst-logo-frame]');
+      const signature = section.querySelector('[data-tst-signature]');
+      const cta = section.querySelector('[data-tst-cta]');
+
+      const frameDuration = {{ section.settings.logo_frame_duration }};
+      const signatureDelay = {{ section.settings.signature_delay }};
+      const ctaDelay = {{ section.settings.cta_delay }};
+      const drawDuration = {{ section.settings.signature_draw_duration }};
+
+      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+      async function runHero() {
+        if (frames.length) {
+          for (const frame of frames) {
+            frame.style.opacity = '1';
+            await wait(frameDuration);
+            frame.style.opacity = '0';
+          }
+        }
+
+        if (signature) {
+          await wait(signatureDelay);
+          signature.classList.add('is-visible');
+
+          const paths = signature.querySelectorAll('#SigAnim path');
+
+          paths.forEach(path => {
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = length;
+            path.style.strokeDashoffset = length;
+            path.getBoundingClientRect();
+
+            requestAnimationFrame(() => {
+              path.style.transition = `stroke-dashoffset ${drawDuration}ms ease`;
+              path.style.strokeDashoffset = 0;
+            });
+          });
+        }
+
+        if (cta) {
+          await wait(ctaDelay);
+          cta.classList.add('is-visible');
+        }
+      }
+
+      runHero();
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "TST Hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video background"
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "MP4 video URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster",
+      "label": "Video poster image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Fallback background image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Media position",
+      "default": "center center",
+      "options": [
+        {
+          "value": "center center",
+          "label": "Center"
+        },
+        {
+          "value": "top center",
+          "label": "Top"
+        },
+        {
+          "value": "bottom center",
+          "label": "Bottom"
+        },
+        {
+          "value": "left center",
+          "label": "Left"
+        },
+        {
+          "value": "right center",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay darkness",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "type": "header",
+      "content": "Logo frames"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Logo frame width",
+      "min": 100,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "label": "Logo frame height",
+      "min": 40,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 260
+    },
+    {
+      "type": "range",
+      "id": "logo_margin_bottom",
+      "label": "Logo bottom spacing",
+      "min": -120,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": -20
+    },
+    {
+      "type": "range",
+      "id": "logo_frame_duration",
+      "label": "Each logo visible time",
+      "min": 50,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "logo_fade_speed",
+      "label": "Logo fade speed",
+      "min": 0,
+      "max": 500,
+      "step": 50,
+      "unit": "ms",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Signature SVG"
+    },
+    {
+      "type": "liquid",
+      "id": "signature_svg",
+      "label": "Signature SVG code",
+      "info": "Paste inline SVG code. For handwriting effect, SVG must contain #SigAnim path."
+    },
+    {
+      "type": "range",
+      "id": "signature_delay",
+      "label": "Signature delay after logo frames",
+      "min": 0,
+      "max": 3000,
+      "step": 100,
+      "unit": "ms",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "signature_draw_duration",
+      "label": "Signature draw duration",
+      "min": 500,
+      "max": 5000,
+      "step": 100,
+      "unit": "ms",
+      "default": 2200
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Join us in seeking quality, truth and accountability in coffee. Together, we journey to find the finest and most unique coffees in the world.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Explore Offerings →"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "cta_delay",
+      "label": "CTA delay after signature",
+      "min": 0,
+      "max": 3000,
+      "step": 100,
+      "unit": "ms",
+      "default": 1000
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Desktop height",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "vh",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content width",
+      "min": 300,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 720
+    },
+    {
+      "type": "range",
+      "id": "content_offset_y",
+      "label": "Content vertical offset",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "text_width",
+      "label": "Text width",
+      "min": 260,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 620
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "label": "Button text size",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "button_margin_top",
+      "label": "Button top spacing",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "vh",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_width",
+      "label": "Mobile content width",
+      "min": 260,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_offset_y",
+      "label": "Mobile content vertical offset",
+      "min": -160,
+      "max": 160,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_width",
+      "label": "Mobile logo frame width",
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_height",
+      "label": "Mobile logo frame height",
+      "min": 40,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "label": "Mobile heading size",
+      "min": 18,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_size",
+      "label": "Mobile text size",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "mobile_button_size",
+      "label": "Mobile button text size",
+      "min": 8,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll",
+      "label": "Show scroll text",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "scroll_bottom",
+      "label": "Scroll bottom position",
+      "min": 10,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 35
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_hide_scroll",
+      "label": "Hide scroll on mobile",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo frame",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo SVG / image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST Hero",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

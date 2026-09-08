@@ -1,0 +1,1094 @@
+{% liquid
+  assign sid = section.id
+  assign selected_blog = section.settings.blog
+  assign article_limit = section.settings.article_limit
+  assign display_count = 0
+
+  if selected_blog != blank
+    assign display_count = selected_blog.articles_count
+
+    if display_count > article_limit
+      assign display_count = article_limit
+    endif
+  endif
+%}
+
+<section
+  id="TST-Mission-Blog-{{ sid }}"
+  class="
+    tst-mission-blog
+    color-{{ section.settings.color_scheme }}
+    gradient
+    {% if section.settings.enable_custom_colors %}
+      tst-mission-blog--custom-colors
+    {% endif %}
+  "
+  style="
+    --tst-section-bg:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+
+    --tst-card-bg:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_card_background }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+
+    --tst-heading-color:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_heading_color }}
+      {% else %}
+        rgb(var(--color-foreground))
+      {% endif %};
+
+    --tst-text-color:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_text_color }}
+      {% else %}
+        rgba(var(--color-foreground), 0.78)
+      {% endif %};
+
+    --tst-accent-color:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_accent_color }}
+      {% else %}
+        rgb(var(--color-button))
+      {% endif %};
+
+    --tst-border-color:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_border_color }}
+      {% else %}
+        rgba(var(--color-foreground), 0.12)
+      {% endif %};
+
+    --tst-overlay-color:
+      {% if section.settings.enable_custom_colors %}
+        {{ section.settings.custom_overlay_color }}
+      {% else %}
+        rgb(var(--color-background))
+      {% endif %};
+
+    --tst-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+
+    --tst-section-padding-top: {{ section.settings.padding_top }}px;
+    --tst-section-padding-bottom: {{ section.settings.padding_bottom }}px;
+
+    --tst-full-width-padding: {{ section.settings.full_width_padding }}px;
+    --tst-mobile-padding: {{ section.settings.mobile_padding }}px;
+
+    --tst-grid-gap: {{ section.settings.grid_gap }}px;
+    --tst-section-height: {{ section.settings.desktop_height }}px;
+    --tst-featured-mobile-height: {{ section.settings.mobile_featured_height }}px;
+    --tst-small-mobile-height: {{ section.settings.mobile_card_height }}px;
+
+    --tst-card-radius: {{ section.settings.card_radius }}px;
+    --tst-featured-title-size: {{ section.settings.featured_title_size }}px;
+    --tst-small-title-size: {{ section.settings.small_title_size }}px;
+  "
+>
+  <div
+    class="
+      tst-mission-blog__inner
+      {% if section.settings.section_width == 'default' %}
+        page-width
+      {% else %}
+        tst-mission-blog__inner--full-width
+      {% endif %}
+    "
+  >
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="tst-mission-blog__section-header tst-mission-blog__section-header--{{ section.settings.heading_alignment }}">
+        {% if section.settings.heading != blank %}
+          <h2 class="tst-mission-blog__section-heading">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.subheading != blank %}
+          <div class="tst-mission-blog__section-subheading rte">
+            {{ section.settings.subheading }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if selected_blog != blank and selected_blog.articles_count > 0 %}
+      <div
+        class="
+          tst-mission-blog__grid
+          tst-mission-blog__grid--count-{{ display_count }}
+        "
+      >
+        {% for article in selected_blog.articles limit: article_limit %}
+          {% liquid
+            assign item_number = forloop.index | prepend: '0'
+            assign article_excerpt = article.excerpt
+
+            if article_excerpt == blank
+              assign article_excerpt = article.content
+            endif
+
+            assign loading_value = 'lazy'
+            assign image_sizes = '(min-width: 990px) 34vw, 100vw'
+
+            if forloop.first
+              assign image_sizes = '(min-width: 990px) 66vw, 100vw'
+
+              if section.index <= 2
+                assign loading_value = 'eager'
+              endif
+            endif
+          %}
+
+          <a
+            href="{{ article.url }}"
+            class="
+              tst-mission-card
+              {% if forloop.first %}
+                tst-mission-card--featured
+              {% else %}
+                tst-mission-card--small
+              {% endif %}
+            "
+          >
+            {% if article.image != blank %}
+              <div class="tst-mission-card__media">
+                {{
+                  article.image
+                  | image_url: width: 2000
+                  | image_tag:
+                    loading: loading_value,
+                    widths: '375, 550, 750, 1000, 1400, 1700, 2000',
+                    sizes: image_sizes,
+                    class: 'tst-mission-card__image'
+                }}
+              </div>
+            {% endif %}
+
+            <span
+              class="tst-mission-card__overlay"
+              aria-hidden="true"
+            ></span>
+
+            <div class="tst-mission-card__content">
+              <div class="tst-mission-card__top">
+                <span class="tst-mission-card__number">
+                  {{ item_number }}
+                </span>
+
+                {% if section.settings.show_icons %}
+                  <span
+                    class="tst-mission-card__icon"
+                    aria-hidden="true"
+                  >
+                    {% case forloop.index %}
+                      {% when 1 %}
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3 18L9 9L13 15L16 11L21 18H3Z"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M14.5 8.5L17 5L20.5 10"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+
+                      {% when 2 %}
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="8"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                          />
+                          <path
+                            d="M15.5 8.5L13.5 13.5L8.5 15.5L10.5 10.5L15.5 8.5Z"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+
+                      {% else %}
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M4 6.5C6.8 5.5 9.3 6 12 8V19C9.3 17 6.8 16.5 4 17.5V6.5Z"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M20 6.5C17.2 5.5 14.7 6 12 8V19C14.7 17 17.2 16.5 20 17.5V6.5Z"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                    {% endcase %}
+                  </span>
+                {% endif %}
+              </div>
+
+              <div class="tst-mission-card__body">
+                <h3 class="tst-mission-card__title">
+                  {{ article.title }}
+                </h3>
+
+                {% if section.settings.show_excerpt %}
+                  <div class="tst-mission-card__excerpt">
+                    {{
+                      article_excerpt
+                      | strip_html
+                      | truncate: section.settings.excerpt_length
+                    }}
+                  </div>
+                {% endif %}
+
+                {% if forloop.first %}
+                  {% assign button_label = section.settings.featured_button_label %}
+                {% else %}
+                  {% assign button_label = section.settings.small_button_label %}
+                {% endif %}
+
+                {% if button_label != blank %}
+                  <span class="tst-mission-card__button">
+                    <span>{{ button_label }}</span>
+
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4 10H16"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M11 5L16 10L11 15"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% elsif request.design_mode %}
+      <div class="tst-mission-blog__empty">
+        Select a blog containing at least one article.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  #TST-Mission-Blog-{{ sid }} {
+    width: 100%;
+    overflow: hidden;
+    color: var(--tst-heading-color);
+    background: var(--tst-section-bg);
+    padding-top: var(--tst-section-padding-top);
+    padding-bottom: var(--tst-section-padding-bottom);
+  }
+
+  #TST-Mission-Blog-{{ sid }},
+  #TST-Mission-Blog-{{ sid }} *,
+  #TST-Mission-Blog-{{ sid }} *::before,
+  #TST-Mission-Blog-{{ sid }} *::after {
+    box-sizing: border-box;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-blog__inner {
+    width: 100%;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__inner--full-width {
+    max-width: none;
+    padding-left: var(--tst-full-width-padding);
+    padding-right: var(--tst-full-width-padding);
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-header--left {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-header--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-header--right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-heading {
+    margin: 0;
+    color: var(--tst-heading-color);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-subheading {
+    color: var(--tst-text-color);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__section-subheading p {
+    margin: 0;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-blog__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: var(--tst-grid-gap);
+    width: 100%;
+    min-height: var(--tst-section-height);
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__grid--count-1 {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__grid--count-2 {
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    color: var(--tst-heading-color);
+    background: var(--tst-card-bg);
+    border: 1px solid var(--tst-border-color);
+    border-radius: var(--tst-card-radius);
+    text-decoration: none;
+    isolation: isolate;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--featured {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__grid--count-1
+  .tst-mission-card--featured {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-blog__grid--count-2
+  .tst-mission-card--featured {
+    grid-row: 1;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--small {
+    grid-column: 2;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__media {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    overflow: hidden;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--tst-overlay-color)
+        calc(var(--tst-overlay-opacity) * 100%),
+        transparent
+      ) 0%,
+      color-mix(
+        in srgb,
+        var(--tst-overlay-color)
+        calc(var(--tst-overlay-opacity) * 85%),
+        transparent
+      ) 48%,
+      color-mix(
+        in srgb,
+        var(--tst-overlay-color)
+        calc(var(--tst-overlay-opacity) * 55%),
+        transparent
+      ) 100%
+    );
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--small
+  .tst-mission-card__overlay {
+    background: linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--tst-overlay-color)
+        calc(var(--tst-overlay-opacity) * 100%),
+        transparent
+      ) 0%,
+      color-mix(
+        in srgb,
+        var(--tst-overlay-color)
+        calc(var(--tst-overlay-opacity) * 75%),
+        transparent
+      ) 100%
+    );
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    padding: 30px;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--featured
+  .tst-mission-card__content {
+    padding: 38px;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__top {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 27px;
+    padding: 5px 9px;
+    color: var(--tst-accent-color);
+    border: 1px solid var(--tst-accent-color);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--small
+  .tst-mission-card__number {
+    min-width: auto;
+    min-height: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__icon {
+    display: inline-flex;
+    width: 25px;
+    height: 25px;
+    align-items: center;
+    justify-content: center;
+    color: var(--tst-accent-color);
+    flex: 0 0 auto;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__body {
+    display: flex;
+    max-width: 620px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--small
+  .tst-mission-card__body {
+    max-width: 100%;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__title {
+    margin: 0;
+    color: var(--tst-heading-color);
+    font-size: var(--tst-small-title-size);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--featured
+  .tst-mission-card__title {
+    font-size: var(--tst-featured-title-size);
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__excerpt {
+    margin-top: 14px;
+    color: var(--tst-text-color);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+
+  #TST-Mission-Blog-{{ sid }}
+  .tst-mission-card--featured
+  .tst-mission-card__excerpt {
+    max-width: 520px;
+    font-size: 17px;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__button {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 18px;
+    align-items: center;
+    gap: 8px;
+    color: var(--tst-accent-color);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card__button svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.25s ease;
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-blog__empty {
+    padding: 50px 20px;
+    color: var(--tst-text-color);
+    border: 1px dashed var(--tst-border-color);
+    text-align: center;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card:hover
+    .tst-mission-card__image {
+      transform: scale(1.045);
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card:hover
+    .tst-mission-card__button svg {
+      transform: translateX(4px);
+    }
+  }
+
+  #TST-Mission-Blog-{{ sid }} .tst-mission-card:focus-visible {
+    outline: 2px solid var(--tst-accent-color);
+    outline-offset: 3px;
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #TST-Mission-Blog-{{ sid }} .tst-mission-blog__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: auto auto;
+      min-height: 0;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--featured {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      min-height: 460px;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--small {
+      grid-column: span 1;
+      min-height: 280px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #TST-Mission-Blog-{{ sid }} {
+      --tst-grid-gap: {{ section.settings.mobile_grid_gap }}px;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__inner--full-width {
+      padding-left: var(--tst-mobile-padding);
+      padding-right: var(--tst-mobile-padding);
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__section-header {
+      margin-bottom: 24px;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__section-heading {
+      font-size: 28px;
+    }
+
+    #TST-Mission-Blog-{{ sid }} .tst-mission-blog__grid,
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__grid--count-1,
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__grid--count-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto;
+      min-height: 0;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--featured,
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__grid--count-1
+    .tst-mission-card--featured,
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-blog__grid--count-2
+    .tst-mission-card--featured {
+      grid-column: 1;
+      grid-row: auto;
+      min-height: var(--tst-featured-mobile-height);
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--small {
+      grid-column: 1;
+      grid-row: auto;
+      min-height: var(--tst-small-mobile-height);
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card__content,
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--featured
+    .tst-mission-card__content {
+      padding: 22px;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--featured
+    .tst-mission-card__title {
+      font-size: min(var(--tst-featured-title-size), 28px);
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card__title {
+      font-size: min(var(--tst-small-title-size), 22px);
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card__excerpt,
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card--featured
+    .tst-mission-card__excerpt {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #TST-Mission-Blog-{{ sid }}
+    .tst-mission-card__button {
+      margin-top: 14px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "TST Mission Blog Grid",
+  "tag": "section",
+  "class": "section-tst-mission-blog-grid",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Blog"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Select blog"
+    },
+    {
+      "type": "range",
+      "id": "article_limit",
+      "label": "Number of articles",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show article excerpt",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "excerpt_length",
+      "label": "Excerpt length",
+      "min": 60,
+      "max": 300,
+      "step": 10,
+      "default": 160
+    },
+    {
+      "type": "text",
+      "id": "featured_button_label",
+      "label": "Featured article button",
+      "default": "DISCOVER THE STORY"
+    },
+    {
+      "type": "text",
+      "id": "small_button_label",
+      "label": "Small article button",
+      "default": "READ ARTICLE"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icons",
+      "label": "Show decorative icons",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Section heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default theme width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full width"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "full_width_padding",
+      "label": "Full width side padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding",
+      "label": "Mobile full width padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Desktop grid gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "mobile_grid_gap",
+      "label": "Mobile grid gap",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Desktop section height",
+      "min": 360,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "mobile_featured_height",
+      "label": "Mobile featured article height",
+      "min": 320,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_height",
+      "label": "Mobile small article height",
+      "min": 220,
+      "max": 500,
+      "step": 20,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "featured_title_size",
+      "label": "Featured article title size",
+      "min": 22,
+      "max": 58,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "small_title_size",
+      "label": "Small article title size",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 85
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_colors",
+      "label": "Enable custom colors",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Custom section background",
+      "default": "#101010"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Custom card background",
+      "default": "#1C1B1B"
+    },
+    {
+      "type": "color",
+      "id": "custom_heading_color",
+      "label": "Custom heading color",
+      "default": "#F4F1EE"
+    },
+    {
+      "type": "color",
+      "id": "custom_text_color",
+      "label": "Custom text color",
+      "default": "#D4B8AE"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent_color",
+      "label": "Custom accent color",
+      "default": "#E55D2D"
+    },
+    {
+      "type": "color",
+      "id": "custom_border_color",
+      "label": "Custom border color",
+      "default": "#292727"
+    },
+    {
+      "type": "color",
+      "id": "custom_overlay_color",
+      "label": "Custom overlay color",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST Mission Blog Grid"
+    }
+  ]
+}
+{% endschema %}

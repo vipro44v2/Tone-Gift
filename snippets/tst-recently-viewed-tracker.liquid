@@ -1,0 +1,62 @@
+{% comment %}
+  TST recently viewed product tracker.
+
+  Install once in layout/theme.liquid, immediately before </head>:
+  {% render 'tst-recently-viewed-tracker' %}
+
+  The snippet stores the newest product first in localStorage.
+  A rendered card fallback is cached so the recently viewed section also works
+  when that section is not present in the product template.
+{% endcomment %}
+
+{%- if request.page_type == 'product' and product != blank -%}
+  {%- capture tst_recent_card_html -%}
+    {% render 'card-product',
+      card_product: product,
+      media_aspect_ratio: 'adapt',
+      image_shape: 'default',
+      lazy_load: true,
+      show_secondary_image: true,
+      show_vendor: false,
+      show_rating: true,
+      skip_styles: false,
+      section_id: 'recently-viewed-tracker',
+      quick_add: 'none'
+    %}
+  {%- endcapture -%}
+
+  <script>
+    (() => {
+      const storageKey = 'tst_recently_viewed_v1';
+      const maxStoredProducts = 30;
+      const currentProduct = {
+        handle: {{ product.handle | json }},
+        productId: {{ product.id | json }},
+        cardHtml: {{ tst_recent_card_html | strip | json }},
+        viewedAt: Date.now()
+      };
+
+      if (!currentProduct.handle) return;
+
+      try {
+        const stored = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const history = Array.isArray(stored) ? stored : [];
+        const normalizedHistory = history
+          .map((item) => (typeof item === 'string' ? { handle: item } : item))
+          .filter((item) => item && item.handle && item.handle !== currentProduct.handle);
+
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify([currentProduct, ...normalizedHistory].slice(0, maxStoredProducts))
+        );
+      } catch (error) {
+        try {
+          localStorage.removeItem(storageKey);
+          localStorage.setItem(storageKey, JSON.stringify([currentProduct]));
+        } catch (storageError) {
+          // Browsing can continue normally when storage is blocked.
+        }
+      }
+    })();
+  </script>
+{%- endif -%}

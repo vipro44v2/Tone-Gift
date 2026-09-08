@@ -1,0 +1,496 @@
+{%- liquid
+  assign selected_variant = product.selected_or_first_available_variant
+  assign sticky_image = selected_variant.featured_media | default: product.featured_media
+  assign scroll_target = block.settings.function | remove: 'scroll_'
+  assign scroll_target = scroll_target | replace: 'id', section.id
+  assign check_against_inventory = true
+  if selected_variant.inventory_management != 'shopify' or selected_variant.inventory_policy == 'continue'
+    assign check_against_inventory = false
+  endif
+  if selected_variant.quantity_rule.min > selected_variant.inventory_quantity and check_against_inventory
+    assign quantity_rule_soldout = true
+  endif
+-%}
+
+<sticky-atc
+  id="sticky-atc-{{ section.id }}"
+  class="shrine-sticky-atc color-{{ block.settings.color_scheme }}{% unless block.settings.mobile_show_sale_badge %} sticky-atc--mobile-no-badge{% endunless %}{% unless block.settings.desktop_show_sale_badge %} sticky-atc--desktop-no-badge{% endunless %}{% if block.settings.mobile_show_title or block.settings.mobile_show_price %} sticky-atc--small-mobile-select{% endif %}"
+  data-section="{{ section.id }}"
+  data-display-when="{{ block.settings.display_when }}"
+  data-main-atc-selector="#ProductSubmitButton-{{ section.id }}"
+  data-scroll-target="{{ scroll_target }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="shrine-sticky-atc__inner page-width">
+    {% if block.settings.desktop_show_image or block.settings.mobile_show_image %}
+      <div class="shrine-sticky-atc__image{% unless block.settings.desktop_show_image %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_show_image %} small-hide{% endunless %}">
+        {% if sticky_image %}
+          <img
+            src="{{ sticky_image | image_url: width: 160 }}"
+            alt="{{ sticky_image.alt | default: product.title | escape }}"
+            loading="lazy"
+            width="80"
+            height="80"
+            data-sticky-image
+          >
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="shrine-sticky-atc__info">
+      {% if block.settings.desktop_show_title or block.settings.mobile_show_title %}
+        <strong class="shrine-sticky-atc__title{% unless block.settings.desktop_show_title %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_show_title %} small-hide{% endunless %}">
+          {{ product.title }}
+        </strong>
+      {% endif %}
+
+      {% if block.settings.desktop_rating_stars or block.settings.mobile_rating_stars %}
+        <div
+          class="shrine-sticky-atc__rating{% unless block.settings.desktop_rating_stars %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_rating_stars %} small-hide{% endunless %}"
+          style="--sticky-star-color: {{ block.settings.star_color }};"
+          data-sticky-app-rating
+          data-source-root="#ProductInfo-{{ section.id }}"
+        >
+          <span class="shrine-sticky-atc__rating-fallback" data-sticky-rating-fallback>
+            <span aria-hidden="true">★★★★★</span>
+            {% if block.settings.stars_label != blank %}
+              <span>{{ block.settings.stars_label }}</span>
+            {% endif %}
+          </span>
+        </div>
+      {% endif %}
+
+      {% if block.settings.desktop_show_price or block.settings.mobile_show_price %}
+        <div
+          id="sticky-atc-separate-price-{{ section.id }}"
+          class="shrine-sticky-atc__price{% unless block.settings.desktop_show_price %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_show_price %} small-hide{% endunless %}"
+          data-sticky-price
+        >
+          {%- render 'price',
+            product: product,
+            use_variant: true,
+            show_badges: true,
+            price_class: '',
+            hide_currency_code: true
+          -%}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if block.settings.desktop_variant_picker or block.settings.mobile_variant_picker %}
+      {% unless product.has_only_default_variant %}
+        <div class="shrine-sticky-atc__picker shrine-sticky-atc__picker--{{ block.settings.picker_type }}{% unless block.settings.desktop_variant_picker %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_variant_picker %} small-hide{% endunless %}">
+          {% if block.settings.picker_type == 'combined' %}
+            <div class="product-form__input product-form__input--dropdown">
+              <div class="select">
+                <select class="select__select" data-sticky-combined-select aria-label="{{ product.title | escape }} variants">
+                  {% for variant in product.variants %}
+                    <option
+                      value="{{ variant.id }}"
+                      data-options="{{ variant.options | json | escape }}"
+                      {% if variant.id == selected_variant.id %}
+                        selected
+                      {% endif %}
+                      {% unless variant.available %}
+                        disabled
+                      {% endunless %}
+                    >
+                      {{ variant.title }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <span class="svg-wrapper">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+              </div>
+            </div>
+          {% else %}
+            {% for option in product.options_with_values %}
+              <div class="product-form__input product-form__input--dropdown">
+                <label class="form__label" for="StickyOption-{{ section.id }}-{{ forloop.index0 }}">
+                  {{ option.name }}
+                </label>
+                <div class="select">
+                  <select
+                    id="StickyOption-{{ section.id }}-{{ forloop.index0 }}"
+                    class="select__select"
+                    data-sticky-option-select
+                    data-option-position="{{ forloop.index0 }}"
+                  >
+                    {% for value in option.values %}
+                      <option
+                        value="{{ value | escape }}"
+                        {% if option.selected_value == value %}
+                          selected
+                        {% endif %}
+                      >
+                        {{ value }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <span class="svg-wrapper">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+          <script type="application/json" data-sticky-variants>
+            {{ product.variants | json }}
+          </script>
+        </div>
+      {% endunless %}
+    {% endif %}
+
+    <div class="shrine-sticky-atc__actions">
+      {% if block.settings.function == 'add_to_cart' %}
+        <button
+          type="button"
+          class="button button--primary shrine-sticky-atc__button"
+          data-sticky-submit
+          {% if selected_variant.available == false or quantity_rule_soldout %}
+            disabled
+          {% endif %}
+        >
+          <span class="shrine-sticky-atc__button-label">
+            {% if block.settings.desktop_show_price_in_button or block.settings.mobile_show_price_in_button %}
+              <span class="{% unless block.settings.desktop_show_price_in_button %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_show_price_in_button %} small-hide{% endunless %}">
+                <span id="sticky-atc-price-{{ section.id }}" data-sticky-button-price>{{ selected_variant.price | money }}</span>
+                <span aria-hidden="true"> - </span>
+              </span>
+            {% endif %}
+            <span data-sticky-button-label>
+              {% if selected_variant.available == false or quantity_rule_soldout %}
+                {{ 'products.product.sold_out' | t }}
+              {% else %}
+                {{ block.settings.button_label }}
+              {% endif %}
+            </span>
+          </span>
+          <span class="loading__spinner hidden">
+            {{ 'loading-spinner.svg' | inline_asset_content }}
+          </span>
+        </button>
+      {% else %}
+        <button type="button" class="button button--primary shrine-sticky-atc__button" data-sticky-scroll>
+          <span>
+            {% if block.settings.desktop_show_price_in_button or block.settings.mobile_show_price_in_button %}
+              <span class="{% unless block.settings.desktop_show_price_in_button %} medium-hide large-up-hide{% endunless %}{% unless block.settings.mobile_show_price_in_button %} small-hide{% endunless %}">
+                <span id="sticky-atc-price-{{ section.id }}" data-sticky-button-price>{{ selected_variant.price | money }}</span>
+                <span aria-hidden="true"> - </span>
+              </span>
+            {% endif %}
+            <span data-sticky-button-label>{{ block.settings.button_label }}</span>
+          </span>
+        </button>
+      {% endif %}
+      <span class="sticky-atc__error" role="alert" hidden></span>
+    </div>
+  </div>
+</sticky-atc>
+
+<style>
+  #sticky-atc-{{ section.id }} [data-sticky-app-rating] {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  #sticky-atc-{{ section.id }} .sticky-app-rating__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  #sticky-atc-{{ section.id }} .sticky-app-rating__stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    flex: 0 0 auto;
+    line-height: 1;
+  }
+
+  #sticky-atc-{{ section.id }} .sticky-app-rating__star {
+    --star-fill: 0%;
+    position: relative;
+    display: inline-block;
+    color: rgba(var(--color-foreground), 0.28);
+    font-size: var(--sticky-app-star-size, 14px);
+    line-height: 1;
+  }
+
+  #sticky-atc-{{ section.id }} .sticky-app-rating__star::before {
+    content: '★';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--star-fill);
+    overflow: hidden;
+    color: var(--sticky-app-star-color, var(--sticky-star-color));
+    white-space: nowrap;
+  }
+
+  #sticky-atc-{{ section.id }} .sticky-app-rating__count {
+    white-space: nowrap;
+  }
+
+  #sticky-atc-{{ section.id }} [data-sticky-app-rating].is-synced > [data-sticky-rating-fallback] {
+    display: none;
+  }
+</style>
+
+<script>
+  (() => {
+    const stickyId = 'sticky-atc-{{ section.id }}';
+    const sourceRootId = 'ProductInfo-{{ section.id }}';
+
+    const toNumber = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+
+      const parsed = Number.parseFloat(
+        String(value)
+          .replace(',', '.')
+          .replace(/[^\d.-]/g, '')
+      );
+
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const findSource = (sourceRoot) => {
+      return (
+        sourceRoot.querySelector(
+          '.jdgm-widget.jdgm-preview-badge .jdgm-prev-badge'
+        ) ||
+        sourceRoot.querySelector('.jdgm-preview-badge .jdgm-prev-badge') ||
+        sourceRoot.querySelector('.jdgm-prev-badge')
+      );
+    };
+
+    const getWidget = (source) => {
+      return (
+        source.closest('.jdgm-preview-badge') ||
+        source.closest('.jdgm-widget') ||
+        source.parentElement
+      );
+    };
+
+    const getRating = (source) => {
+      const widget = getWidget(source);
+      const scoreElement = source.querySelector(
+        '.jdgm-prev-badge__stars[data-score], [data-score]'
+      );
+
+      /*
+       * Judge.me có thể render đủ 5 ký tự sao ngay cả khi điểm là 4.8.
+       * Vì vậy luôn ưu tiên điểm số trong data-score / data-average-rating,
+       * không suy ra điểm chỉ bằng số lượng icon đang bật.
+       */
+      const candidates = [
+        scoreElement?.dataset?.score,
+        source.getAttribute('data-average-rating'),
+        widget?.getAttribute('data-average-rating'),
+        scoreElement?.getAttribute('aria-label'),
+        source.getAttribute('aria-label')
+      ];
+
+      for (const candidate of candidates) {
+        const rating = toNumber(candidate);
+
+        if (rating !== null) {
+          return Math.max(0, Math.min(5, rating));
+        }
+      }
+
+      const onStars = source.querySelectorAll('.jdgm-star.jdgm--on').length;
+      const halfStars = source.querySelectorAll('.jdgm-star.jdgm--half').length;
+
+      if (onStars || halfStars) {
+        return Math.min(5, onStars + halfStars * 0.5);
+      }
+
+      return null;
+    };
+
+    const getReviewCountText = (source) => {
+      const widget = getWidget(source);
+      const textElement = source.querySelector('.jdgm-prev-badge__text');
+
+      if (textElement?.textContent?.trim()) {
+        return textElement.textContent.trim();
+      }
+
+      const count =
+        source.dataset.numberOfReviews ||
+        widget?.dataset?.numberOfReviews;
+
+      if (count !== undefined && count !== null && count !== '') {
+        return `${count} reviews`;
+      }
+
+      return '';
+    };
+
+    const getStarAppearance = (source) => {
+      const onStar =
+        source.querySelector('.jdgm-star.jdgm--on') ||
+        source.querySelector('.jdgm-star');
+
+      const onStyle = onStar ? window.getComputedStyle(onStar) : null;
+
+      return {
+        color: onStyle?.color || '{{ block.settings.star_color }}',
+        fontSize: onStyle?.fontSize || '14px'
+      };
+    };
+
+    const buildRating = (rating, countText, appearance) => {
+      const content = document.createElement('span');
+      content.className = 'sticky-app-rating__content';
+      content.setAttribute('role', 'button');
+      content.setAttribute('tabindex', '0');
+      content.setAttribute(
+        'aria-label',
+        `${rating.toFixed(1)} out of 5 stars${countText ? `, ${countText}` : ''}`
+      );
+
+      content.style.setProperty('--sticky-app-star-color', appearance.color);
+      content.style.setProperty('--sticky-app-star-size', appearance.fontSize);
+
+      const stars = document.createElement('span');
+      stars.className = 'sticky-app-rating__stars';
+      stars.setAttribute('aria-hidden', 'true');
+
+      for (let index = 0; index < 5; index += 1) {
+        const star = document.createElement('span');
+        star.className = 'sticky-app-rating__star';
+        star.textContent = '★';
+
+        const fill = Math.max(0, Math.min(1, rating - index)) * 100;
+        star.style.setProperty('--star-fill', `${fill}%`);
+
+        stars.appendChild(star);
+      }
+
+      content.appendChild(stars);
+
+      if (countText) {
+        const count = document.createElement('span');
+        count.className = 'sticky-app-rating__count';
+        count.textContent = countText;
+        content.appendChild(count);
+      }
+
+      return content;
+    };
+
+    const activateSource = (source) => {
+      const sourceControl = source.matches('a, button, [role="button"]')
+        ? source
+        : source.querySelector('a, button, [role="button"]');
+
+      if (sourceControl) {
+        sourceControl.click();
+        return;
+      }
+
+      source.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    };
+
+    const initStickyRatingSync = () => {
+      const sticky = document.getElementById(stickyId);
+      const sourceRoot = document.getElementById(sourceRootId);
+      const target = sticky?.querySelector('[data-sticky-app-rating]');
+
+      if (!sticky || !sourceRoot || !target) return;
+
+      if (sticky._judgeMeRatingObserver) {
+        sticky._judgeMeRatingObserver.disconnect();
+      }
+
+      let currentSource = null;
+
+      const syncRating = () => {
+        const source = findSource(sourceRoot);
+        if (!source) return false;
+
+        const rating = getRating(source);
+        if (rating === null) return false;
+
+        const countText = getReviewCountText(source);
+        const appearance = getStarAppearance(source);
+        const signature = [
+          rating,
+          countText,
+          appearance.color,
+          appearance.fontSize
+        ].join('|');
+
+        if (target.dataset.ratingSignature === signature) {
+          currentSource = source;
+          return true;
+        }
+
+        const renderedRating = buildRating(
+          rating,
+          countText,
+          appearance
+        );
+
+        target.replaceChildren(renderedRating);
+        target.dataset.ratingSignature = signature;
+        target.classList.add('is-synced');
+        currentSource = source;
+
+        const openSource = (event) => {
+          event.preventDefault();
+          activateSource(currentSource || source);
+        };
+
+        renderedRating.addEventListener('click', openSource);
+        renderedRating.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            openSource(event);
+          }
+        });
+
+        return true;
+      };
+
+      syncRating();
+
+      const observer = new MutationObserver(() => {
+        window.requestAnimationFrame(syncRating);
+      });
+
+      observer.observe(sourceRoot, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true
+      });
+
+      sticky._judgeMeRatingObserver = observer;
+
+      let attempts = 0;
+      const retryTimer = window.setInterval(() => {
+        attempts += 1;
+
+        if (syncRating() || attempts >= 30) {
+          window.clearInterval(retryTimer);
+        }
+      }, 500);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStickyRatingSync, {
+        once: true
+      });
+    } else {
+      initStickyRatingSync();
+    }
+
+    document.addEventListener('shopify:section:load', initStickyRatingSync);
+  })();
+</script>
+

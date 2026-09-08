@@ -1,0 +1,207 @@
+/*! tailwindcss v4.3.2 | MIT License | https://tailwindcss.com */
+@layer properties;
+:root, :host {
+  --tw-color-neutral-400: oklch(70.8% 0 0);
+  --tw-color-neutral-500: oklch(55.6% 0 0);
+  --tw-color-neutral-600: oklch(43.9% 0 0);
+  --tw-color-neutral-950: oklch(14.5% 0 0);
+  --tw-spacing: 0.25rem;
+  --tw-font-weight-normal: 400;
+  --tw-font-weight-bold: 700;
+  --tw-font-weight-extrabold: 800;
+  --tw-tracking-normal: 0em;
+  --tw-leading-normal: 1.5;
+}
+.tw\:m-0 {
+  margin: 0;
+}
+.tw\:mx-auto {
+  margin-inline: auto;
+}
+.tw\:mt-1 {
+  margin-top: var(--tw-spacing);
+}
+.tw\:mt-\[18px\] {
+  margin-top: 18px;
+}
+.tw\:mb-2 {
+  margin-bottom: calc(var(--tw-spacing) * 2);
+}
+.tw\:ml-auto {
+  margin-left: auto;
+}
+.tw\:block {
+  display: block;
+}
+.tw\:grid {
+  display: grid;
+}
+.tw\:inline-flex {
+  display: inline-flex;
+}
+.tw\:h-6 {
+  height: calc(var(--tw-spacing) * 6);
+}
+.tw\:h-\[68px\] {
+  height: 68px;
+}
+.tw\:h-\[102px\] {
+  height: 102px;
+}
+.tw\:w-1\/3 {
+  width: calc(1 / 3 * 100%);
+}
+.tw\:w-6 {
+  width: calc(var(--tw-spacing) * 6);
+}
+.tw\:w-full {
+  width: 100%;
+}
+.tw\:max-w-\[420px\] {
+  max-width: 420px;
+}
+.tw\:max-w-\[1150px\] {
+  max-width: 1150px;
+}
+.tw\:min-w-\[640px\] {
+  min-width: 640px;
+}
+.tw\:items-center {
+  align-items: center;
+}
+.tw\:justify-center {
+  justify-content: center;
+}
+.tw\:gap-14 {
+  gap: calc(var(--tw-spacing) * 14);
+}
+.tw\:overflow-x-auto {
+  overflow-x: auto;
+}
+.tw\:px-6 {
+  padding-inline: calc(var(--tw-spacing) * 6);
+}
+.tw\:py-4 {
+  padding-block: calc(var(--tw-spacing) * 4);
+}
+.tw\:py-5 {
+  padding-block: calc(var(--tw-spacing) * 5);
+}
+.tw\:text-center {
+  text-align: center;
+}
+.tw\:text-left {
+  text-align: left;
+}
+.tw\:text-right {
+  text-align: right;
+}
+.tw\:align-middle {
+  vertical-align: middle;
+}
+.tw\:text-\[1\.2rem\] {
+  font-size: 1.2rem;
+}
+.tw\:text-\[1\.4rem\] {
+  font-size: 1.4rem;
+}
+.tw\:text-\[1\.6rem\] {
+  font-size: 1.6rem;
+}
+.tw\:text-\[2\.4rem\] {
+  font-size: 2.4rem;
+}
+.tw\:leading-\[1\.7\] {
+  --tw-leading: 1.7;
+  line-height: 1.7;
+}
+.tw\:leading-\[1\.45\] {
+  --tw-leading: 1.45;
+  line-height: 1.45;
+}
+.tw\:leading-none {
+  --tw-leading: 1;
+  line-height: 1;
+}
+.tw\:leading-normal {
+  --tw-leading: var(--tw-leading-normal);
+  line-height: var(--tw-leading-normal);
+}
+.tw\:font-bold {
+  --tw-font-weight: var(--tw-font-weight-bold);
+  font-weight: var(--tw-font-weight-bold);
+}
+.tw\:font-extrabold {
+  --tw-font-weight: var(--tw-font-weight-extrabold);
+  font-weight: var(--tw-font-weight-extrabold);
+}
+.tw\:font-normal {
+  --tw-font-weight: var(--tw-font-weight-normal);
+  font-weight: var(--tw-font-weight-normal);
+}
+.tw\:tracking-\[0\.02em\] {
+  --tw-tracking: 0.02em;
+  letter-spacing: 0.02em;
+}
+.tw\:tracking-\[0\.08em\] {
+  --tw-tracking: 0.08em;
+  letter-spacing: 0.08em;
+}
+.tw\:tracking-normal {
+  --tw-tracking: var(--tw-tracking-normal);
+  letter-spacing: var(--tw-tracking-normal);
+}
+.tw\:text-\[\#66c900\] {
+  color: #66c900;
+}
+.tw\:text-neutral-400 {
+  color: var(--tw-color-neutral-400);
+}
+.tw\:text-neutral-500 {
+  color: var(--tw-color-neutral-500);
+}
+.tw\:text-neutral-600 {
+  color: var(--tw-color-neutral-600);
+}
+.tw\:text-neutral-950 {
+  color: var(--tw-color-neutral-950);
+}
+.tw\:uppercase {
+  text-transform: uppercase;
+}
+.tw\:lg\:mt-\[74px\] {
+  @media (width >= 64rem) {
+    margin-top: 74px;
+  }
+}
+.tw\:lg\:grid-cols-\[minmax\(0\,470px\)_640px\] {
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0,470px) 640px;
+  }
+}
+.tw\:lg\:justify-center {
+  @media (width >= 64rem) {
+    justify-content: center;
+  }
+}
+@property --tw-leading {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-font-weight {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-tracking {
+  syntax: "*";
+  inherits: false;
+}
+@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-leading: initial;
+      --tw-font-weight: initial;
+      --tw-tracking: initial;
+    }
+  }
+}

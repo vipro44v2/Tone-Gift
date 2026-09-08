@@ -1,0 +1,524 @@
+{% liquid
+  assign sid = section.id
+%}
+
+<section
+  id="TST-Announcement-{{ sid }}"
+  class="tst-announcement"
+  style="
+    --tst-bg: {{ section.settings.bg_color }};
+    --tst-text: {{ section.settings.text_color }};
+    --tst-height: {{ section.settings.bar_height }}px;
+    --tst-speed: {{ section.settings.speed }}s;
+    --tst-gap: {{ section.settings.item_gap }}px;
+    --tst-font-size: {{ section.settings.font_size }}px;
+    --tst-font-weight: {{ section.settings.font_weight }};
+    --tst-divider-color: {{ section.settings.divider_color }};
+
+    --tst-top-line-color: {{ section.settings.top_line_color }};
+    --tst-top-line-width: {{ section.settings.top_line_width }}px;
+
+    --tst-bottom-line-color: {{ section.settings.bottom_line_color }};
+    --tst-bottom-line-width: {{ section.settings.bottom_line_width }}px;
+
+    --tst-line-style: {{ section.settings.line_style }};
+  "
+>
+  {% if section.settings.link != blank %}
+    <a
+      href="{{ section.settings.link }}"
+      class="tst-announcement__link"
+    >
+  {% else %}
+    <div class="tst-announcement__link">
+  {% endif %}
+
+    <div
+      class="tst-announcement__viewport"
+      aria-label="Announcement"
+    >
+      <div class="tst-announcement__track">
+  {% for group_index in (1..2) %}
+    <div
+      class="tst-announcement__group"
+      aria-hidden="{% if group_index == 2 %}true{% else %}false{% endif %}"
+    >
+      {% comment %}
+        Lặp lại nội dung nhiều lần để mỗi group luôn rộng hơn màn hình desktop.
+        Hai group giống nhau giúp animation chạy liên tục không bị khoảng trắng.
+      {% endcomment %}
+
+      {% for repeat_index in (1..4) %}
+        <ul
+          class="tst-announcement__list"
+          aria-hidden="{% if group_index == 2 or repeat_index > 1 %}true{% else %}false{% endif %}"
+        >
+          {% for block in section.blocks %}
+            <li
+              class="tst-announcement__item"
+              {% if group_index == 1 and repeat_index == 1 %}
+                {{ block.shopify_attributes }}
+              {% endif %}
+            >
+              {% if block.settings.icon != blank %}
+                <span class="tst-announcement__icon">
+                  {{ block.settings.icon }}
+                </span>
+              {% endif %}
+
+              <span class="tst-announcement__text">
+                {{ block.settings.text }}
+              </span>
+            </li>
+
+            {% unless forloop.last %}
+              <li
+                class="tst-announcement__divider"
+                aria-hidden="true"
+              >
+                •
+              </li>
+            {% endunless %}
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+    </div>
+
+  {% if section.settings.link != blank %}
+    </a>
+  {% else %}
+    </div>
+  {% endif %}
+</section>
+
+<style>
+  #TST-Announcement-{{ sid }} {
+    width: 100%;
+    background: var(--tst-bg);
+    color: var(--tst-text);
+    overflow: hidden;
+    box-sizing: border-box;
+
+    {% if section.settings.show_top_line %}
+      border-top:
+        var(--tst-top-line-width)
+        var(--tst-line-style)
+        var(--tst-top-line-color);
+    {% else %}
+      border-top: none;
+    {% endif %}
+
+    {% if section.settings.show_bottom_line %}
+      border-bottom:
+        var(--tst-bottom-line-width)
+        var(--tst-line-style)
+        var(--tst-bottom-line-color);
+    {% else %}
+      border-bottom: none;
+    {% endif %}
+  }
+
+  #TST-Announcement-{{ sid }} *,
+  #TST-Announcement-{{ sid }} *::before,
+  #TST-Announcement-{{ sid }} *::after {
+    box-sizing: border-box;
+  }
+
+  #TST-Announcement-{{ sid }} .tst-announcement__link {
+    display: block;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #TST-Announcement-{{ sid }} .tst-announcement__viewport {
+    width: 100%;
+    height: var(--tst-height);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+#TST-Announcement-{{ sid }} .tst-announcement__track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  min-width: max-content;
+  flex: 0 0 auto;
+
+  animation-name: tst-marquee-rtl-{{ sid }};
+  animation-duration: var(--tst-speed);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-play-state: running;
+
+  will-change: transform;
+}
+#TST-Announcement-{{ sid }} .tst-announcement__group {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: max-content;
+}
+
+#TST-Announcement-{{ sid }} .tst-announcement__list {
+  display: flex;
+  align-items: center;
+  gap: var(--tst-gap);
+  list-style: none;
+  padding: 0 var(--tst-gap) 0 0;
+  margin: 0;
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: max-content;
+}
+
+  #TST-Announcement-{{ sid }} .tst-announcement__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--tst-font-size);
+    font-weight: var(--tst-font-weight);
+    line-height: 1;
+    color: var(--tst-text);
+    text-transform: uppercase;
+    flex: 0 0 auto;
+  }
+
+  #TST-Announcement-{{ sid }} .tst-announcement__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex: 0 0 auto;
+  }
+
+  #TST-Announcement-{{ sid }} .tst-announcement__text {
+    display: inline-block;
+    color: inherit;
+  }
+
+  #TST-Announcement-{{ sid }} .tst-announcement__divider {
+    color: var(--tst-divider-color);
+    font-size: 18px;
+    line-height: 1;
+    flex: 0 0 auto;
+  }
+
+  {% if section.settings.pause_on_hover %}
+  @media (hover: hover) and (pointer: fine) {
+    #TST-Announcement-{{ sid }}:hover .tst-announcement__track {
+      animation-play-state: paused;
+    }
+  }
+{% endif %}
+
+@keyframes tst-marquee-rtl-{{ sid }} {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+  @media screen and (max-width: 749px) {
+    #TST-Announcement-{{ sid }} {
+      --tst-height: {{ section.settings.mobile_bar_height }}px;
+      --tst-font-size: {{ section.settings.mobile_font_size }}px;
+      --tst-gap: {{ section.settings.mobile_item_gap }}px;
+      --tst-speed: {{ section.settings.mobile_speed }}s;
+    }
+  }
+
+
+</style>
+
+{% schema %}
+{
+  "name": "TST Scrolling",
+  "tag": "section",
+  "class": "section-tst-scrolling-announcement",
+  "settings": [
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link toàn bộ thanh"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#FFEA48"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider color",
+      "default": "#9B8D00"
+    },
+    {
+      "type": "header",
+      "content": "Top and bottom lines"
+    },
+    {
+      "type": "select",
+      "id": "line_style",
+      "label": "Line style",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "dashed",
+          "label": "Dashed"
+        },
+        {
+          "value": "dotted",
+          "label": "Dotted"
+        },
+        {
+          "value": "double",
+          "label": "Double"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_top_line",
+      "label": "Show top line",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "top_line_color",
+      "label": "Top line color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "top_line_width",
+      "label": "Top line thickness",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bottom_line",
+      "label": "Show bottom line",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "bottom_line_color",
+      "label": "Bottom line color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "bottom_line_width",
+      "label": "Bottom line thickness",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Height"
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "label": "Desktop height",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "mobile_bar_height",
+      "label": "Mobile height",
+      "min": 24,
+      "max": 70,
+      "step": 2,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Desktop font size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_size",
+      "label": "Mobile font size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "default": "500",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "label": "Desktop item gap",
+      "min": 10,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "mobile_item_gap",
+      "label": "Mobile item gap",
+      "min": 10,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+{
+  "type": "range",
+  "id": "speed",
+  "label": "Desktop speed ",
+  "min": 1,
+  "max": 60,
+  "step": 1,
+  "unit": "s",
+  "default": 8
+},
+{
+  "type": "range",
+  "id": "mobile_speed",
+  "label": "Mobile speed ",
+  "min": 1,
+  "max": 60,
+  "step": 1,
+  "unit": "s",
+  "default": 7
+},
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause on hover",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "message",
+      "name": "Message",
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon / Emoji",
+          "default": "☀️"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "SUMMER SALE!"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "TST Scrolling",
+      "blocks": [
+        {
+          "type": "message",
+          "settings": {
+            "icon": "☀️",
+            "text": "SUMMER SALE!"
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "icon": "",
+            "text": "Not affiliated with the NFL, NHL, NBA or MLB."
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "icon": "",
+            "text": "FREE SHIPPING ON U.S. ORDERS OVER $100"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
