@@ -5,4 +5,20 @@
   >
     {{ icon | strip }}
   </span>
+
+  <script>
+    (() => {
+      const stylesheetId = 'tst-material-symbols-stylesheet';
+
+      if (document.getElementById(stylesheetId)) {
+        return;
+      }
+
+      const stylesheet = document.createElement('link');
+      stylesheet.id = stylesheetId;
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0';
+      document.head.appendChild(stylesheet);
+    })();
+  </script>
 {%- endif -%}
